@@ -865,6 +865,10 @@ pub use gpui_runtime::*;
             sticky.classList.toggle("is-exploded", explode > 0.5);
             // Captions only become click targets once they are mostly faded in.
             sticky.classList.toggle("has-captions", explode > 0.3);
+            // The copy is invisible well before the tiers part—but an element at
+            // opacity 0 still swallows clicks, so without this its slab sits on
+            // top of the burger and eats taps meant for the layers underneath.
+            sticky.classList.toggle("hero-gone", move > 0.55);
         }
 
         const panel = document.getElementById("layerInfo");

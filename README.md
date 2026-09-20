@@ -50,7 +50,7 @@ self-contained: markup, scoped-by-convention styles (all CSS lives in
 
 | Component | Section | What it does |
 | --- | --- | --- |
-| `Nav.astro` | Header | Sticky nav, install command with copy-to-clipboard. |
+| `Nav.astro` | Header | Sticky nav. Wordmark plus links and the install CTA on wide screens; a hamburger with a drop-down sheet below 820px. |
 | `Journey.astro` | `#journey` | Acts I–II. The scroll-linked hero: the burger unstacking layer by layer, with click-to-inspect panels and in-place captions. |
 | `ComboStudio.astro` | `#capabilities` | Act III. Two-stage stepper (condiments → beverages) driving a dual-file terminal. |
 | `Benchmarks.astro` | `#benchmarks` | Act IV. Animated frame-time bars and the diner receipt. |
@@ -76,6 +76,9 @@ Three rules matter most day to day:
 - **Two hues are load-bearing:** `--brand` (`#8FA89B`, every interactive
   affordance) and `--malt` (`#D5B895`, the logo mark and headline ramp only). No
   neon greens, saturated blues or magentas.
+- **Responsive rules live in one place,** the media queries at the tail of
+  `global.css`. The mobile hero is *re-composed* rather than reflowed; the
+  breakpoints and the reasoning are in `DESIGN-SYSTEM.md` §6.1.
 
 ## Scripts
 

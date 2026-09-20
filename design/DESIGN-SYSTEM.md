@@ -223,6 +223,23 @@ radial gradient **clipped to the leaf's silhouette** and sized to the patty's ow
 width (rx 131), so it darkens the leaf under the patty and fades to nothing before
 the tips.
 
+#### Hit-testing follows the silhouette
+
+`.burger .layer svg` is `pointer-events: none`, and only its painted shapes
+(`path`, `ellipse`, …) opt back in. That is load-bearing, not tidiness: as a
+replaced element the SVG root is clickable over its whole *box*, and the five
+boxes overlap heavily while the stack is closed — so the topmost box won every
+hit test. Tapping the tray's middle selected the bun instead, and the leaf was
+unselectable at its own centre. Test this with `document.elementFromPoint()` in a
+real browser; `render-burger.py` cannot see it.
+
+The same trap catches anything that fades: `.hero-copy` is painted *above* the
+stage, and an element at `opacity: 0` still receives pointer events, so the
+invisible hero slab was intercepting taps aimed at the tiers beneath it — a tap on
+the patty landed on the copy's install command and copied it instead. The fix is
+`.journey-sticky.hero-gone .hero-copy { pointer-events: none }`, toggled from
+`--move` in JS because `pointer-events` cannot be interpolated from a number.
+
 #### Closed and exploded extents
 
 `.layer-*` carries two offsets per layer and the distance between them is the
@@ -428,6 +445,51 @@ cubic-bezier(.16, 1, .3, 1)`. Transitions are short (`.15s–.3s`). The scroll
 choreography is driven by a single `--move` custom property that the sticky hero
 and burger stage both read, so the copy fade and the stack separation can never
 drift out of sync.
+
+### 6.1 Responsive behaviour
+
+All four breakpoints live in the tail of `global.css`:
+
+| Width | What changes |
+| --- | --- |
+| ≤1140px | The layer-info rail becomes a bottom sheet — the burger plus two side rails stop fitting. |
+| ≤1024px | The recipe book is dropped. |
+| ≤820px | The nav collapses to a wordmark plus a hamburger, with the links and the CTA in a drop-down sheet — the full row needs ~800px, so it was overflowing well before this point. The scroll-linked hero is also re-composed for portrait: the copy stacks above the stack, the burger is re-based to the foot of its frame and pinned to the foot of the viewport, and the pinned journey drops from 280vh to 200vh. |
+| ≤640px | The stepper and the terminal head wrap, and the hero copy compacts and gives up its eyebrow pill. |
+
+The nav's sheet is intentionally plain: a button that toggles `is-open` on `.nav` and
+`.nav-menu`, and closes on a link tap, `Escape`, an outside tap, or a resize past
+the breakpoint. On desktop `.nav-menu` is `display: contents`, so the wrapper
+costs nothing and its children are the nav row's items exactly as before it
+existed — one list, no duplicated markup to keep in sync.
+
+The mobile hero is the one place where the *illustration's geometry* changes rather
+than just its surroundings, and the reason is the one that already caps the
+exploded spread (§2.7): the copy and the exploded stack are competing for a single
+viewport. On desktop the copy sits *beside* the stack, so the stack can be centred;
+on a phone it sits *above* it, so `--base` is re-based to the foot of the frame —
+which lengthens the unstack for free, since `--base-ex` is untouched — and the
+frame's foot is pinned to the viewport's foot with `transform-origin: 50% 100%` so
+the scale cannot lift the plate off it. `--fit` and `--lift` then only bite on
+*short* viewports (≤780px and ≤690px tall), where the copy and a full-size stack
+genuinely do not both fit.
+
+The journey is deliberately shorter on mobile than on desktop — 200vh against
+280vh. The same fraction of a taller viewport is more screens of scrolling, so the
+portrait setting was pinning the page for *longer* than the landscape one (4.2
+screens, against 2.8) to unstack a burger that opens in half a screen. One screen
+of travel is enough for the copy to fade, the tiers to part, and the chips to be
+read.
+
+Only one affordance is dropped rather than restyled at ≤820px: the scroll hint,
+which sits exactly where the crown comes to rest. The in-place captions stay —
+they are the only text the unstack has — but compact to a single-line chip (the
+crate name and its role, no prose; a three-line card is wider than the layer it
+labels here, and the tap-to-inspect sheet carries the description) and move from
+*below* their layer to *above* it, so that each one lands in the gap that has just
+opened and none hangs off the bottom edge. They also fade in later than on
+desktop, because a 26px chip needs the tiers to have separated far enough to clear
+the artwork on both sides.
 
 ---
 

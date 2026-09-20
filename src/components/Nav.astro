@@ -9,30 +9,90 @@ import Logo from "./Logo.astro";
             <span>bite-gpui</span>
             <span class="logo-version">v0.1</span>
         </a>
-        <ul class="nav-links">
-            <li>
-                <a href="#journey">The Kitchen</a>
-            </li>
-            <li>
-                <a href="#capabilities">Studio</a>
-            </li>
-            <li>
-                <a href="#benchmarks">Benchmarks</a>
-            </li>
-            <li>
-                <a href="#quickstart">Quickstart</a>
-            </li>
-        </ul>
-        <a class="btn btn-primary" href="#quickstart">
-            cargo add bite-gpui
-        </a>
+
+        <!-- Mobile only. The full row of links plus the CTA needs ~772px, so it
+             overflows well before the hero's own 820px breakpoint. -->
+        <button
+            class="nav-toggle"
+            id="navToggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="navMenu"
+            aria-label="Open menu"
+        >
+            <span class="nav-bars" aria-hidden="true">
+                <i></i>
+                <i></i>
+                <i></i>
+            </span>
+        </button>
+
+        <!-- `display: contents` on desktop, so the links and the CTA join the
+             nav row as they always did; a drop-down sheet at ≤820px. -->
+        <div class="nav-menu" id="navMenu">
+            <ul class="nav-links">
+                <li>
+                    <a href="#journey">The Kitchen</a>
+                </li>
+                <li>
+                    <a href="#capabilities">Studio</a>
+                </li>
+                <li>
+                    <a href="#benchmarks">Benchmarks</a>
+                </li>
+                <li>
+                    <a href="#quickstart">Quickstart</a>
+                </li>
+            </ul>
+            <a class="btn btn-primary nav-cta" href="#quickstart">
+                cargo add bite-gpui
+            </a>
+        </div>
     </div>
 </nav>
 
 <script>
     const nav = document.getElementById("nav");
+    const toggle = document.getElementById("navToggle");
+    const menu = document.getElementById("navMenu");
+
     const onScroll = () =>
         nav?.classList.toggle("is-scrolled", window.scrollY > 12);
+
+    const setOpen = (open) => {
+        nav?.classList.toggle("is-open", open);
+        menu?.classList.toggle("is-open", open);
+        toggle?.setAttribute("aria-expanded", String(open));
+        toggle?.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    };
+
+    const isOpen = () => !!nav?.classList.contains("is-open");
+
+    toggle?.addEventListener("click", () => setOpen(!isOpen()));
+
+    // Any link tap closes the sheet, whether or not it navigates (all four are
+    // same-page anchors, so the scroll happens underneath it).
+    menu?.querySelectorAll("a").forEach((link) =>
+        link.addEventListener("click", () => setOpen(false)),
+    );
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && isOpen()) {
+            setOpen(false);
+            toggle?.focus();
+        }
+    });
+
+    // Tapping anywhere off the sheet closes it.
+    document.addEventListener("click", (event) => {
+        if (isOpen() && nav && !nav.contains(event.target)) setOpen(false);
+    });
+
+    // Resizing past the breakpoint would otherwise leave the desktop row hidden.
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 820) setOpen(false);
+    });
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 </script>

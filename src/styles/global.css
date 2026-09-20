@@ -102,7 +102,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
   border-bottom: 1px solid transparent;
   transition: background .3s ease, border-color .3s ease, backdrop-filter .3s ease;
 }
-.nav.is-scrolled {
+.nav.is-scrolled, .nav.is-open {
   background: rgba(11, 11, 10, 0.85);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
@@ -123,6 +123,37 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
   font-family: var(--mono); font-size: .62rem; font-weight: 500;
   color: var(--brand); letter-spacing: .02em; margin-left: -4px;
 }
+
+/* Mobile menu. The bar itself is wordmark + toggle only below 820px. */
+.nav-toggle {
+  display: none; align-items: center; justify-content: center;
+  width: 40px; height: 36px; margin-left: auto; padding: 0;
+  background: var(--surface); border: 1px solid var(--border-2); border-radius: 8px;
+  color: var(--text); cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.nav-toggle:hover { background: var(--surface-2); border-color: #4A453F; }
+.nav-bars {
+  position: relative; width: 18px; height: 14px;
+  transition: transform .25s var(--ease);
+}
+.nav-bars i {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: currentColor; border-radius: 2px;
+  transition: transform .25s var(--ease), opacity .2s ease;
+}
+.nav-bars i:nth-child(1) { top: 0; }
+.nav-bars i:nth-child(2) { top: 6px; }
+.nav-bars i:nth-child(3) { bottom: 0; }
+/* Collapses into a close cross while the sheet is open. */
+.nav.is-open .nav-bars i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav.is-open .nav-bars i:nth-child(2) { opacity: 0; }
+.nav.is-open .nav-bars i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* On desktop the wrapper is not a box at all: its children are the nav row's
+   items exactly as before this wrapper existed. */
+.nav-menu { display: contents; }
+.nav-cta { flex-shrink: 0; }
 .nav-links {
   display: flex; gap: 28px; margin-left: auto; list-style: none; padding: 0; margin-block: 0;
 }
@@ -276,7 +307,12 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
 .burger .layer svg {
   display: block; width: 100%; height: auto;
   transition: opacity .3s ease;
-  pointer-events: auto;
+  /* Deliberately not a hit target. As a replaced element the SVG root is
+     clickable over its whole *box*, and the five boxes overlap heavily while the
+     stack is closed — which is how tapping the tray's middle selected the bun and
+     tapping the leaf selected the patty. Only the painted shapes opt back in, so a
+     click lands on whatever the user can actually see. */
+  pointer-events: none;
   cursor: pointer;
   /* Layer elevation, taken from the reference's per-tier isoDropShadow. Because
      each layer is its own SVG, each casts its own shadow: while the stack is
@@ -289,6 +325,12 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
     calc(1.5px + var(--explode) * 20px)
     rgba(0, 0, 0, calc(.7 - var(--explode) * .06))
   );
+}
+/* The silhouette, and only the silhouette: `cursor` is inherited, so the pointer
+   affordance follows these too. Non-rendered children (gradients, stops, the
+   clipPath) are never hit-tested, so listing every shape is safe. */
+.burger .layer svg :is(path, ellipse, rect, circle, polygon, polyline, line) {
+  pointer-events: auto;
 }
 
 /* Offsets: Assembled (--base) vs Exploded (--base-ex).
@@ -318,6 +360,15 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
    line that makes the closed burger read as one object; fading to a faint shade
    as the layers part, so no dark lobe is left floating under a lifted layer. */
 .journey-sticky .crevice { opacity: calc(1 - var(--explode) * .8); }
+
+/* Once the hero copy has faded it must stop being a click target. It is painted
+   above the burger (z-index 3 against the stage's 2), and an element at opacity 0
+   still receives pointer events — so the whole invisible slab was intercepting
+   taps aimed at the layers beneath it, and a tap that landed on its install
+   command copied that instead of selecting the layer the user was pointing at.
+   The class is set from --move, because pointer-events cannot be interpolated
+   from a number. */
+.journey-sticky.hero-gone .hero-copy { pointer-events: none; }
 
 /* In-place Layer Captions */
 .layer-caption {
@@ -1097,19 +1148,121 @@ footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 
   .recipe-book { display: none; }
 }
 @media (max-width: 820px) {
-  .journey { height: 420vh; }
+  /* Nav: wordmark and toggle on one row, everything else in a drop-down sheet.
+     The full row of links plus the CTA needs ~800px, so it was overflowing from
+     820px down — well before the hero's own breakpoint, which is why the two
+     share one. The sheet is a separate layer from the bar, so the bar's own
+     translucent scrolled background is not enough on its own. */
+  .nav-inner { gap: 16px; padding: 10px 18px; }
+  .nav-toggle { display: inline-flex; }
+  .nav-menu {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; align-items: stretch;
+    padding: 4px 18px 18px;
+    background: rgba(11, 11, 10, 0.97);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .5);
+  }
+  .nav-menu.is-open { display: flex; }
+  .nav-links { flex-direction: column; gap: 0; margin-left: 0; }
+  .nav-links a {
+    display: block; padding: 13px 2px; font-size: .95rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-links li:last-child a { border-bottom: 0; }
+  .nav-cta { margin-top: 14px; justify-content: center; }
+
+  /* The pinned journey gives back most of its length: 4.2 screens of scrolling to
+     unstack was more than desktop's 2.8, for a stack that opens in half a screen.
+     One screen of travel is enough for the copy to fade, the tiers to part, and
+     the chips to be read. */
+  .journey { height: 200vh; }
   .hero-copy {
-    left: 50%; top: 12vh; transform: translateX(-50%);
+    left: 50%; top: 76px; transform: translateX(-50%);
     max-width: 88vw; text-align: center;
   }
   .hero-copy .lede { margin-inline: auto; }
-  .burger-stage { top: 62%; }
+  /* Re-base the stack to the foot of the frame. On desktop it rides ~200 units up
+     inside the frame, which centres it in the viewport while the copy sits off to
+     the side; here the copy is above it, so that offset *is* the collision.
+     Dropping --base also lengthens the unstack, because --base-ex is unchanged.
+     These overrides deliberately carry no --base-ex / --drift: render-burger.py
+     keys off the one full rule per layer in the offsets block above. */
+  .layer-platform  { --base: 10px; }
+  .layer-engine    { --base: 28px; }
+  .layer-types     { --base: 70px; }
+  .layer-authoring { --base: 82px; }
+  .layer-runtime   { --base: 126px; }
+  /* Frame pinned to the foot of the viewport and scaled about that same edge, so
+     the plate lands on the bottom rather than 8% up from it. --fit is the room the
+     copy needs above the stack and --lift centres the exploded set in whatever is
+     left below the nav; both are re-tuned by viewport *height* below, because
+     vertical budget is what binds on a phone. */
+  .burger-stage {
+    top: auto; bottom: var(--lift, 2vh);
+    transform-origin: 50% 100%;
+    transform: translate(-50%, 0) scale(calc(var(--scale) * var(--fit, 1)));
+  }
+  /* The captions stay — they are the only text the unstack has — but compacted to
+     a single chip and moved ABOVE their layer. At this width a three-line card is
+     wider than the layer it labels and its description truncates to nothing, and
+     the tap-to-inspect sheet carries the prose anyway. Above rather than below
+     because the tray's caption would otherwise hang off the bottom edge: this way
+     each chip sits in the gap that has just opened up, and the crown's sits in the
+     headroom under the nav. */
+  .layer-caption {
+    top: auto; bottom: calc(100% + 6px);
+    height: 26px; padding: 0 9px; gap: 0; border-radius: 7px;
+    background: color-mix(in srgb, var(--inset) 90%, transparent);
+    transform: translateY(calc((1 - var(--explode)) * -10px));
+    /* Later than desktop: a 26px chip needs the tiers to have opened far enough
+       to clear the artwork on both sides. */
+    opacity: calc((var(--explode) - .45) * 2.2);
+  }
+  .layer-caption .cap-desc { display: none; }
+  .layer-caption .cap-crate { font-size: .64rem; }
+  .layer-caption .cap-role { font-size: .55rem; }
+  /* The scroll hint sits exactly where the crown comes to rest. */
+  .scroll-hint { display: none; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .info-idle-state, .info-focused-state { flex-direction: column; align-items: flex-start; }
   .info-focused-right { align-self: flex-end; }
   .bench-grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 820px) and (max-height: 780px) {
+  /* Shorter than this and the copy plus a full-size stack no longer both fit, so
+     the stack gives up the difference. --scale has already begun shrinking by
+     here, but only against the 640 frame, not against the room mobile actually
+     has to leave for the copy. */
+  .burger-stage { --fit: .88; --lift: 2vh; }
+}
+@media (max-width: 820px) and (max-height: 690px) {
+  .burger-stage { --fit: .70; --lift: 1vh; }
+}
 @media (max-width: 640px) {
+  /* Hero copy: the lede runs to six or seven lines at this width and the stack
+     now starts around two-thirds down, so the copy has to tighten up to stay
+     clear of it. The eyebrow goes: it restates the logo's version chip, and it is
+     the one block the stack can afford to lose. */
+  .hero-copy { top: 70px; }
+  .eyebrow { display: none; }
+  .hero-copy .hero-subhead { margin-top: 14px; }
+  .hero-copy .lede { margin-top: 6px; font-size: .98rem; }
+  .install-cmd { margin-top: 18px; padding: 10px 14px; font-size: .8rem; }
+  .scroll-hint { margin-top: 20px; }
+
+  /* Stepper: two labels and two chips per row do not fit, so the bar stacks. */
+  .studio-stepper { width: 100%; flex-wrap: wrap; }
+  .stepper-divider { display: none; }
+  .stepper-btn { flex: 1 1 100%; }
+
+  /* Terminal head: the dots, two file tabs and the add-on badge come to ~1.4x
+     the width, and the badge was running off the card. */
+  .order-head { flex-wrap: wrap; row-gap: 8px; }
+
   .combo { padding: 36px 0 48px; }
   .combo .container { padding-inline: 16px; }
   .order-metrics { grid-template-columns: repeat(2, 1fr); }
