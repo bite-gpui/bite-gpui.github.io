@@ -10,7 +10,7 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 ## Design system
 
-Theme: **Variant 2B — Smoked Malt & Muted Herb Sage**. Full guide:
+Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage**. Full guide:
 [`design/DESIGN-SYSTEM.md`](design/DESIGN-SYSTEM.md).
 
 - Design tokens live in the `:root` block of `src/styles/global.css`. That block

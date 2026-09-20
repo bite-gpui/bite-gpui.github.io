@@ -15,7 +15,7 @@ set -eu
 
 # Keep in step with the tokens in src/styles/global.css.
 MALT="#D5B895"
-BG="#0B0B0A"
+BG="#121813"
 
 MASTER="public/logo.svg"
 TMP="$(mktemp -d)"
@@ -36,7 +36,7 @@ inkscape --export-type=png --export-filename="$TMP/ink512.png" -w 512 "$TMP/ink.
 magick "$TMP/malt512.png" -strip PNG32:public/logo.png
 magick "$TMP/ink512.png" -strip PNG32:public/logo-ink.png
 
-# --- Favicon set: malt mark on a #0B0B0A tile ------------------------------
+# --- Favicon set: malt mark on a #121813 tile ------------------------------
 # The mark is inset in the tile, and small sizes are filled more than large ones
 # to offset the fact that the trace thins out when rendered below ~32px.
 inkscape --export-type=png --export-filename="$TMP/m15.png"  -w 15  "$TMP/malt.svg" 2>/dev/null

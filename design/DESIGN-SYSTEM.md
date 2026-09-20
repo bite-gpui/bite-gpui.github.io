@@ -1,6 +1,6 @@
 # bite-gpui — Design System & Theme Guide
 
-**Variant 2B: Smoked Malt & Muted Herb Sage**
+**Variant 2C: Smoked Malt & Smoked Olive Sage**
 
 This document defines the visual language, design tokens, colour hierarchy, and
 component rules for the bite-gpui brand and documentation web surfaces.
@@ -18,20 +18,22 @@ component rules for the bite-gpui brand and documentation web surfaces.
 
 ## 1. Palette Philosophy
 
-The Smoked Malt & Muted Herb Sage palette balances two complementary worlds:
+The Smoked Malt & Smoked Olive Sage palette balances two complementary worlds:
 
 **Culinary Warmth (Malt & Caramel)** — evokes the physical burger metaphor,
 craftsmanship, and the approachable "take a bite" attitude. The warm ramp
 carries the brand: the logo mark, the display headline, and atmospheric light.
 
-**Quiet Technical Precision (Soot Black & Herb Sage)** — grounded in deep dark
-surfaces with calm, botanical sage accents rather than loud cyberpunk neons.
+**Quiet Technical Precision (Smoked Olive Sage & Herb Sage)** — grounded in deep
+olive-sage surfaces with calm, botanical sage accents rather than loud cyberpunk
+neons.
 Sage is the colour of the lettuce layer in the burger illustration, so every
 interactive affordance on the page ties back to the metaphor. This keeps long
 docs and CLI transcripts comfortable to read.
 
-The guiding constraint: **nothing cool, nothing neon.** Every hue is pitched
-warm or neutralised toward sage.
+The guiding constraint: **nothing neon, nothing saturated.** Every hue is either
+pitched warm (the malt spectrum) or neutralised toward sage (the olive-sage
+canvas and the herb accents).
 
 ---
 
@@ -41,13 +43,20 @@ warm or neutralised toward sage.
 
 | Token | Hex | RGB | Role |
 | --- | --- | --- | --- |
-| `--bg` | `#0B0B0A` | 11, 11, 10 | Primary application background (Soot Black). |
-| `--bg-2` | `#121110` | 18, 17, 16 | Elevated chrome: floating CTA bars, toast fill. |
-| `--surface` | `#141312` | 20, 19, 18 | Cards, secondary buttons (Smoked Oak). |
-| `--surface-2` | `#1C1A18` | 28, 26, 24 | Card hover, nested/raised surfaces. |
-| `--inset` | `#0E0D0C` | 14, 13, 12 | Inset panels: code blocks, terminals, chips, captions. **Darker than any surface** — depth on this theme comes from going down, not up. |
-| `--border` | `#292524` | 41, 37, 36 | Structural borders, dividers, subtle separators. |
-| `--border-2` | `#3A3633` | 58, 54, 51 | Emphasised borders: code shells, focused surfaces. |
+| `--bg` | `#121813` | 18, 24, 19 | Primary application background (Smoked Olive Sage). |
+| `--bg-2` | `#131B14` | 19, 27, 20 | Elevated chrome: floating CTA bars, toast fill. |
+| `--surface` | `#162018` | 22, 32, 24 | Cards, secondary buttons (Smoked Olive). |
+| `--surface-2` | `#1C2A20` | 28, 42, 32 | Card hover, nested/raised surfaces. |
+| `--inset` | `#0D120E` | 13, 18, 14 | Inset panels: code blocks, terminals, chips, captions. **Darker than any surface** — depth on this theme comes from going down, not up. |
+| `--border` | `#253427` | 37, 52, 39 | Structural borders, dividers, subtle separators. |
+| `--border-2` | `#35493B` | 53, 73, 59 | Emphasised borders: code shells, focused surfaces. |
+| *(literal)* | `#4A5F4F` | 74, 95, 79 | Elevated hover border — shared by `.btn`, `.install-cmd`, `.copy-btn`, `.nav-toggle` and the scrollbar thumb. |
+
+The canvas is **Smoked Olive Sage**: the neutral ramp tilts green (G highest, B
+just over R) instead of warm soot. Against it the malt / brioche spectrum below
+gains apparent warmth through simultaneous contrast, and the bun's dark
+caramelised undercuts keep their separation instead of dissolving into the
+background as they did on the old `#0B0B0A` soot canvas.
 
 `--inset` deliberately sits *below* `--bg` in luminance. A panel that reads as
 recessed is the theme's primary way of signalling "this is a transcript" without
@@ -60,7 +69,6 @@ adding chrome.
 | `--text` | `#FAF6F0` | 250, 246, 240 | Oatmeal White — headings, primary values, H1 gradient start. |
 | `--malt` | `#D5B895` | 213, 184, 149 | Malted Wheat — the logo mark, the H1 gradient midpoint, and the `::selection` text colour. |
 | `--toasted` | `#A06C38` | 160, 108, 56 | Deep Caramel — H1 gradient terminator, warm ambient light. |
-| *(literal)* | `#4A453F` | 74, 69, 63 | Toasted Crust — the one warm hover border, shared by `.btn`, `.install-cmd`, `.copy-btn` and the scrollbar thumb. |
 
 `--malt` is the brand highlight and has exactly three call sites: `.logo-icon`,
 the headline ramp, and `::selection`. Treat every additional use as a design
@@ -361,22 +369,24 @@ flattening its illustration.
 | Component | Background | Border | Text / Foreground | Accent / Glow |
 | --- | --- | --- | --- | --- |
 | Top nav (unscrolled) | transparent | transparent | `--text-2` links | `--malt` logo mark, `--brand` version chip |
-| Top nav (scrolled) | `rgba(11,11,10,.85)` + `blur(14px) saturate(160%)` | `--border` | `--text` on hover | — |
+| Top nav (scrolled) | `rgba(18,24,19,.85)` + `blur(14px) saturate(160%)` | `--border` | `--text` on hover | — |
 | Primary button | `--brand` | `--brand` | `--bg` | hover `#A3BCAF` |
-| Secondary button | `--surface` | `--border-2` | `--text` | hover bg `--surface-2`, border `#4A453F` |
+| Secondary button | `--surface` | `--border-2` | `--text` | hover bg `--surface-2`, border `#4A5F4F` |
 | Eyebrow badge pill | `--brand-dim` | `rgba(143,168,155,.28)` | `--brand` | pulsing `--brand` dot |
-| Terminal install box | `--inset` | `--border-2` | `$` in `--types`, command in `--text` | hover border `#4A453F` |
-| Copy toast | `rgba(18,17,16,.95)` + `blur(12px)` | `rgba(143,168,155,.35)` | `--text` | `--brand` dot + `rgba(143,168,155,.7)` glow |
+| Terminal install box | `--inset` | `--border-2` | `$` in `--types`, command in `--text` | hover border `#4A5F4F` |
+| Copy toast | `rgba(19,27,20,.95)` + `blur(12px)` | `rgba(143,168,155,.35)` | `--text` | `--brand` dot + `rgba(143,168,155,.7)` glow |
 | Layer caption | `color-mix(in srgb, var(--inset) 84%, transparent)` + `blur(10px)` | `--border-2`, left border 3px `--accent` | `--text-2` desc, `--text-3` role | crate `--accent` |
 | Layer info panel | `--surface` | `--border-2` + **left** 4px `--accent` | `.li-name` in `--accent`, `.li-desc` in `--text-2` | role/chips/command chips on `--inset` |
 | Recipe book (facade) | `--surface` | `--border-2` + **right** 4px `--facade` | `--facade` title, `#A9C3B4` commands | `--facade` |
 | Studio stepper | `--inset` | `--border-2` | inactive `--text-3`, active `--text` on `--surface-2` | active index chip on `--brand-dim` |
-| Dock item button | `--inset` | `1.5px --border-2` | item artwork (natural), idle at 50% opacity + `grayscale(35%)` | active: `color-mix(--accent 18%, --inset)` + `--accent` border + 35% glow |
+| Studio cockpit | grid `5fr / 7fr` | — | configure dock (left) · code inspector (right); one switchable column ≤820px | mobile `Configure ⇄ Code` tabs (`.combo-mobile-tab`) |
+| Dock row | `--inset` | `1.5px --border-2` | `--accent` icon + tag, `--text-2` label, `--text-3` kicker | active: `color-mix(--accent 9%, --surface)` bg + `--accent`-tinted border |
+| Dock toggle / radio | `--surface-2` track | `--border-2` | 12px `--text-3` thumb | on: `--accent` track, thumb → `--bg`; the beverages stage re-shapes it into an `18px` radio dial |
 | Code shell | `--inset` | `--border` | `#CFC9C0` body, `#5C5751` line numbers | accent per code line |
 | Bench receipt | `#F7F3ED` (paper) | dashed `#CFC9C0` | `#1C1917` ink | `#A9C3B4` total |
 | Benchmark bar | track `--border` | — | `.before` label `#E0A79C`, `.after` label `#A9C3B4` | fill gradients rust → sage (§2.6) |
 | Interactive burger | translucent plate | plate `#B5AFA7` | captions as above | layer hover glow in crate `--accent` |
-| Scrollbar | `--bg` track | — | thumb `--border-2` | thumb hover `#4A453F` |
+| Scrollbar | `--bg` track | — | thumb `--border-2` | thumb hover `#4A5F4F` |
 
 Four structural conventions hold the whole page together and should be preserved
 in any new component:
@@ -515,19 +525,19 @@ module.exports = {
     extend: {
       colors: {
         canvas: {
-          base:   '#0B0B0A', // --bg
-          raised: '#121110', // --bg-2
-          card:   '#141312', // --surface
-          hover:  '#1C1A18', // --surface-2
-          inset:  '#0E0D0C', // --inset
-          border: '#292524', // --border
-          edge:   '#3A3633', // --border-2
+          base:      '#121813', // --bg
+          raised:    '#131B14', // --bg-2
+          card:      '#162018', // --surface
+          hover:     '#1C2A20', // --surface-2
+          inset:     '#0D120E', // --inset
+          border:    '#253427', // --border
+          edge:      '#35493B', // --border-2
+          hoverEdge: '#4A5F4F', // elevated hover border (literal)
         },
         malt: {
           oatmeal: '#FAF6F0', // --text
           wheat:   '#D5B895', // --malt
           caramel: '#A06C38', // --toasted
-          crust:   '#4A453F', // warm hover border
         },
         sage: {
           accent: '#8FA89B', // --brand, --types, --facade
@@ -554,8 +564,9 @@ module.exports = {
 - **Do** use `--brand` (`#8FA89B`) for interactive command-line elements (`$`),
   feature flags, and leaf-crate badges. It ties directly back to the lettuce
   layer in the visual burger.
-- **Do** keep backgrounds deep charcoal-soot (`#0B0B0A`), never pure cold black
-  (`#000000`). The slight warm tint prevents eye strain and flat contrast.
+- **Do** keep backgrounds deep smoked olive-sage (`#121813`), never pure cold
+  black (`#000000`). The green-tilted neutral prevents eye strain, keeps flat
+  contrast off the artwork, and flatters the warm malt spectrum.
 - **Do** use `#FAF6F0` (Oatmeal White) instead of `#FFFFFF` for primary
   typography, to maintain an organic, warm editorial tone.
 - **Do** signal depth by going **down** into `--inset` for transcripts and code,
@@ -586,7 +597,7 @@ into this guide:
 
 | Spec claim | Reality in the code |
 | --- | --- |
-| "Charcoal Border `#242220`" | Actual `--border` is `#292524`. |
+| "Charcoal Border `#242220`" | Actual `--border` is `#253427`. |
 | "Readable Body Text `#D6D3CD` (stone-300)" | Actual `--text-2` is `#A8A29E`. |
 | "Muted Metadata `#8C877F` (stone-400)" | Actual `--text-3` is `#78716C`. |
 | "Dim / Disabled `#57534E`" | No such value; the dimmest text is `#5C5751`, and only on `--inset`. |
@@ -602,10 +613,32 @@ into this guide:
 | Tailwind config "drop-in" | The build has no Tailwind; see §7 for an external mapping. |
 
 Divergences in the *shape* of the palette (which hue means what) were ignored in
-favour of the implementation. Divergences in *principles* — warm over cold, sage
-over neon, tokens over literals — were mutually consistent and are preserved in
-§1 and §8.
+favour of the implementation. Divergences in *principles* — natural over neon,
+sage over saturated, tokens over literals — were mutually consistent and are
+preserved in §1 and §8.
 
 If any value above should actually be changed, change it in
 `src/styles/global.css` `:root` first and then update §2 — not the other way
 around.
+
+### Variant 2C retune: soot → Smoked Olive Sage
+
+The canvas family was retuned from a warm soot ramp to a green-tilted olive-sage
+ramp. The warm `--text` / `--malt` / `--toasted` spectrum, the herb-sage
+`--brand`, and every illustration palette in §2.7 are unchanged; only the neutral
+canvas and border family moved.
+
+| Token | Variant 2B (soot) | Variant 2C (olive sage) |
+| --- | --- | --- |
+| `--bg` | `#0B0B0A` | `#121813` |
+| `--bg-2` | `#121110` | `#131B14` |
+| `--surface` | `#141312` | `#162018` |
+| `--surface-2` | `#1C1A18` | `#1C2A20` |
+| `--inset` | `#0E0D0C` | `#0D120E` |
+| `--border` | `#292524` | `#253427` |
+| `--border-2` | `#3A3633` | `#35493B` |
+| hover border | `#4A453F` (warm crust) | `#4A5F4F` (olive) |
+
+The scrolled and mobile nav fills, the toast fill, the layer-caption hover fill
+and the scrollbar thumb hover moved with the ramp — they carry the same hue as
+`--bg` / `--bg-2`, lifted as `rgba(...)`.

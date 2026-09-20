@@ -64,7 +64,7 @@ handler.
 
 ## Design system
 
-Theme: **Variant 2B — Smoked Malt & Muted Herb Sage**.
+Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage**.
 Full guide: [`design/DESIGN-SYSTEM.md`](design/DESIGN-SYSTEM.md).
 
 Three rules matter most day to day:

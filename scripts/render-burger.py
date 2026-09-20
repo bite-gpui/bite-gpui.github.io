@@ -90,7 +90,7 @@ for name, (viewbox, inner) in zip(order, blocks):
 svg = (
     f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 {-PAD} {burger_w} {burger_h + PAD * 2}" '
     f'width="{burger_w}" height="{burger_h + PAD * 2}">\n'
-    f'<rect x="0" y="{ -PAD }" width="100%" height="100%" fill="#0B0B0A"/>\n'
+    f'<rect x="0" y="{ -PAD }" width="100%" height="100%" fill="#121813"/>\n'
     # Mirror the two CSS shadows so both end states read in these renders. Inkscape
     # has no feDropShadow, so spell them out with the primitives. CSS blur radius is
     # roughly 2x the Gaussian sigma. `layerShadow` is `.burger .layer svg`,

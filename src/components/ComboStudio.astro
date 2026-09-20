@@ -52,50 +52,102 @@
             </button>
         </div>
 
-        <div class="combo-layout">
-            <!-- ROW 1: DYNAMIC INFO PANEL -->
-            <div class="combo-info-panel" id="infoPanel" aria-live="polite">
-                <!-- Rendered by renderInfoPanel() -->
-            </div>
-
-            <!-- ROW 2: SWAPPABLE DOCK (CONDIMENTS OR BEVERAGES) -->
-            <div class="dock-wrapper" id="dockWrapper">
-                <div class="dock-shelf-title">
-                    <strong id="dockShelfHeader">
-                        Additive Feature Decorators (Checkboxes)
-                    </strong>
-                    <span id="dockShelfSub">
-                        Stack as many decorators into your application pipeline
-                        as needed.
-                    </span>
-                </div>
-
-                <div
-                    class="dock-buttons-group"
-                    id="dockButtonsGroup"
-                    role="group"
-                    aria-label="Interactive option toggles"
+        <div class="combo-layout" id="comboLayout" data-mobile-tab="configure">
+            <!-- MOBILE SWITCHER: Configure ⇄ Code -->
+            <div
+                class="combo-mobile-tabs"
+                id="comboMobileTabs"
+                role="group"
+                aria-label="Studio view"
+            >
+                <button
+                    class="combo-mobile-tab is-active"
+                    id="mobileTabConfigure"
+                    type="button"
+                    aria-pressed="true"
+                    aria-controls="panelConfigure"
                 >
-                    <!-- Populated by renderDock() -->
-                </div>
-
-                <button class="dock-switch-stage-btn" id="dockSwitchStageBtn">
-                    <span>Choose Target Beverage (Platform OS)</span>
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.2"
-                    >
-                        <path d="M5 12h14M12 5l7 7-7 7"></path>
-                    </svg>
+                    <span>Configure</span>
+                    <span class="combo-mobile-tab-chip" id="mobileConfigCount">
+                        0 of 4
+                    </span>
+                </button>
+                <button
+                    class="combo-mobile-tab"
+                    id="mobileTabCode"
+                    type="button"
+                    aria-pressed="false"
+                    aria-controls="panelCode"
+                >
+                    <span>View Code</span>
+                    <span class="combo-mobile-tab-chip" id="mobileCodeCount">
+                        0 lines
+                    </span>
                 </button>
             </div>
 
-            <!-- ROW 3: DUAL-FILE TERMINAL INSPECTOR -->
-            <aside class="order-card" aria-live="polite">
+            <!-- LEFT COLUMN: CONFIGURE (SCRATCH DOCK + DETAIL) -->
+            <div class="combo-panel combo-panel-config" id="panelConfigure">
+                <div class="dock-wrapper" id="dockWrapper">
+                    <div class="dock-shelf-title">
+                        <strong id="dockShelfHeader">
+                            Additive Feature Decorators (Checkboxes)
+                        </strong>
+                        <span id="dockShelfSub">
+                            Stack as many decorators into your application
+                            pipeline as needed.
+                        </span>
+                    </div>
+
+                    <div
+                        class="dock-buttons-group"
+                        id="dockButtonsGroup"
+                        role="group"
+                        aria-label="Interactive option toggles"
+                    >
+                        <!-- Populated by renderDock() -->
+                    </div>
+
+                    <button
+                        class="dock-switch-stage-btn"
+                        id="dockSwitchStageBtn"
+                        type="button"
+                    >
+                        <span>Choose Target Beverage (Platform OS)</span>
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                        >
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+
+                    <button
+                        class="dock-jump-code"
+                        id="dockJumpCode"
+                        type="button"
+                    >
+                        <span>View injected code</span>
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </div>
+
+                <!-- DETAIL / SUMMARY PANEL -->
+                <div class="combo-info-panel" id="infoPanel" aria-live="polite">
+                    <!-- Rendered by renderInfoPanel() -->
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: DUAL-FILE TERMINAL INSPECTOR -->
+            <aside
+                class="order-card combo-panel combo-panel-code"
+                id="panelCode"
+                aria-live="polite"
+            >
                 <div class="order-head">
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div class="terminal-dots" aria-hidden="true">
@@ -158,6 +210,14 @@
                     </div>
 
                     <div class="order-actions">
+                        <button
+                            class="order-back-btn"
+                            id="orderBackBtn"
+                            type="button"
+                        >
+                            <span aria-hidden="true">←</span>
+                            <span>Configure</span>
+                        </button>
                         <span class="order-badge" id="orderBadge">
                             0 add-ons active
                         </span>
@@ -240,6 +300,7 @@
         let activeBeverage = "macos"; // 'macos' | 'linux' | 'windows' | 'headless'
 
         let focusedItemKey = null;
+        let mobileTab = "configure"; // 'configure' | 'code' (mobile cockpit)
 
         // CONDIMENT DATA (Sides)
         const CONDIMENT_DATA = {
@@ -247,6 +308,7 @@
                 key: "spicy",
                 type: "condiment",
                 name: "Spicy Sauce",
+                tag: "TRACE",
                 kicker: "Telemetry Middleware",
                 crate: "InstrumentedPipeline",
                 color: "#C2684F",
@@ -259,6 +321,7 @@
                 key: "mild",
                 type: "condiment",
                 name: "Mild Sauce",
+                tag: "60 FPS",
                 kicker: "Pacing Controller",
                 crate: "ThrottledPipeline",
                 color: "#C9B486",
@@ -271,6 +334,7 @@
                 key: "parley",
                 type: "condiment",
                 name: "Seasoning Shaker",
+                tag: "PARLEY",
                 kicker: "Linebender Typography",
                 crate: "gpui_parley",
                 color: "#8FA89B",
@@ -283,6 +347,7 @@
                 key: "nachos",
                 type: "condiment",
                 name: "Loaded Nachos",
+                tag: "WGPU",
                 kicker: "Surface Escape Hatch",
                 crate: "Style::custom · Surface",
                 color: "#D9A55F",
@@ -299,6 +364,7 @@
                 key: "macos",
                 type: "beverage",
                 name: "Crisp Apple Fizz",
+                tag: "METAL",
                 kicker: "Platform Driver · macOS",
                 crate: "gpui_platform_macos",
                 color: "#9FC0BC",
@@ -311,6 +377,7 @@
                 key: "linux",
                 type: "beverage",
                 name: "Open-Source Cola",
+                tag: "VULKAN",
                 kicker: "Platform Driver · Linux",
                 crate: "gpui_platform_linux",
                 color: "#D9A55F",
@@ -323,6 +390,7 @@
                 key: "windows",
                 type: "beverage",
                 name: "Direct3D Punch",
+                tag: "DX12",
                 kicker: "Platform Driver · Windows",
                 crate: "gpui_platform_windows",
                 color: "#9BA3C0",
@@ -335,6 +403,7 @@
                 key: "headless",
                 type: "beverage",
                 name: "In-Memory Soda",
+                tag: "HEADLESS",
                 kicker: "Platform Driver · Headless CI",
                 crate: "gpui_test / Headless",
                 color: "#8E8781",
@@ -373,6 +442,15 @@
         const mLayout = document.getElementById("mLayout");
         const mFps = document.getElementById("mFps");
         const mPlatform = document.getElementById("mPlatform");
+
+        const comboLayout = document.getElementById("comboLayout");
+        const mobileTabConfigure =
+            document.getElementById("mobileTabConfigure");
+        const mobileTabCode = document.getElementById("mobileTabCode");
+        const mobileConfigCount = document.getElementById("mobileConfigCount");
+        const mobileCodeCount = document.getElementById("mobileCodeCount");
+        const dockJumpCode = document.getElementById("dockJumpCode");
+        const orderBackBtn = document.getElementById("orderBackBtn");
 
         function renderInfoPanel() {
             if (!infoPanel) return;
@@ -469,7 +547,7 @@
                     event.stopPropagation();
                     focusedItemKey = null;
                     document
-                        .querySelectorAll(".item-icon-btn")
+                        .querySelectorAll(".dock-row")
                         .forEach((b) => b.classList.remove("is-focused"));
                     renderInfoPanel();
                 });
@@ -482,7 +560,7 @@
 
             const isCondiments = currentStage === "condiments";
 
-            // Drives the square (checkbox) vs round (radio) pip styling.
+            // Drives the toggle-switch (checkboxes) vs radio-dial styling in CSS.
             dockButtonsGroup.classList.toggle("dock-condiments", isCondiments);
             dockButtonsGroup.classList.toggle("dock-beverages", !isCondiments);
 
@@ -502,22 +580,34 @@
                 : Object.values(BEVERAGE_DATA);
 
             items.forEach((item) => {
-                const btn = document.createElement("button");
-                btn.className = "item-icon-btn";
-                btn.dataset.itemKey = item.key;
-                btn.dataset.itemType = item.type;
-                btn.style.setProperty("--accent", item.color);
-                btn.title = `${item.name} (${item.crate})`;
-                btn.setAttribute("aria-label", item.name);
-
                 const isActive = isCondiments
                     ? !!condimentsState[item.key]
                     : activeBeverage === item.key;
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "dock-row";
+                btn.dataset.itemKey = item.key;
+                btn.dataset.itemType = item.type;
                 btn.dataset.active = String(isActive);
+                btn.style.setProperty("--accent", item.color);
+                btn.title = `${item.name} (${item.crate})`;
+                btn.setAttribute("aria-label", item.name);
+                btn.setAttribute("aria-pressed", String(isActive));
                 if (item.key === focusedItemKey)
                     btn.classList.add("is-focused");
 
-                btn.innerHTML = `${item.svg}<span class="icon-active-pip"></span>`;
+                btn.innerHTML = `
+                    <span class="dock-row-icon" aria-hidden="true">${item.svg}</span>
+                    <span class="dock-row-text">
+                        <span class="dock-row-name">
+                            <span class="dock-row-label">${item.name}</span>
+                            <span class="dock-row-tag">${item.tag}</span>
+                        </span>
+                        <span class="dock-row-sub">${item.kicker}</span>
+                    </span>
+                    <span class="dock-row-switch" aria-hidden="true"><i></i></span>
+                `;
 
                 btn.addEventListener("click", () => {
                     if (isCondiments) {
@@ -829,6 +919,17 @@
             condimentCountChip.textContent = `${activeCondCount} active`;
             beverageTargetChip.textContent = BEVERAGE_DATA[activeBeverage].name;
 
+            if (mobileConfigCount) {
+                mobileConfigCount.textContent =
+                    currentStage === "condiments"
+                        ? `${activeCondCount} of 4`
+                        : BEVERAGE_DATA[activeBeverage].name;
+            }
+            if (mobileCodeCount) {
+                const lineCount = lines.length;
+                mobileCodeCount.textContent = `${lineCount} line${lineCount === 1 ? "" : "s"}`;
+            }
+
             if (orderBadge) {
                 if (currentStage === "condiments") {
                     orderBadge.textContent = `${activeCondCount} add-on${activeCondCount === 1 ? "" : "s"} active`;
@@ -898,6 +999,31 @@
             renderTerminal();
         }
 
+        // Mobile cockpit: switch between the configure dock and the code inspector.
+        function setMobileTab(tab) {
+            mobileTab = tab;
+            if (comboLayout) comboLayout.dataset.mobileTab = tab;
+            mobileTabConfigure?.classList.toggle(
+                "is-active",
+                tab === "configure",
+            );
+            mobileTabCode?.classList.toggle("is-active", tab === "code");
+            mobileTabConfigure?.setAttribute(
+                "aria-pressed",
+                String(tab === "configure"),
+            );
+            mobileTabCode?.setAttribute("aria-pressed", String(tab === "code"));
+        }
+
+        mobileTabConfigure?.addEventListener("click", () =>
+            setMobileTab("configure"),
+        );
+        mobileTabCode?.addEventListener("click", () => setMobileTab("code"));
+        dockJumpCode?.addEventListener("click", () => setMobileTab("code"));
+        orderBackBtn?.addEventListener("click", () =>
+            setMobileTab("configure"),
+        );
+
         stepBtnCondiments?.addEventListener("click", () =>
             setStage("condiments"),
         );
@@ -929,6 +1055,7 @@
             window.copyToClipboard(currentRawClipboard, `Copied ${file}`);
         });
 
+        setMobileTab("configure");
         renderAll();
     })();
 </script>
