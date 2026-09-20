@@ -1,0 +1,1119 @@
+/* ============================================================
+   DESIGN TOKENS & SYSTEM
+   ============================================================ */
+:root {
+  --bg: #0B0B0A;
+  --bg-2: #121110;
+  --surface: #141312;
+  --surface-2: #1C1A18;
+  /* Inset panels: code blocks, terminals, chips. Darker than any surface. */
+  --inset: #0E0D0C;
+  --border: #292524;
+  --border-2: #3A3633;
+  --text: #FAF6F0;
+  --text-2: #A8A29E;
+  --text-3: #78716C;
+  /* Herb sage carries every interactive affordance. */
+  --brand: #8FA89B;
+  --brand-dim: rgba(143, 168, 155, 0.14);
+  --sage-light: #B8C9BF;
+  /* Smoked malt is the brand highlight: the mark and the headline ramp. */
+  --malt: #D5B895;
+  --toasted: #A06C38;
+
+  /* Architectural & Kitchen Palette.
+     Hues re-pitched warm: the tray is stone, the buns gold/malt, the patty
+     rust, and the lettuce herb sage (deliberately the same sage as --brand). */
+  --platform: #A8A29E;   /* Steel Serving Tray / OS SPI */
+  --engine: #C6A15B;     /* Golden Bottom Bun / Scene IR */
+  --types: #8FA89B;      /* Sage Leaf / Scalar Leaf */
+  --authoring: #C2684F;  /* The Patty / Reactive DSL */
+  --runtime: #DDB27A;    /* Top Bun / Harness */
+  --facade: #8FA89B;     /* The Recipe Book / Facade */
+
+  --ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --maxw: 1200px;
+  --r: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+  scroll-snap-type: y proximity;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ui);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.15; letter-spacing: -0.035em; font-weight: 800; }
+p { margin: 0; }
+code, pre, .mono { font-family: var(--mono); }
+::selection { background: var(--surface-2); color: var(--malt); }
+
+/* Dark scrollbar chrome. -webkit- for Blink/WebKit, standard props for Firefox. */
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4A453F; }
+html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
+
+.container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: 24px; }
+
+/* ============================================================
+   COPY TOAST
+   Floating confirmation, so a copy action no longer has to mutate the
+   control that triggered it.
+   ============================================================ */
+.toast {
+  position: fixed; top: 24px; left: 50%; z-index: 200;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 99px;
+  background: rgba(18, 17, 16, 0.95);
+  border: 1px solid rgba(143, 168, 155, 0.35);
+  color: var(--text); font-size: .75rem; font-weight: 500;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  opacity: 0; pointer-events: none;
+  transform: translateX(-50%) translateY(-6px);
+  transition: opacity .25s ease, transform .25s var(--ease);
+}
+.toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--brand); box-shadow: 0 0 8px rgba(143, 168, 155, .7);
+}
+
+/* ============================================================
+   STICKY NAV WITH TRANSPARENT SVG BITE MASK
+   ============================================================ */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  border-bottom: 1px solid transparent;
+  transition: background .3s ease, border-color .3s ease, backdrop-filter .3s ease;
+}
+.nav.is-scrolled {
+  background: rgba(11, 11, 10, 0.85);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom-color: var(--border);
+}
+.nav-inner {
+  max-width: var(--maxw); margin-inline: auto; padding: 14px 24px;
+  display: flex; align-items: center; gap: 32px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 1.1rem; letter-spacing: -.03em;
+}
+/* The traced mark is wider than tall (1.14:1) and detailed, so it needs a
+   little more room than the old 22px glyph to stay legible at header size. */
+.logo-icon { width: 28px; height: 28px; display: block; color: var(--malt); }
+.logo-version {
+  font-family: var(--mono); font-size: .62rem; font-weight: 500;
+  color: var(--brand); letter-spacing: .02em; margin-left: -4px;
+}
+.nav-links {
+  display: flex; gap: 28px; margin-left: auto; list-style: none; padding: 0; margin-block: 0;
+}
+.nav-links a {
+  font-size: .88rem; color: var(--text-2); font-weight: 500; transition: color .2s ease;
+}
+.nav-links a:hover { color: var(--text); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 8px; font-size: .85rem; font-weight: 600;
+  border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+  cursor: pointer; transition: background .2s ease, border-color .2s ease, transform .2s var(--ease);
+}
+.btn:hover { background: var(--surface-2); border-color: #4A453F; transform: translateY(-1px); }
+.btn-primary { background: var(--brand); border-color: var(--brand); color: #0B0B0A; }
+.btn-primary:hover { background: #A3BCAF; border-color: #A3BCAF; }
+
+/* ============================================================
+   ACT I & II: SCROLL-LINKED CHOREOGRAPHY
+   ============================================================ */
+.journey {
+  height: 280vh;
+  position: relative;
+  background:
+    radial-gradient(ellipse 64% 44% at 50% 42%, rgba(143, 168, 155, .055), transparent 70%),
+    radial-gradient(ellipse 36% 24% at 50% 88%, rgba(213, 184, 149, .035), transparent 72%);
+}
+.journey::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(250, 246, 240, .026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(250, 246, 240, .026) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 66% 48% at 50% 48%, #000 12%, transparent 68%);
+  -webkit-mask-image: radial-gradient(ellipse 66% 48% at 50% 48%, #000 12%, transparent 68%);
+  pointer-events: none;
+}
+
+.journey-sticky {
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+  --move: 0;
+  --explode: 0;
+  --hero-dx: 0px;
+  --scale: 1;
+  /* Extra unstack travel, granted only when the viewport is tall enough to give
+     it. The exploded offsets below are fixed, and sized for the shortest viewport
+     that still renders at full scale (see the --base-ex block) — which wastes a
+     lot of the page on a taller display. This hands that slack back to the crown
+     and the tray, which is where the unstack reads. Zero at and below 760px tall,
+     so short viewports keep exactly the geometry the offsets specify. */
+  --spread: clamp(0px, calc((100vh - 760px) * 0.45), 110px);
+}
+
+/* Act I Hero Copy */
+.hero-copy {
+  position: absolute; top: 50%;
+  left: max(24px, calc((100vw - var(--maxw)) / 2 + 24px));
+  transform: translateY(-50%);
+  width: 100%;
+  max-width: min(28rem, 34vw);
+  z-index: 3;
+  opacity: calc(1 - var(--move) * 1.7);
+  transition: opacity .1s linear;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .74rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--brand);
+  background: var(--brand-dim); border: 1px solid rgba(143, 168, 155, .28);
+  padding: 5px 12px; border-radius: 99px; margin-bottom: 22px;
+}
+.eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--brand);
+  animation: pulse 2.4s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(143, 168, 155, .6); }
+  70% { box-shadow: 0 0 0 8px rgba(143, 168, 155, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(143, 168, 155, 0); }
+}
+.hero-copy h1 { font-size: clamp(2.3rem, 4.6vw, 3.8rem); letter-spacing: -.045em; }
+.hero-copy h1 em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--text) 0%, var(--malt) 52%, var(--toasted) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* Secondary subhead: its own line, brighter and bolder than the body below.
+   Only one space is authored between it and .lede — Astro's HTML compressor
+   collapses whitespace that sits between inline elements, which is what glued
+   "swapping." to "Tweak" when both lived in one paragraph. */
+.hero-copy .hero-subhead {
+  margin-top: 20px; font-size: 1.15rem; font-weight: 700;
+  letter-spacing: -.015em; color: var(--text);
+}
+.hero-copy .lede {
+  margin-top: 8px; font-size: 1.05rem; color: var(--text-2); line-height: 1.6;
+}
+
+.install-cmd {
+  margin-top: 28px;
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--inset); border: 1px solid var(--border-2); border-radius: 10px;
+  padding: 12px 16px; font-family: var(--mono); font-size: .88rem; color: var(--text);
+  cursor: pointer; transition: border-color .2s ease;
+}
+.install-cmd:hover { border-color: #4A453F; }
+.install-cmd .prompt { color: var(--types); user-select: none; font-weight: 700; }
+.install-cmd .copy-icon { color: var(--text-3); display: grid; place-items: center; }
+
+.scroll-hint {
+  margin-top: 32px; display: inline-flex; align-items: center; gap: 10px;
+  font-size: .74rem; color: var(--text-3); letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
+}
+.scroll-hint svg { animation: bob 2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+/* The Burger Assembly Stage */
+.burger-stage {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) translateX(calc((1 - var(--move)) * var(--hero-dx))) scale(var(--scale));
+  will-change: transform; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.burger {
+  position: relative;
+  width: 340px;
+  height: 640px;
+  /* Ground shadow for the whole stack. Tight and dark while the burger is
+     assembled, spreading and lifting as the layers come apart, so the two end
+     states read as different distances from the page. */
+  filter: drop-shadow(
+    0 calc(12px + var(--explode) * 12px)
+    calc(20px + var(--explode) * 24px)
+    rgba(0, 0, 0, calc(.52 + var(--explode) * .12))
+  );
+}
+.burger .layer {
+  position: absolute; left: 50%;
+  bottom: calc(
+    var(--base) + var(--explode) *
+      (var(--base-ex) - var(--base) + var(--spread) * var(--drift))
+  );
+  width: var(--w);
+  transform: translateX(-50%);
+  will-change: bottom;
+  /* Clicks hit the painted SVG silhouette rather than the layer's bounding box. */
+  pointer-events: none;
+}
+.burger .layer svg {
+  display: block; width: 100%; height: auto;
+  transition: opacity .3s ease;
+  pointer-events: auto;
+  cursor: pointer;
+  /* Layer elevation, taken from the reference's per-tier isoDropShadow. Because
+     each layer is its own SVG, each casts its own shadow: while the stack is
+     closed this collapses to a hard contact line (no offset, tight blur, high
+     alpha) that reads as the layers pressing on each other; as they part it
+     lifts into a wide soft shadow. drop-shadow follows the silhouette's alpha,
+     so it can never protrude the way a drawn ellipse can. */
+  filter: drop-shadow(
+    0 calc(var(--explode) * 18px)
+    calc(1.5px + var(--explode) * 20px)
+    rgba(0, 0, 0, calc(.7 - var(--explode) * .06))
+  );
+}
+
+/* Offsets: Assembled (--base) vs Exploded (--base-ex).
+   --base is the distance from the stack's floor to the layer's frame bottom, so
+   a taller viewBox pushes the art upward and --base has to come down by the same
+   amount (engine and authoring are +12 units tall to house their contact shade).
+   The assembled set is the tightest that still leaves the patty's seared face and
+   the leaf visible — every band below the crown has been pulled down to roughly
+   its contact spacing, so the closed burger reads as one stacked object rather
+   than five discs with gaps. The exploded set spreads the same five tiers over
+   the full stage: the tray is dropped to the foot of the frame and the crown is
+   pushed to the last few units of headroom the sticky viewport can hold, which is
+   what caps the spread (the crown may not clear the top of the viewport, because
+   .journey-sticky clips), so the fixed set is sized for the shortest viewport that
+   still renders at full scale. --spread adds travel back on taller viewports,
+   weighted by --drift so the five tiers stay evenly spaced as they open. The
+   distance between the two readings is what sells the unstack. */
+.layer-platform  { --base: 200px; --base-ex: 12px;  --w: 340px; --drift: -1; }
+.layer-engine    { --base: 218px; --base-ex: 154px; --w: 280px; --drift: -.45; }
+.layer-types     { --base: 260px; --base-ex: 312px; --w: 300px; --drift: 0; }
+.layer-authoring { --base: 272px; --base-ex: 447px; --w: 260px; --drift: .45; }
+.layer-runtime   { --base: 316px; --base-ex: 578px; --w: 280px; --drift: 1; }
+
+/* Contact shading between stacked layers. Each layer is its own SVG painted back
+   to front, so each one owns the shade it casts on the layer below. Driven by
+   --explode: fully opaque while the stack is closed, where it is the dark contact
+   line that makes the closed burger read as one object; fading to a faint shade
+   as the layers part, so no dark lobe is left floating under a lifted layer. */
+.journey-sticky .crevice { opacity: calc(1 - var(--explode) * .8); }
+
+/* In-place Layer Captions */
+.layer-caption {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  height: 48px; display: flex; flex-direction: column; justify-content: center;
+  gap: 3px; padding: 0 12px; border-radius: 9px;
+  background: color-mix(in srgb, var(--inset) 84%, transparent); backdrop-filter: blur(10px);
+  border: 1px solid var(--border-2); border-left: 3px solid var(--accent);
+  opacity: var(--explode);
+  transform: translateY(calc((1 - var(--explode)) * 10px));
+  transition: opacity .15s linear, transform .15s linear, border-color .2s ease;
+  overflow: hidden; pointer-events: none;
+}
+.layer-caption .cap-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.layer-caption .cap-crate { font-family: var(--mono); font-size: .72rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.layer-caption .cap-role { font-size: .62rem; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.layer-caption .cap-desc { font-size: .68rem; color: var(--text-2); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The caption is a real click target, but only once it is actually on screen —
+   otherwise its invisible 48px band would steal clicks from the slice above it. */
+.journey-sticky.has-captions .layer-caption { pointer-events: auto; cursor: pointer; }
+
+/* Recipe Book: crates/gpui (The Unified Facade) */
+.recipe-book {
+  position: absolute;
+  right: calc(100% + 36px);
+  top: 50%;
+  transform: translateY(-50%) translateX(calc((1 - var(--explode)) * -50px));
+  width: 250px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-right: 4px solid var(--facade);
+  border-radius: var(--r);
+  padding: 16px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.6);
+  opacity: calc(var(--explode) * 1.5 - 0.2);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+}
+.journey-sticky.is-exploded .recipe-book { pointer-events: auto; }
+.recipe-book .rb-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.recipe-book .rb-title { font-family: var(--mono); font-size: .78rem; font-weight: 700; color: var(--facade); }
+.recipe-book .rb-badge { font-size: .62rem; padding: 2px 6px; border-radius: 4px; background: var(--inset); border: 1px solid var(--border); color: var(--text-3); }
+.recipe-book p { font-size: .75rem; color: var(--text-2); line-height: 1.45; }
+.recipe-book pre {
+  margin-top: 10px; background: var(--inset); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px; font-size: .7rem; color: #A9C3B4; overflow-x: auto;
+}
+
+/* Layer Info Box: shown when a burger layer is clicked. Mirrors the recipe book
+   across the stack, sitting on the right of the burger.
+   Anchored against the sticky viewport rather than the stage so the stage's
+   scale() transform can never shrink it, while still tracking the stage's own
+   horizontal offset ((1 - move) * hero-dx) so it stays beside the burger.
+   The min() is a safety net: the rail can never be pushed off the right edge. */
+.layer-info {
+  position: absolute;
+  top: 50%;
+  left: min(
+    calc(50% + 36px + 170px * var(--scale) + (1 - var(--move)) * var(--hero-dx)),
+    calc(100% - 292px)
+  );
+  width: 268px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-left: 4px solid var(--accent, var(--brand));
+  border-radius: var(--r);
+  padding: 14px 16px 16px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.6);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 4;
+  transform: translateY(-50%) translateX(14px) scale(.97);
+  transform-origin: 0% 50%;
+  transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+  pointer-events: none;
+}
+.layer-info.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+.layer-info .li-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.layer-info .li-path { font-family: var(--mono); font-size: .66rem; color: var(--text-3); }
+.layer-info .li-close {
+  all: unset; cursor: pointer; color: var(--text-3); border-radius: 4px;
+  padding: 2px; display: grid; place-items: center; transition: color .2s ease;
+}
+.layer-info .li-close:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.layer-info .li-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 8px;
+}
+.layer-info .li-name {
+  font-family: var(--mono); font-size: .9rem; font-weight: 700;
+  color: var(--accent, var(--brand)); letter-spacing: -.01em;
+}
+.layer-info .li-role {
+  font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  padding: 2px 6px; border-radius: 4px; background: var(--inset);
+  border: 1px solid var(--border); color: var(--text-3); white-space: nowrap;
+}
+.layer-info .li-tag {
+  display: inline-block; margin-top: 8px;
+  font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--accent, var(--brand));
+}
+.layer-info .li-desc {
+  margin-top: 6px; font-size: .75rem; color: var(--text-2); line-height: 1.5;
+}
+.layer-info .li-field { margin-top: 12px; }
+.layer-info .li-label {
+  display: block; margin-bottom: 6px;
+  font-size: .58rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.layer-info .li-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.layer-info .li-chip {
+  font-family: var(--mono); font-size: .64rem; font-weight: 600;
+  padding: 3px 7px; border-radius: 5px; background: var(--inset);
+  border: 1px solid var(--border); color: var(--text-2);
+}
+.layer-info .li-chip.is-none { color: var(--text-3); font-style: italic; }
+.layer-info .li-cmd {
+  display: block; margin-top: 12px; padding: 8px;
+  background: var(--inset); border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--mono); font-size: .67rem; color: #A9C3B4; overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Layer Hover Highlight & Selection
+   Hover lifts only the slice under the pointer, and the pointer may be over
+   either the SVG or the caption below it — both belong to the same layer. */
+/* The hover glow replaces the elevation shadow for the slice under the pointer,
+   so it has to restate the whole filter rather than add to it. */
+.burger .layer:hover svg {
+  filter: drop-shadow(0 0 15px color-mix(in srgb, var(--accent) 58%, transparent)) saturate(1.1);
+}
+.burger .layer:hover .layer-caption {
+  background: rgba(11, 11, 10, .92);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-2));
+}
+.burger .layer.is-selected svg { filter: drop-shadow(0 0 15px color-mix(in srgb, var(--accent) 72%, transparent)); }
+.burger .layer:focus-visible { outline: none; }
+.burger .layer:focus-visible svg { filter: drop-shadow(0 0 15px color-mix(in srgb, var(--accent) 72%, transparent)); }
+
+/* Progress Bar */
+.progress {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+  width: 220px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.progress i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--platform), var(--runtime));
+  width: 0%; transition: width .08s linear;
+}
+
+/* ============================================================
+   ACT III: COMBO STUDIO (TWO-STAGE SIDES & BEVERAGE BUILDER)
+   ============================================================ */
+.combo {
+  padding: 48px 0 64px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.combo .container { max-width: 1240px; margin-inline: auto; padding-inline: 24px; }
+
+.section-head { max-width: 780px; margin-bottom: 20px; }
+.section-head .kicker {
+  font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--brand);
+  display: block; margin-bottom: 6px;
+}
+.section-head h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  letter-spacing: -.035em; font-weight: 800; line-height: 1.1;
+}
+.section-head p {
+  margin-top: 6px; color: var(--text-2); font-size: .92rem;
+  line-height: 1.5;
+}
+
+/* Studio Stepper Bar */
+.studio-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--inset);
+  border: 1px solid var(--border-2);
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 16px;
+  width: fit-content;
+}
+.stepper-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-3);
+  transition: all .2s var(--ease);
+}
+.stepper-btn.is-active {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.step-index {
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.stepper-btn.is-active .step-index {
+  background: var(--brand-dim);
+  border-color: rgba(143, 168, 155, 0.4);
+  color: var(--brand);
+}
+.step-chip {
+  font-size: .66rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+}
+.stepper-btn.is-active .step-chip {
+  color: var(--types);
+  border-color: rgba(143, 168, 155, 0.35);
+}
+.stepper-divider { color: var(--border-2); font-size: .8rem; user-select: none; }
+
+/* Single-Column Workspace */
+.combo-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ROW 1: Full-Width Dynamic Info Panel */
+.combo-info-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.combo-info-panel.has-focus {
+  border-color: color-mix(in srgb, var(--info-accent, var(--brand)) 45%, var(--border));
+  border-left: 4px solid var(--info-accent, var(--brand));
+  background: color-mix(in srgb, var(--info-accent, var(--brand)) 5%, var(--surface));
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Default / Unselected State in Info Panel */
+.info-idle-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+.info-idle-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.info-idle-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--inset); border: 1px solid var(--border-2);
+  display: grid; place-items: center; color: var(--brand);
+  flex-shrink: 0;
+}
+.info-idle-text { display: flex; flex-direction: column; gap: 3px; }
+.info-idle-title {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; color: var(--text);
+}
+.info-idle-desc {
+  font-size: .84rem; color: var(--text-2); line-height: 1.4; max-width: 68ch;
+}
+.info-idle-badge {
+  font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  padding: 5px 12px; border-radius: 99px;
+  background: var(--inset); border: 1px solid var(--border); color: var(--text-3);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* Focused Condiment State in Info Panel */
+.info-focused-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+  animation: infoFadeIn .22s var(--ease);
+}
+@keyframes infoFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.info-focused-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+.info-focused-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--inset); border: 1px solid var(--border-2);
+  display: grid; place-items: center; padding: 4px;
+  flex-shrink: 0;
+}
+.info-focused-icon svg { width: 100%; height: 100%; }
+
+.info-focused-text {
+  display: flex; flex-direction: column; gap: 3px; min-width: 0;
+}
+.info-focused-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.info-focused-kicker {
+  font-size: .64rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--info-accent, var(--brand));
+}
+.info-focused-title {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; color: var(--text);
+}
+.info-status-pill {
+  font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  padding: 2px 7px; border-radius: 99px; background: var(--inset);
+  border: 1px solid var(--border-2); color: var(--text-3); display: inline-flex; align-items: center; gap: 4px;
+}
+.info-status-pill.is-active {
+  background: color-mix(in srgb, var(--info-accent) 20%, var(--inset));
+  border-color: color-mix(in srgb, var(--info-accent) 50%, transparent);
+  color: var(--info-accent);
+}
+.info-status-pill .status-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+}
+.info-focused-desc {
+  font-size: .83rem; color: var(--text-2); line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.info-focused-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.info-chips {
+  display: flex; flex-direction: column; gap: 3px; text-align: right;
+}
+.info-chip-trait {
+  font-family: var(--mono); font-size: .72rem; font-weight: 600; color: var(--text);
+}
+.info-chip-gain {
+  font-size: .68rem; font-weight: 700; color: var(--info-accent, var(--brand));
+}
+.info-reset-btn {
+  background: var(--inset); border: 1px solid var(--border-2); color: var(--text-3);
+  border-radius: 7px; padding: 6px 10px; font-size: .7rem; font-weight: 600;
+  cursor: pointer; transition: all .2s ease; display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* ROW 3: Order Card / IDE Terminal */
+.order-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 10px 24px -10px rgba(0,0,0,0.5);
+  height: auto;
+}
+
+.order-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-2);
+}
+.terminal-dots { display: flex; align-items: center; gap: 5px; }
+.terminal-dot { width: 9px; height: 9px; border-radius: 50%; }
+.terminal-dot.close { background: #C2684F; opacity: .8; }
+.terminal-dot.min { background: #C6A15B; opacity: .8; }
+.terminal-dot.zoom { background: #8FA89B; opacity: .8; }
+
+/* Dual-File Inspector Tabs */
+.terminal-file-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.t-file-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--inset);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.t-file-btn.is-active {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--brand);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.t-file-btn svg { color: var(--brand); }
+.t-file-badge {
+  font-size: .6rem;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: var(--inset);
+  border: 1px solid var(--border-2);
+  color: var(--types);
+}
+
+.order-actions { display: flex; align-items: center; gap: 8px; }
+.order-badge {
+  font-family: var(--mono); font-size: .66rem; font-weight: 700;
+  color: var(--text-3); padding: 3px 8px; border-radius: 99px;
+  background: var(--inset); border: 1px solid var(--border); white-space: nowrap;
+}
+.order-badge[data-nonzero="true"] { color: var(--brand); border-color: rgba(143, 168, 155, .4); }
+
+.copy-code {
+  background: var(--surface); color: var(--text-3);
+  border: 1px solid var(--border-2); border-radius: 6px;
+  padding: 4px 8px; font-size: .7rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  transition: all .2s ease;
+}
+
+/* Color-Matched Code Lines Display (Natural Height) */
+.order-code {
+  position: relative;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 0;
+  overflow: visible;
+}
+.code-lines-container {
+  margin: 0; padding: 0;
+  font-family: var(--mono);
+  font-size: .76rem;
+  line-height: 1.52;
+  list-style: none;
+  height: auto;
+  min-height: 0;
+  overflow-y: visible;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.code-lines-container::-webkit-scrollbar { display: none; }
+
+.code-line {
+  display: flex; align-items: center;
+  padding: 1px 12px 1px 0;
+  border-left: 3px solid transparent;
+  transition: background .15s ease;
+}
+.code-line.is-added {
+  background: color-mix(in srgb, var(--line-accent) 8%, transparent);
+  border-left-color: var(--line-accent);
+  cursor: pointer;
+}
+.code-line-num {
+  width: 32px; flex-shrink: 0; text-align: right;
+  padding-right: 10px; color: #5C5751; user-select: none; font-size: .7rem;
+}
+.code-line.is-added .code-line-num { color: var(--line-accent); font-weight: 700; }
+.code-line-body { flex: 1; white-space: pre; color: #CFC9C0; }
+.code-line-tag {
+  margin-left: 10px; padding: 1px 5px; border-radius: 3px;
+  font-size: .58rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  background: color-mix(in srgb, var(--line-accent) 15%, var(--inset));
+  border: 1px solid color-mix(in srgb, var(--line-accent) 35%, transparent);
+  color: var(--line-accent); flex-shrink: 0;
+}
+
+/* Integrated Footer Metrics */
+.order-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.metric {
+  background: var(--inset); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.metric-val {
+  font-family: var(--mono); font-size: .78rem; font-weight: 700;
+  color: var(--brand); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.metric-val.is-good { color: var(--types); }
+.metric-lbl {
+  font-size: .58rem; font-weight: 600; color: var(--text-3);
+  letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+}
+
+/* ROW 2: Swappable Dock (checkbox condiments / radio beverages) */
+.dock-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dock-shelf-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dock-shelf-title strong {
+  font-size: .86rem;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+.dock-shelf-title span {
+  font-size: .7rem;
+  color: var(--text-3);
+}
+
+.dock-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.item-icon-btn {
+  all: unset;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: var(--inset);
+  border: 1.5px solid var(--border-2);
+  display: grid;
+  place-items: center;
+  position: relative;
+  cursor: pointer;
+  padding: 6px;
+  box-sizing: border-box;
+  transition: all .2s var(--ease);
+}
+.item-icon-btn svg {
+  width: 100%;
+  height: 100%;
+  opacity: .5;
+  filter: grayscale(35%);
+  transition: all .2s ease;
+}
+.item-icon-btn[data-active="true"] {
+  background: color-mix(in srgb, var(--accent) 18%, var(--inset));
+  border-color: var(--accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.item-icon-btn[data-active="true"] svg {
+  opacity: 1;
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.item-icon-btn.is-focused {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Active pips read as checkboxes in step 1 and radio buttons in step 2. */
+.icon-active-pip {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #403B36;
+  transition: all .2s ease;
+}
+.item-icon-btn[data-active="true"] .icon-active-pip {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+.dock-condiments .icon-active-pip { border-radius: 2px; }
+.dock-beverages .icon-active-pip { border-radius: 50%; box-shadow: 0 0 0 1px var(--inset); }
+
+.dock-switch-stage-btn {
+  background: var(--inset);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--brand);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .2s ease;
+}
+
+/* ============================================================
+   ACT IV: BENCHMARKS & DINER RECEIPT
+   ============================================================ */
+.bench-wrapper {
+  background: var(--bg-2);
+  border-block: 1px solid var(--border);
+  padding: 100px 0;
+}
+.bench-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: start; }
+
+.bench-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px;
+}
+.bench-metric { margin-bottom: 24px; }
+.bench-metric:last-child { margin-bottom: 0; }
+.metric-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.metric-title { font-size: .92rem; font-weight: 700; }
+.metric-sub { font-size: .75rem; color: var(--text-3); }
+
+.bar-track {
+  height: 24px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 10px;
+  font-family: var(--mono); font-size: .74rem; font-weight: 700;
+  transition: width 1.1s var(--ease);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.bar-fill.is-in { width: var(--w-target, 100%); }
+.bar-fill.before {
+  background: linear-gradient(90deg, rgba(194, 104, 79, .4), rgba(194, 104, 79, .85));
+  color: #E0A79C;
+  --w-target: 100%;
+}
+.bar-fill.after {
+  background: linear-gradient(90deg, rgba(143, 168, 155, .5), rgba(143, 168, 155, .95));
+  color: #A9C3B4;
+}
+
+.receipt {
+  background: #F7F3ED;
+  color: #1C1917;
+  border-radius: 6px;
+  padding: 24px 20px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.45);
+  font-family: var(--mono);
+  position: relative;
+}
+.receipt::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px;
+  background: radial-gradient(circle, transparent, transparent 50%, #F7F3ED 50%, #F7F3ED 100%);
+  background-size: 16px 16px;
+}
+.receipt-header { text-align: center; border-bottom: 2px dashed #CFC9C0; padding-bottom: 14px; margin-bottom: 14px; }
+.receipt-header h3 { font-size: 1.05rem; color: #1C1917; font-weight: 800; font-family: var(--ui); }
+.receipt-line { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 8px; }
+.receipt-line.total { border-top: 2px solid #1C1917; padding-top: 10px; margin-top: 14px; font-weight: 800; font-size: .9rem; }
+
+/* ============================================================
+   QUICKSTART TABS
+   ============================================================ */
+section#quickstart { padding: 100px 0; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 0; position: relative; }
+.tab {
+  background: none; border: 0; cursor: pointer; padding: 12px 18px;
+  font-family: var(--ui); font-size: .88rem; font-weight: 600;
+  color: var(--text-3); transition: color .2s ease; position: relative;
+}
+.tab:hover { color: var(--text-2); }
+.tab.active { color: var(--brand); }
+.tab-indicator {
+  position: absolute; bottom: -1px; height: 2px; background: var(--brand);
+  border-radius: 2px; transition: transform .35s var(--ease), width .35s var(--ease);
+}
+
+.code-shell {
+  background: var(--inset); border: 1px solid var(--border); border-top: 0;
+  border-radius: 0 0 var(--r) var(--r); padding: 24px; position: relative;
+}
+.code-shell pre {
+  margin: 0; font-size: .84rem; line-height: 1.7; color: #CFC9C0; overflow-x: auto;
+}
+.code-pane { display: none; }
+.code-pane.active { display: block; animation: paneFade .35s var(--ease); }
+@keyframes paneFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.copy-btn {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--surface); border: 1px solid var(--border-2);
+  color: var(--text-3); border-radius: 6px; padding: 6px 12px; font-size: .75rem;
+  font-family: var(--ui); font-weight: 600; cursor: pointer; transition: all .2s ease;
+}
+.copy-btn:hover { color: var(--text); border-color: #4A453F; }
+
+.k { color: #C2A5D9; } .s { color: #A9C3B4; } .c { color: #5C5751; font-style: italic; }
+.f { color: #A3BFC6; } .t { color: #E0BE84; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 64px 0 44px; }
+.foot-grid { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 40px; }
+.foot-brand p { margin-top: 14px; font-size: .85rem; color: var(--text-3); max-width: 34ch; }
+.foot-col h4 { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 16px; }
+.foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.foot-col a { font-size: .86rem; color: var(--text-2); transition: color .2s ease; }
+.foot-col a:hover { color: var(--brand); }
+.foot-bottom {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; gap: 16px; font-size: .8rem; color: var(--text-3);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1140px) {
+  /* Below this the burger plus two rails stop fitting side by side, so the layer
+     info docks to the bottom of the viewport as a sheet instead. */
+  .layer-info {
+    top: auto; left: 50%; bottom: 22px;
+    width: min(92vw, 420px);
+    transform: translateX(-50%) translateY(12px) scale(.98);
+    transform-origin: 50% 100%;
+  }
+  .layer-info.is-visible { transform: translateX(-50%); }
+}
+@media (max-width: 1024px) {
+  .recipe-book { display: none; }
+}
+@media (max-width: 820px) {
+  .journey { height: 420vh; }
+  .hero-copy {
+    left: 50%; top: 12vh; transform: translateX(-50%);
+    max-width: 88vw; text-align: center;
+  }
+  .hero-copy .lede { margin-inline: auto; }
+  .burger-stage { top: 62%; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .info-idle-state, .info-focused-state { flex-direction: column; align-items: flex-start; }
+  .info-focused-right { align-self: flex-end; }
+  .bench-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .combo { padding: 36px 0 48px; }
+  .combo .container { padding-inline: 16px; }
+  .order-metrics { grid-template-columns: repeat(2, 1fr); }
+  .foot-grid { grid-template-columns: 1fr; }
+  .info-focused-desc { white-space: normal; }
+  .dock-wrapper { flex-direction: column; align-items: flex-start; }
+}

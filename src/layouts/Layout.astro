@@ -1,0 +1,86 @@
+---
+import "../styles/global.css";
+
+const {
+    title = "bite-gpui — GPUI, à la carte",
+    description = "A modular re-architecture of GPUI. Deconstructed into an acyclic crate stack.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link
+            rel="icon"
+            href="/icon-192.png"
+            type="image/png"
+            sizes="192x192"
+        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#0B0B0A" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="toast" id="toast" role="status" aria-live="polite">
+            <span class="toast-dot" aria-hidden="true"></span>
+            <span id="toast-message">Copied to clipboard</span>
+        </div>
+
+        <slot />
+
+        <script>
+            // Shared copy feedback. Defined once here so the copy affordances in
+            // Nav, Journey, ComboStudio and Quickstart stay one-liners, and so
+            // the insecure-context fallback is not duplicated four times.
+            const toastEl = document.getElementById("toast");
+            const toastMsg = document.getElementById("toast-message");
+            let toastTimer;
+
+            window.showToast = (message) => {
+                if (!toastEl || !toastMsg) return;
+                toastMsg.textContent = message;
+                toastEl.classList.add("is-visible");
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(
+                    () => toastEl.classList.remove("is-visible"),
+                    2200,
+                );
+            };
+
+            window.copyToClipboard = async (text, message) => {
+                const done = () =>
+                    window.showToast(message || "Copied to clipboard");
+                try {
+                    await navigator.clipboard.writeText(text);
+                    done();
+                } catch {
+                    // Insecure contexts and sandboxed iframes have no async clipboard.
+                    const el = document.createElement("textarea");
+                    el.value = text;
+                    el.style.position = "fixed";
+                    el.style.opacity = "0";
+                    document.body.appendChild(el);
+                    el.select();
+                    try {
+                        document.execCommand("copy");
+                        done();
+                    } catch (err) {
+                        console.error("Copy failed", err);
+                    }
+                    document.body.removeChild(el);
+                }
+            };
+        </script>
+    </body>
+</html>

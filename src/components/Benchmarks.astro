@@ -1,0 +1,103 @@
+---
+---
+
+<!-- ACT IV: BENCHMARKS & DINER RECEIPT -->
+<section class="bench-wrapper" id="benchmarks">
+	<div class="container">
+		<div class="section-head">
+			<span class="kicker">Benchmarks</span>
+			<h2>Measured, not promised.</h2>
+			<p>Numbers from the refactor patchset. Every bar is a real frame-time measurement on the same scene.</p>
+		</div>
+		<div class="bench-grid">
+			<div class="bench-card">
+				<div class="bench-metric">
+					<div class="metric-header">
+						<span class="metric-title">Glyph Raster Bounds Estimation</span>
+						<span class="metric-sub">Memoized cache in gpui_parley</span>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill before">~835 ms (Monolith)</div>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill after" style="--w-target: 2.2%;">2.1 ms</div>
+					</div>
+				</div>
+
+				<div class="bench-metric">
+					<div class="metric-header">
+						<span class="metric-title">Two-Frame Layout Reshaping</span>
+						<span class="metric-sub">Retained layout pooling on clean frames</span>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill before">28.5 ms (Monolith)</div>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill after" style="--w-target: 16.8%;">4.8 ms</div>
+					</div>
+				</div>
+
+				<div class="bench-metric">
+					<div class="metric-header">
+						<span class="metric-title">Scrolling Frame Reshapes</span>
+						<span class="metric-sub">Skipping redundant shaper passes</span>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill before">29.0 ms (Monolith)</div>
+					</div>
+					<div class="bar-track">
+						<div class="bar-fill after" style="--w-target: 17.2%;">5.0 ms</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Diner Receipt Card -->
+			<aside class="receipt" aria-label="Performance summary receipt">
+				<div class="receipt-header">
+					<h3>THE DINER RECEIPT</h3>
+					<p style="font-size:0.75rem; color:#64748B;">Order #0042 · Table 6 · Modular GPUI</p>
+				</div>
+				<div class="receipt-line">
+					<span>Glyph Bounds</span>
+					<span>99.7% FASTER</span>
+				</div>
+				<div class="receipt-line">
+					<span>Two-Frame Layout</span>
+					<span>83.1% FASTER</span>
+				</div>
+				<div class="receipt-line">
+					<span>Clean Frame Reshape</span>
+					<span>82.7% FASTER</span>
+				</div>
+				<div class="receipt-line">
+					<span>CI Display Server</span>
+					<span>0 MB (IN-MEM)</span>
+				</div>
+				<div class="receipt-line total">
+					<span>FRAME LATENCY</span>
+					<span>&lt; 8.3 ms (120 FPS)</span>
+				</div>
+			</aside>
+		</div>
+	</div>
+</section>
+
+<script>
+	(() => {
+		const benchIO = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) return;
+					const fills = entry.target.querySelectorAll('.bar-fill');
+					fills.forEach((fill, i) => {
+						setTimeout(() => fill.classList.add('is-in'), i * 110);
+					});
+					benchIO.unobserve(entry.target);
+				});
+			},
+			{ threshold: 0.4 }
+		);
+
+		document.querySelectorAll('.bench-metric').forEach((m) => benchIO.observe(m));
+	})();
+</script>

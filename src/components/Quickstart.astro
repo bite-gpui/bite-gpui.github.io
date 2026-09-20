@@ -1,0 +1,143 @@
+---
+const panes = [
+    {
+        id: "install",
+        label: "Install",
+        html: `<span class="c"># The whole stack, behind one facade</span>
+cargo add bite-gpui
+
+<span class="c"># …or cherry-pick individual tiers</span>
+cargo add gpui_platform gpui_engine gpui_types`,
+    },
+    {
+        id: "window",
+        label: "Hello, window",
+        html: `<span class="k">use</span> gpui::<span class="m">*</span>;
+
+<span class="k">fn</span> <span class="f">main</span>() {
+    <span class="f">application</span>().<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| {
+        cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">cx</span>| {
+            cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
+        }).<span class="f">unwrap</span>();
+    });
+}`,
+    },
+    {
+        id: "parley",
+        label: "With Parley",
+        html: `<span class="k">use</span> gpui::<span class="m">*</span>;
+<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;
+
+<span class="k">fn</span> <span class="f">main</span>() {
+    <span class="f">application</span>()
+        .<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()))
+        .<span class="f">with_frame_pipeline</span>(
+            <span class="t">StandardImmediatePipeline</span>
+                .<span class="f">max_fps</span>(<span class="s">60</span>)
+                .<span class="f">instrumented</span>(<span class="f">metrics</span>())
+        )
+        .<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| { <span class="c">/* … */</span> });
+}`,
+    },
+    {
+        id: "headless",
+        label: "Headless test",
+        html: `<span class="c">#[test]</span>
+<span class="k">fn</span> <span class="f">renders_without_a_display</span>() {
+    <span class="k">let mut</span> app = <span class="f">headless</span>();
+    <span class="k">let</span> window = app.<span class="f">open_test_window</span>(|<span class="m">cx</span>| {
+        cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
+    });
+
+    window.<span class="f">draw</span>();
+    <span class="f">assert_eq!</span>(window.<span class="f">scene</span>().<span class="f">quads</span>.<span class="f">len</span>(), <span class="s">12</span>);
+}`,
+    },
+];
+---
+
+<!-- DEVELOPER QUICKSTART TABS -->
+<section id="quickstart">
+    <div class="container">
+        <div class="section-head">
+            <span class="kicker">Quickstart</span>
+            <h2>Up and running in four lines.</h2>
+            <p>Start with the facade, then peel off layers as you need them.</p>
+        </div>
+
+        <div class="tabs" id="tabs">
+            {panes.map((pane, i) => (
+                <button
+                    class={`tab${i === 0 ? " active" : ""}`}
+                    data-pane={pane.id}
+                >
+                    {pane.label}
+                </button>
+            ))}
+            <div class="tab-indicator" id="tabInd"></div>
+        </div>
+
+        <div class="code-shell">
+            <button class="copy-btn" id="copyCodeBtn">
+                Copy snippet
+            </button>
+
+            {panes.map((pane, i) => (
+                <div
+                    class={`code-pane${i === 0 ? " active" : ""}`}
+                    id={`pane-${pane.id}`}
+                >
+                    <pre><code set:html={pane.html} /></pre>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    (() => {
+        const tabs = [...document.querySelectorAll(".tab")];
+        const ind = document.getElementById("tabInd");
+
+        function setTab(tab) {
+            tabs.forEach((t) => t.classList.remove("active"));
+            tab.classList.add("active");
+            if (ind) {
+                ind.style.width = tab.offsetWidth + "px";
+                ind.style.transform = `translateX(${tab.offsetLeft}px)`;
+            }
+
+            document
+                .querySelectorAll(".code-pane")
+                .forEach((p) => p.classList.remove("active"));
+            const targetPane = document.getElementById(
+                "pane-" + tab.dataset.pane,
+            );
+            if (targetPane) targetPane.classList.add("active");
+        }
+
+        tabs.forEach((tab) => tab.addEventListener("click", () => setTab(tab)));
+
+        window.addEventListener("resize", () => {
+            const activeTab = document.querySelector(".tab.active");
+            if (activeTab) setTab(activeTab);
+        });
+
+        document
+            .getElementById("copyCodeBtn")
+            ?.addEventListener("click", function () {
+                const codeEl = document.querySelector(".code-pane.active code");
+                if (!codeEl) return;
+                window.copyToClipboard(codeEl.innerText, "Copied snippet");
+            });
+
+        const activeTab = document.querySelector(".tab.active");
+        if (activeTab) setTab(activeTab);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                const current = document.querySelector(".tab.active");
+                if (current) setTab(current);
+            });
+        }
+    })();
+</script>

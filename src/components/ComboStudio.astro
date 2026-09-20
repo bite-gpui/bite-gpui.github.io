@@ -1,0 +1,934 @@
+---
+---
+
+<!-- ACT III: COMBO STUDIO (TWO-STAGE SIDES & BEVERAGE BUILDER) -->
+<section class="combo" id="capabilities">
+    <div class="container">
+        <div class="section-head">
+            <span class="kicker">
+                Combo Studio · Sides &amp; Beverage Selection
+            </span>
+            <h2>Everything on this menu is decoupled.</h2>
+            <p>
+                Attach modern text layout and frame pacing decorators (Step 1),
+                then select your target OS runtime (Step 2). Inspect how native
+                platform drivers live in <code>Cargo.toml</code> without
+                invalidating application code.
+            </p>
+        </div>
+
+        <!-- Stepper Navigation -->
+        <div
+            class="studio-stepper"
+            role="tablist"
+            aria-label="Studio Configuration Stepper"
+        >
+            <button
+                class="stepper-btn is-active"
+                id="stepBtnCondiments"
+                data-stage="condiments"
+                role="tab"
+                aria-selected="true"
+            >
+                <span class="step-index">1</span>
+                <span>Sides &amp; Condiments</span>
+                <span class="step-chip" id="condimentCountChip">
+                    0 active
+                </span>
+            </button>
+            <span class="stepper-divider">➔</span>
+            <button
+                class="stepper-btn"
+                id="stepBtnBeverages"
+                data-stage="beverages"
+                role="tab"
+                aria-selected="false"
+            >
+                <span class="step-index">2</span>
+                <span>Target Beverage (Platform OS)</span>
+                <span class="step-chip" id="beverageTargetChip">
+                    macOS
+                </span>
+            </button>
+        </div>
+
+        <div class="combo-layout">
+            <!-- ROW 1: DYNAMIC INFO PANEL -->
+            <div class="combo-info-panel" id="infoPanel" aria-live="polite">
+                <!-- Rendered by renderInfoPanel() -->
+            </div>
+
+            <!-- ROW 2: SWAPPABLE DOCK (CONDIMENTS OR BEVERAGES) -->
+            <div class="dock-wrapper" id="dockWrapper">
+                <div class="dock-shelf-title">
+                    <strong id="dockShelfHeader">
+                        Additive Feature Decorators (Checkboxes)
+                    </strong>
+                    <span id="dockShelfSub">
+                        Stack as many decorators into your application pipeline
+                        as needed.
+                    </span>
+                </div>
+
+                <div
+                    class="dock-buttons-group"
+                    id="dockButtonsGroup"
+                    role="group"
+                    aria-label="Interactive option toggles"
+                >
+                    <!-- Populated by renderDock() -->
+                </div>
+
+                <button class="dock-switch-stage-btn" id="dockSwitchStageBtn">
+                    <span>Choose Target Beverage (Platform OS)</span>
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                    >
+                        <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- ROW 3: DUAL-FILE TERMINAL INSPECTOR -->
+            <aside class="order-card" aria-live="polite">
+                <div class="order-head">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div class="terminal-dots" aria-hidden="true">
+                            <span class="terminal-dot close"></span>
+                            <span class="terminal-dot min"></span>
+                            <span class="terminal-dot zoom"></span>
+                        </div>
+                        <!-- Dual-File Tabs -->
+                        <div class="terminal-file-tabs">
+                            <button
+                                class="t-file-btn is-active"
+                                id="tabMainFile"
+                                data-file="main"
+                            >
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                <span id="tabMainFileLabel">main.rs</span>
+                                <span
+                                    class="t-file-badge"
+                                    id="tabMainBadge"
+                                    style="display:none;"
+                                >
+                                    0 changes
+                                </span>
+                            </button>
+                            <button
+                                class="t-file-btn"
+                                id="tabCargoFile"
+                                data-file="cargo"
+                            >
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <rect
+                                        x="3"
+                                        y="3"
+                                        width="18"
+                                        height="18"
+                                        rx="2"
+                                    ></rect>
+                                    <path d="M9 3v18M15 3v18M3 9h18M3 15h18"></path>
+                                </svg>
+                                <span>Cargo.toml</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="order-actions">
+                        <span class="order-badge" id="orderBadge">
+                            0 add-ons active
+                        </span>
+                        <button class="copy-code" id="copyCode">
+                            <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect
+                                    x="9"
+                                    y="9"
+                                    width="12"
+                                    height="12"
+                                    rx="2"
+                                ></rect>
+                                <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="order-code">
+                    <ol class="code-lines-container" id="codeLinesList"></ol>
+                </div>
+
+                <div class="order-metrics">
+                    <div class="metric">
+                        <span class="metric-val" id="mGlyph">
+                            835 ms
+                        </span>
+                        <span class="metric-lbl">Glyph paint</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-val" id="mLayout">
+                            28.5 ms
+                        </span>
+                        <span class="metric-lbl">Layout</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-val" id="mFps">
+                            Uncapped
+                        </span>
+                        <span class="metric-lbl">Frame rate</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-val is-good" id="mPlatform">
+                            macOS (Metal)
+                        </span>
+                        <span class="metric-lbl">Target OS</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script>
+    (() => {
+        // Current active configuration
+        let currentStage = "condiments"; // 'condiments' | 'beverages'
+        let currentActiveFile = "main"; // 'main' | 'cargo'
+
+        // Step 1: additive checkboxes. Headless is a platform driver now, so it
+        // lives with the beverages rather than the decorators.
+        const condimentsState = {
+            spicy: false,
+            mild: false,
+            parley: false,
+            nachos: false,
+        };
+
+        // Step 2: mutually exclusive radio (default macOS)
+        let activeBeverage = "macos"; // 'macos' | 'linux' | 'windows' | 'headless'
+
+        let focusedItemKey = null;
+
+        // CONDIMENT DATA (Sides)
+        const CONDIMENT_DATA = {
+            spicy: {
+                key: "spicy",
+                type: "condiment",
+                name: "Spicy Sauce",
+                kicker: "Telemetry Middleware",
+                crate: "InstrumentedPipeline",
+                color: "#C2684F",
+                desc: "Sub-millisecond pass telemetry for evaluate_roots, layout_roots, and paint_roots. Profile render loops without injecting logging noise into views.",
+                specTrait: "FramePipelineDecorator",
+                specImpact: "Per-pass profiler trace",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 20 L38 20 L36 48 Q28 52 20 48 Z" fill="#7F1D1D"/><path d="M18 20 L38 20 L37 26 L19 26 Z" fill="#B91C1C"/><ellipse cx="28" cy="20" rx="10" ry="2.5" fill="#DC2626"/><rect x="24" y="6" width="8" height="12" rx="1.5" fill="#450A0A"/><path d="M26 6 L30 6 L30 2 L26 2 Z" fill="#FCA5A5"/></svg>',
+            },
+            mild: {
+                key: "mild",
+                type: "condiment",
+                name: "Mild Sauce",
+                kicker: "Pacing Controller",
+                crate: "ThrottledPipeline",
+                color: "#C9B486",
+                desc: "Locks the frame loop to a deterministic refresh cadence (60 or 120 FPS). Absorbs display refresh jitter up to ¼ interval, preventing test desyncs.",
+                specTrait: "StandardImmediatePipeline",
+                specImpact: "Deterministic 60 FPS pacing",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="13" ry="3.5" fill="#000" opacity=".35"/><path d="M20 22 L36 22 L34 48 Q28 51 22 48 Z" fill="#854D0E"/><path d="M20 22 L36 22 L35 28 L21 28 Z" fill="#CA8A04"/><ellipse cx="28" cy="22" rx="8" ry="2.2" fill="#FACC15"/><rect x="25" y="10" width="6" height="12" rx="1.2" fill="#422006"/></svg>',
+            },
+            parley: {
+                key: "parley",
+                type: "condiment",
+                name: "Seasoning Shaker",
+                kicker: "Linebender Typography",
+                crate: "gpui_parley",
+                color: "#8FA89B",
+                desc: "Linebender Parley Unicode BiDi text layout (Arabic/Hebrew + CJK/Latin), Skrifa outline extraction, and tiny-skia atlas rasterization in pure Rust.",
+                specTrait: "Arc&lt;dyn TextSystem&gt;",
+                specImpact: "835 ms ➔ 2.1 ms glyph paint",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="15" ry="3.5" fill="#000" opacity=".35"/><path d="M16 22 L40 22 L42 46 Q28 50 14 46 Z" fill="#14532D"/><path d="M16 22 L40 22 L40.5 26 L15.5 26 Z" fill="#166534"/><ellipse cx="28" cy="22" rx="12" ry="3" fill="#15803D"/><ellipse cx="28" cy="16" rx="12" ry="5" fill="#22C55E"/></svg>',
+            },
+            nachos: {
+                key: "nachos",
+                type: "condiment",
+                name: "Loaded Nachos",
+                kicker: "Surface Escape Hatch",
+                crate: "Style::custom · Surface",
+                color: "#D9A55F",
+                desc: "Direct blit of raw wgpu render passes, embedded 3D viewports, or video decoders straight into GPUI draw quad lists without patching core structs.",
+                specTrait: "Styled::custom_style",
+                specImpact: "Zero engine forks",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="16" ry="3.5" fill="#000" opacity=".35"/><path d="M10 40 Q10 24 28 24 Q46 24 46 40 Q28 46 10 40 Z" fill="#7C2D12"/><path d="M12 38 Q14 28 28 28 Q42 28 44 38 Q28 42 12 38 Z" fill="#B45309"/><path d="M20 30 L26 26 L32 30 Z" fill="#FBBF24"/><path d="M30 32 L36 28 L42 32 Z" fill="#FBBF24"/></svg>',
+            },
+        };
+
+        // BEVERAGE DATA (target platform drivers — radio)
+        const BEVERAGE_DATA = {
+            macos: {
+                key: "macos",
+                type: "beverage",
+                name: "Crisp Apple Fizz",
+                kicker: "Platform Driver · macOS",
+                crate: "gpui_platform_macos",
+                color: "#9FC0BC",
+                desc: "Native Cocoa CFRunLoop + CAMetalLayer swapchain. Application code depends only on the Platform SPI, meaning 0 lines of view code recompile on target changes.",
+                specTrait: "CAMetalLayer + Cocoa Loop",
+                specImpact: "0 lines changed in main.rs",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#0369A1"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#0284C7"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#38BDF8"/><path d="M28 6 Q30 12 34 14" stroke="#F43F5E" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="28" cy="32" r="4.5" fill="#E0F2FE" opacity=".8"/></svg>',
+            },
+            linux: {
+                key: "linux",
+                type: "beverage",
+                name: "Open-Source Cola",
+                kicker: "Platform Driver · Linux",
+                crate: "gpui_platform_linux",
+                color: "#D9A55F",
+                desc: "Wayland (wayland-client) + X11 (xcb) compositor backend with Vulkan surface rendering. Untangled from UI views, preventing workspace-wide recompile cascades.",
+                specTrait: "Wayland/X11 + Vulkan",
+                specImpact: "0 lines changed in main.rs",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 18 L38 18 L35 48 Q28 51 21 48 Z" fill="#78350F"/><path d="M18 18 L38 18 L37 24 L19 24 Z" fill="#B45309"/><ellipse cx="28" cy="18" rx="10" ry="2.5" fill="#F59E0B"/><path d="M25 10 L31 10 L30 18 L26 18 Z" fill="#D97706"/><circle cx="28" cy="33" r="4.5" fill="#FEF3C7" opacity=".8"/></svg>',
+            },
+            windows: {
+                key: "windows",
+                type: "beverage",
+                name: "Direct3D Punch",
+                kicker: "Platform Driver · Windows",
+                crate: "gpui_platform_windows",
+                color: "#9BA3C0",
+                desc: "Win32 message dispatch loop paired with a native Direct3D 12 swapchain. Targets cfg(target_os = &quot;windows&quot;) in Cargo.toml without polluting views with #![cfg].",
+                specTrait: "Win32 Dispatch + D3D12",
+                specImpact: "0 lines changed in main.rs",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#1E3A8A"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#2563EB"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#60A5FA"/><rect x="23" y="10" width="10" height="4" rx="1" fill="#93C5FD"/><circle cx="28" cy="32" r="4.5" fill="#DBEAFE" opacity=".8"/></svg>',
+            },
+            headless: {
+                key: "headless",
+                type: "beverage",
+                name: "In-Memory Soda",
+                kicker: "Platform Driver · Headless CI",
+                crate: "gpui_test / Headless",
+                color: "#8E8781",
+                desc: "Pure in-memory synthetic event dispatcher. Run full integration suites in GitHub Actions or Docker with 0 MB display server requirements and zero Xvfb flakiness.",
+                specTrait: "TestDispatcher &amp; TestWindow",
+                specImpact: "0 MB CI Display Footprint",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.2" fill="#000" opacity=".35"/><path d="M16 18 L40 18 L36 48 Q28 51 20 48 Z" fill="#334155"/><path d="M16 18 L40 18 L38 24 L18 24 Z" fill="#475569"/><ellipse cx="28" cy="18" rx="12" ry="2.8" fill="#64748B"/><rect x="20" y="12" width="16" height="4" rx="1.2" fill="#1E293B"/></svg>',
+            },
+        };
+
+        // DOM elements
+        const stepBtnCondiments = document.getElementById("stepBtnCondiments");
+        const stepBtnBeverages = document.getElementById("stepBtnBeverages");
+        const condimentCountChip =
+            document.getElementById("condimentCountChip");
+        const beverageTargetChip =
+            document.getElementById("beverageTargetChip");
+
+        const dockShelfHeader = document.getElementById("dockShelfHeader");
+        const dockShelfSub = document.getElementById("dockShelfSub");
+        const dockButtonsGroup = document.getElementById("dockButtonsGroup");
+        const dockSwitchStageBtn =
+            document.getElementById("dockSwitchStageBtn");
+
+        const infoPanel = document.getElementById("infoPanel");
+        const codeList = document.getElementById("codeLinesList");
+        const copyBtn = document.getElementById("copyCode");
+        const orderBadge = document.getElementById("orderBadge");
+
+        const tabMainFile = document.getElementById("tabMainFile");
+        const tabCargoFile = document.getElementById("tabCargoFile");
+        const tabMainFileLabel = document.getElementById("tabMainFileLabel");
+        const tabMainBadge = document.getElementById("tabMainBadge");
+
+        const mGlyph = document.getElementById("mGlyph");
+        const mLayout = document.getElementById("mLayout");
+        const mFps = document.getElementById("mFps");
+        const mPlatform = document.getElementById("mPlatform");
+
+        function renderInfoPanel() {
+            if (!infoPanel) return;
+
+            if (!focusedItemKey) {
+                infoPanel.classList.remove("has-focus");
+                infoPanel.style.removeProperty("--info-accent");
+
+                if (currentStage === "condiments") {
+                    const activeCount =
+                        Object.values(condimentsState).filter(Boolean).length;
+                    infoPanel.innerHTML = `
+            <div class="info-idle-state">
+              <div class="info-idle-left">
+                <div class="info-idle-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                  </svg>
+                </div>
+                <div class="info-idle-text">
+                  <span class="info-idle-title">Step 1: Sides &amp; Condiments (Additive Decorators)</span>
+                  <span class="info-idle-desc">Click any condiment below to toggle feature flags into your build, inspect its decoupled SPI trait, and observe real-time latency changes.</span>
+                </div>
+              </div>
+              <span class="info-idle-badge">${activeCount} of 4 active</span>
+            </div>
+          `;
+                } else {
+                    const bev = BEVERAGE_DATA[activeBeverage];
+                    infoPanel.innerHTML = `
+            <div class="info-idle-state">
+              <div class="info-idle-left">
+                <div class="info-idle-icon" style="color:${bev.color};" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
+                <div class="info-idle-text">
+                  <span class="info-idle-title">Step 2: Platform Beverage Selection (Mutually Exclusive Radio)</span>
+                  <span class="info-idle-desc">A single build targets exactly 1 OS backend. Switch beverages to observe how Cargo.toml handles native drivers without touching UI views.</span>
+                </div>
+              </div>
+              <span class="info-idle-badge" style="color:${bev.color};border-color:${bev.color};">Active: ${bev.name}</span>
+            </div>
+          `;
+                }
+                return;
+            }
+
+            const data =
+                CONDIMENT_DATA[focusedItemKey] || BEVERAGE_DATA[focusedItemKey];
+            if (!data) return;
+
+            const isEnabled =
+                data.type === "condiment"
+                    ? !!condimentsState[focusedItemKey]
+                    : activeBeverage === focusedItemKey;
+
+            infoPanel.classList.add("has-focus");
+            infoPanel.style.setProperty("--info-accent", data.color);
+            infoPanel.innerHTML = `
+        <div class="info-focused-state">
+          <div class="info-focused-left">
+            <div class="info-focused-icon" aria-hidden="true">${data.svg}</div>
+            <div class="info-focused-text">
+              <div class="info-focused-meta">
+                <span class="info-focused-kicker">${data.kicker}</span>
+                <span class="info-status-pill ${isEnabled ? "is-active" : ""}">
+                  <span class="status-dot"></span>
+                  ${isEnabled ? (data.type === "condiment" ? "Included in build" : "Selected Target OS") : "Inactive"}
+                </span>
+              </div>
+              <span class="info-focused-title">${data.name} <code style="font-size:.74rem;color:${data.color};font-weight:600;">(${data.crate})</code></span>
+              <span class="info-focused-desc">${data.desc}</span>
+            </div>
+          </div>
+
+          <div class="info-focused-right">
+            <div class="info-chips">
+              <span class="info-chip-trait">${data.specTrait}</span>
+              <span class="info-chip-gain">${data.specImpact}</span>
+            </div>
+            <button class="info-reset-btn" id="infoResetBtn" title="Return to general overview">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Overview</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+            document
+                .getElementById("infoResetBtn")
+                ?.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    focusedItemKey = null;
+                    document
+                        .querySelectorAll(".item-icon-btn")
+                        .forEach((b) => b.classList.remove("is-focused"));
+                    renderInfoPanel();
+                });
+        }
+
+        // Render dock buttons (condiments vs beverages)
+        function renderDock() {
+            if (!dockButtonsGroup) return;
+            dockButtonsGroup.innerHTML = "";
+
+            const isCondiments = currentStage === "condiments";
+
+            // Drives the square (checkbox) vs round (radio) pip styling.
+            dockButtonsGroup.classList.toggle("dock-condiments", isCondiments);
+            dockButtonsGroup.classList.toggle("dock-beverages", !isCondiments);
+
+            dockShelfHeader.textContent = isCondiments
+                ? "Additive Feature Decorators (Checkboxes)"
+                : "Mutually Exclusive Target Backend (Radio)";
+            dockShelfSub.textContent = isCondiments
+                ? "Stack as many decorators onto your application pipeline as needed."
+                : "A compilation artifact targets exactly one operating system driver at a time.";
+
+            dockSwitchStageBtn.innerHTML = isCondiments
+                ? `<span>Proceed to Target Beverage (Platform OS)</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`
+                : `<span>◂ Back to Sides &amp; Condiments</span>`;
+
+            const items = isCondiments
+                ? Object.values(CONDIMENT_DATA)
+                : Object.values(BEVERAGE_DATA);
+
+            items.forEach((item) => {
+                const btn = document.createElement("button");
+                btn.className = "item-icon-btn";
+                btn.dataset.itemKey = item.key;
+                btn.dataset.itemType = item.type;
+                btn.style.setProperty("--accent", item.color);
+                btn.title = `${item.name} (${item.crate})`;
+                btn.setAttribute("aria-label", item.name);
+
+                const isActive = isCondiments
+                    ? !!condimentsState[item.key]
+                    : activeBeverage === item.key;
+                btn.dataset.active = String(isActive);
+                if (item.key === focusedItemKey)
+                    btn.classList.add("is-focused");
+
+                btn.innerHTML = `${item.svg}<span class="icon-active-pip"></span>`;
+
+                btn.addEventListener("click", () => {
+                    if (isCondiments) {
+                        condimentsState[item.key] = !condimentsState[item.key];
+                    } else {
+                        activeBeverage = item.key;
+                        // Headless stays on the test file; every desktop driver proves the Cargo.toml boundary.
+                        currentActiveFile =
+                            activeBeverage === "headless" ? "main" : "cargo";
+                    }
+                    focusedItemKey = item.key;
+                    renderAll();
+                });
+
+                dockButtonsGroup.appendChild(btn);
+            });
+        }
+
+        // Code generation for main.rs, tests/smoke.rs or Cargo.toml
+        function getCodeContent() {
+            const isHeadless = activeBeverage === "headless";
+
+            if (currentActiveFile === "cargo") {
+                const activeConds = Object.keys(condimentsState).filter(
+                    (k) => condimentsState[k],
+                );
+                const featuresStr =
+                    activeConds.length > 0
+                        ? `features = [${activeConds.map((c) => `"${c}"`).join(", ")}]`
+                        : "";
+
+                const lines = [
+                    {
+                        code: '<span class="c"># Cargo.toml — Leaf Platform Driver Resolution</span>',
+                        raw: "# Cargo.toml",
+                    },
+                    { code: "[dependencies]", raw: "[dependencies]" },
+                    {
+                        code: `bite-gpui = { version = <span class="s">"0.1"</span>${featuresStr ? ", " + featuresStr : ""} }`,
+                        raw: `bite-gpui = { version = "0.1"${featuresStr ? ", " + featuresStr : ""} }`,
+                    },
+                    { code: "", raw: "" },
+                    {
+                        code: '<span class="c"># Target-conditional driver leaf crates (Mutually exclusive)</span>',
+                        raw: "# Target-conditional drivers",
+                    },
+                ];
+
+                if (activeBeverage === "macos") {
+                    lines.push({
+                        code: `<span class="t">[target.'cfg(target_os = "macos")'.dependencies]</span>`,
+                        raw: `[target.'cfg(target_os = "macos")'.dependencies]`,
+                        condiment: "macos",
+                        tag: "gpui_platform_macos",
+                    });
+                    lines.push({
+                        code: `gpui_platform_macos = { version = <span class="s">"0.1"</span> } <span class="c"># CFRunLoop + Metal (CAMetalLayer)</span>`,
+                        raw: `gpui_platform_macos = { version = "0.1" } # CFRunLoop + Metal (CAMetalLayer)`,
+                        condiment: "macos",
+                    });
+                } else if (activeBeverage === "linux") {
+                    lines.push({
+                        code: `<span class="t">[target.'cfg(target_os = "linux")'.dependencies]</span>`,
+                        raw: `[target.'cfg(target_os = "linux")'.dependencies]`,
+                        condiment: "linux",
+                        tag: "gpui_platform_linux",
+                    });
+                    lines.push({
+                        code: `gpui_platform_linux = { version = <span class="s">"0.1"</span> } <span class="c"># Wayland (wayland-client) / X11 + Vulkan</span>`,
+                        raw: `gpui_platform_linux = { version = "0.1" } # Wayland / X11 + Vulkan`,
+                        condiment: "linux",
+                    });
+                } else if (activeBeverage === "windows") {
+                    lines.push({
+                        code: `<span class="t">[target.'cfg(target_os = "windows")'.dependencies]</span>`,
+                        raw: `[target.'cfg(target_os = "windows")'.dependencies]`,
+                        condiment: "windows",
+                        tag: "gpui_platform_windows",
+                    });
+                    lines.push({
+                        code: `gpui_platform_windows = { version = <span class="s">"0.1"</span> } <span class="c"># Win32 message pump + Direct3D 12</span>`,
+                        raw: `gpui_platform_windows = { version = "0.1" } # Win32 + Direct3D 12`,
+                        condiment: "windows",
+                    });
+                } else if (activeBeverage === "headless") {
+                    lines.push({
+                        code: "[dev-dependencies]",
+                        raw: "[dev-dependencies]",
+                    });
+                    lines.push({
+                        code: `bite-gpui = { version = <span class="s">"0.1"</span>, features = [<span class="s">"test-mock"</span>] } <span class="c"># 0 MB in-memory dispatcher</span>`,
+                        raw: `bite-gpui = { version = "0.1", features = ["test-mock"] }`,
+                        condiment: "headless",
+                        tag: "headless-ci",
+                    });
+                }
+
+                lines.push({ code: "", raw: "" });
+                lines.push({
+                    code: '<span class="c"># Modifying UI views invalidates 0 platform driver crates.</span>',
+                    raw: "# Modifying UI views invalidates 0 platform driver crates.",
+                });
+
+                return lines;
+            }
+
+            // Rust code: tests/smoke.rs when headless, otherwise main.rs
+            if (isHeadless) {
+                return [
+                    {
+                        code: '<span class="c">// tests/smoke.rs — Pure In-Memory Headless CI</span>',
+                        raw: "// tests/smoke.rs",
+                    },
+                    {
+                        code: '<span class="k">use</span> gpui::<span class="m">*</span>;',
+                        raw: "use gpui::*;",
+                    },
+                    { code: "", raw: "" },
+                    { code: '<span class="c">#[test]</span>', raw: "#[test]" },
+                    {
+                        code: '<span class="k">fn</span> <span class="f">test_headless_render</span>() {',
+                        raw: "fn test_headless_render() {",
+                    },
+                    {
+                        code: '    <span class="c">// Synthetic in-memory dispatcher; zero GPU / Xvfb requirements</span>',
+                        raw: "    // Synthetic in-memory dispatcher; zero GPU / Xvfb requirements",
+                    },
+                    {
+                        code: '    <span class="k">let mut</span> app = <span class="f">headless</span>();',
+                        raw: "    let mut app = headless();",
+                        condiment: "headless",
+                        tag: "headless",
+                    },
+                    {
+                        code: '    <span class="k">let</span> win = app.<span class="f">open_test_window</span>(|<span class="m">cx</span>| cx.<span class="f">new</span>(|_| <span class="t">MyView</span>));',
+                        raw: "    let win = app.open_test_window(|cx| cx.new(|_| MyView));",
+                        condiment: "headless",
+                    },
+                    {
+                        code: '    win.<span class="f">draw</span>();',
+                        raw: "    win.draw();",
+                    },
+                    {
+                        code: '    <span class="f">assert_eq!</span>(win.<span class="f">scene</span>().<span class="f">quads</span>.<span class="f">len</span>(), <span class="s">4</span>);',
+                        raw: "    assert_eq!(win.scene().quads.len(), 4);",
+                    },
+                    { code: "}", raw: "}" },
+                ];
+            }
+
+            // Standard desktop main.rs — identical across macOS, Linux and Windows
+            const lines = [];
+            lines.push({
+                code: '<span class="k">use</span> gpui::<span class="m">*</span>;',
+                raw: "use gpui::*;",
+            });
+
+            if (condimentsState.parley) {
+                lines.push({
+                    code: '<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;',
+                    raw: "use gpui_parley::ParleyTextSystem;",
+                    condiment: "parley",
+                    tag: "gpui_parley",
+                });
+            }
+
+            if (condimentsState.nachos) {
+                lines.push({
+                    code: '<span class="k">use</span> gpui_wgpu_surface::<span class="t">WgpuSurface</span>;',
+                    raw: "use gpui_wgpu_surface::WgpuSurface;",
+                    condiment: "nachos",
+                    tag: "Style::custom",
+                });
+            }
+
+            lines.push({ code: "", raw: "" });
+            lines.push({
+                code: '<span class="k">fn</span> <span class="f">main</span>() {',
+                raw: "fn main() {",
+            });
+            lines.push({
+                code: '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// Resolves Platform SPI via Cargo.toml</span>',
+                raw: "    let mut app = application();",
+            });
+
+            if (condimentsState.parley) {
+                lines.push({
+                    code: '    app.<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()));',
+                    raw: "    app.with_text_system(Arc::new(ParleyTextSystem::new()));",
+                    condiment: "parley",
+                    tag: "gpui_parley",
+                });
+            }
+
+            if (condimentsState.spicy || condimentsState.mild) {
+                let pipeCode =
+                    '    app.<span class="f">with_frame_pipeline</span>(<span class="t">StandardImmediatePipeline</span>';
+                if (condimentsState.mild)
+                    pipeCode +=
+                        '.<span class="f">max_fps</span>(<span class="s">60</span>)';
+                if (condimentsState.spicy)
+                    pipeCode +=
+                        '.<span class="f">instrumented</span>(<span class="f">metrics</span>())';
+                pipeCode += ");";
+
+                lines.push({
+                    code: pipeCode,
+                    raw: pipeCode.replace(/<[^>]*>/g, ""),
+                    condiment: condimentsState.spicy ? "spicy" : "mild",
+                    tag: "FramePipeline",
+                });
+            }
+
+            if (condimentsState.nachos) {
+                lines.push({
+                    code: '    app.<span class="f">with_surface_pipeline</span>(<span class="t">WgpuSurface</span>::<span class="f">new</span>(device, queue));',
+                    raw: "    app.with_surface_pipeline(WgpuSurface::new(device, queue));",
+                    condiment: "nachos",
+                    tag: "wgpu surface",
+                });
+            }
+
+            lines.push({
+                code: '    app.<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| {',
+                raw: "    app.run(|cx: &mut App| {",
+            });
+            lines.push({
+                code: '        cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">cx</span>| cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)).<span class="f">unwrap</span>();',
+                raw: "        cx.open_window(WindowOptions::default(), |cx| cx.new(|_| MyView)).unwrap();",
+            });
+            lines.push({ code: "    });", raw: "    });" });
+            lines.push({ code: "}", raw: "}" });
+
+            return lines;
+        }
+
+        let currentRawClipboard = "";
+
+        function renderTerminal() {
+            if (!codeList) return;
+
+            const isHeadless = activeBeverage === "headless";
+            tabMainFileLabel.textContent = isHeadless
+                ? "tests/smoke.rs"
+                : "main.rs";
+            tabMainBadge.style.display =
+                !isHeadless && currentActiveFile === "cargo"
+                    ? "inline-flex"
+                    : "none";
+
+            tabMainFile.classList.toggle(
+                "is-active",
+                currentActiveFile === "main",
+            );
+            tabCargoFile.classList.toggle(
+                "is-active",
+                currentActiveFile === "cargo",
+            );
+
+            const lines = getCodeContent();
+            currentRawClipboard = lines.map((l) => l.raw).join("\n");
+
+            codeList.innerHTML = "";
+            lines.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.className = "code-line";
+
+                if (item.condiment) {
+                    li.classList.add("is-added");
+                    li.dataset.condiment = item.condiment;
+                    const color =
+                        (
+                            CONDIMENT_DATA[item.condiment] ||
+                            BEVERAGE_DATA[item.condiment]
+                        )?.color || "var(--brand)";
+                    li.style.setProperty("--line-accent", color);
+                }
+
+                const num = document.createElement("span");
+                num.className = "code-line-num";
+                num.textContent = index + 1;
+
+                const body = document.createElement("span");
+                body.className = "code-line-body";
+                body.innerHTML = item.code || "&nbsp;";
+
+                li.appendChild(num);
+                li.appendChild(body);
+
+                if (item.tag) {
+                    const tag = document.createElement("span");
+                    tag.className = "code-line-tag";
+                    tag.textContent = item.tag;
+                    li.appendChild(tag);
+                }
+
+                if (item.condiment) {
+                    li.addEventListener("click", () => {
+                        focusedItemKey = item.condiment;
+                        renderAll();
+                    });
+                }
+
+                codeList.appendChild(li);
+            });
+
+            const activeCondCount =
+                Object.values(condimentsState).filter(Boolean).length;
+            condimentCountChip.textContent = `${activeCondCount} active`;
+            beverageTargetChip.textContent = BEVERAGE_DATA[activeBeverage].name;
+
+            if (orderBadge) {
+                if (currentStage === "condiments") {
+                    orderBadge.textContent = `${activeCondCount} add-on${activeCondCount === 1 ? "" : "s"} active`;
+                    orderBadge.dataset.nonzero = String(activeCondCount > 0);
+                } else {
+                    orderBadge.textContent = `Target: ${BEVERAGE_DATA[activeBeverage].name}`;
+                    orderBadge.dataset.nonzero = "true";
+                }
+            }
+
+            if (mGlyph) {
+                mGlyph.textContent = condimentsState.parley
+                    ? "2.1 ms"
+                    : "835 ms";
+                mGlyph.classList.toggle("is-good", condimentsState.parley);
+            }
+            if (mLayout) {
+                mLayout.textContent = condimentsState.parley
+                    ? "4.8 ms"
+                    : "28.5 ms";
+                mLayout.classList.toggle("is-good", condimentsState.parley);
+            }
+            if (mFps) {
+                mFps.textContent = condimentsState.mild ? "60 FPS" : "Uncapped";
+                mFps.classList.toggle("is-good", condimentsState.mild);
+            }
+            if (mPlatform) {
+                if (activeBeverage === "macos")
+                    mPlatform.textContent = "macOS (Metal)";
+                else if (activeBeverage === "linux")
+                    mPlatform.textContent = "Linux (Wayland)";
+                else if (activeBeverage === "windows")
+                    mPlatform.textContent = "Win32 (DX12)";
+                else if (activeBeverage === "headless")
+                    mPlatform.textContent = "0 MB (In-Memory)";
+            }
+        }
+
+        function setStage(stage) {
+            currentStage = stage;
+            if (stage === "condiments") {
+                focusedItemKey = null;
+                currentActiveFile = "main";
+            } else {
+                focusedItemKey = activeBeverage;
+                currentActiveFile =
+                    activeBeverage === "headless" ? "main" : "cargo";
+            }
+            renderAll();
+        }
+
+        function renderAll() {
+            const onCondiments = currentStage === "condiments";
+            stepBtnCondiments.classList.toggle("is-active", onCondiments);
+            stepBtnBeverages.classList.toggle("is-active", !onCondiments);
+            stepBtnCondiments.setAttribute(
+                "aria-selected",
+                String(onCondiments),
+            );
+            stepBtnBeverages.setAttribute(
+                "aria-selected",
+                String(!onCondiments),
+            );
+
+            renderInfoPanel();
+            renderDock();
+            renderTerminal();
+        }
+
+        stepBtnCondiments?.addEventListener("click", () =>
+            setStage("condiments"),
+        );
+        stepBtnBeverages?.addEventListener("click", () =>
+            setStage("beverages"),
+        );
+
+        dockSwitchStageBtn?.addEventListener("click", () => {
+            setStage(
+                currentStage === "condiments" ? "beverages" : "condiments",
+            );
+        });
+
+        // Dual-file tab switching
+        tabMainFile?.addEventListener("click", () => {
+            currentActiveFile = "main";
+            renderTerminal();
+        });
+        tabCargoFile?.addEventListener("click", () => {
+            currentActiveFile = "cargo";
+            renderTerminal();
+        });
+
+        copyBtn?.addEventListener("click", () => {
+            const file =
+                currentActiveFile === "cargo"
+                    ? "Cargo.toml"
+                    : "the generated Rust";
+            window.copyToClipboard(currentRawClipboard, `Copied ${file}`);
+        });
+
+        renderAll();
+    })();
+</script>
