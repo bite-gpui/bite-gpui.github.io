@@ -106,9 +106,23 @@ the findings behind the burger's shading.
 
 ## Deployment
 
-`npm run build` emits `dist/`; `dist/` is gitignored. There is **no** deploy
-workflow in this repository, and `astro.config.mjs` is intentionally empty: the
-repo is named `bite-gpui.github.io`, so it is served from the org's root and needs
-no `site` or `base`. Publishing is a separate step — either point GitHub Pages at a
-branch containing the build output, or add a workflow that runs `npm run build` and
-uploads `dist/`.
+Pushes to `main` publish automatically through
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): `npm ci` and
+`npm run build` on Node 22, `dist/` uploaded with `actions/upload-pages-artifact`
+and published with `actions/deploy-pages`. There is no `gh-pages` branch and no
+build output in the repository — `dist/` is gitignored.
+
+The one-time requirement is **Settings → Pages → Build and deployment → Source**
+set to **GitHub Actions**. The workflow passes `enablement: true`, which turns
+Pages on if it was never enabled, but it does not move an existing branch-based
+source over to Actions — if Pages is already publishing from a branch, switch the
+source by hand once.
+
+`astro.config.mjs` is intentionally empty: the repository is named
+`bite-gpui.github.io`, so it is served from the org's root and needs no `site` or
+`base`. Setting `site` would only matter for absolute URLs such as canonical tags
+or a sitemap.
+
+Because Pages serves the uploaded artifact directly rather than running Jekyll,
+the `_astro/` asset directory needs no `.nojekyll`. That would only be needed if
+the site ever went back to publishing from a branch.

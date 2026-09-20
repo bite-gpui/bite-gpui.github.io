@@ -1,0 +1,77 @@
+# Builds the site and publishes it to GitHub Pages.
+#
+# Action versions are the current majors; re-check them with
+#   curl -sL https://api.github.com/repos/actions/checkout/releases/latest
+# if a run starts warning about a deprecated Node runtime.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Lets you re-publish from the Actions tab without pushing a commit.
+  workflow_dispatch:
+
+# Required by actions/deploy-pages: `pages` to publish, and `id-token` to mint
+# the OIDC token Pages verifies the deployment with.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deploy mid-publish — let the running one finish, and queue the
+# next. Cancelling between upload and deploy is how you end up with a partially
+# published site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          # Tracks `engines.node` in package.json (>=22.12.0), which is what
+          # Astro 7 requires. `22` resolves to the newest 22.x, so it always
+          # satisfies the range.
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+        with:
+          # Turn Pages on if it has never been enabled for this repository, so
+          # the first run does not need a manual visit to Settings. It will not
+          # move an existing branch-based source over to Actions — if Pages is
+          # already publishing from a branch, switch the source by hand once.
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          # Astro's build output. The whole directory is published as-is; Pages
+          # serves the uploaded artifact directly, without running Jekyll, so
+          # `_astro/` needs no `.nojekyll` escape hatch.
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
