@@ -248,23 +248,33 @@ entire unstack. Both ends are bounded — do not expect to push them far:
 - **Closed** (`--base`) is set so each band is only as tall as its contact spacing
 — about 21 units of tray ring, 45 of bottom bun, 15 of leaf, 33 of patty and 95 of
 crown, or 209 units in total, under a third of the 640 frame.
-- **Exploded** (`--base-ex`) is capped at *both* ends, and the caps are what the
-fixed spread is: the crown may not leave the sticky viewport (`.journey-sticky`
-is 100vh with `overflow: hidden`), and the tray may not drop so far that its
-in-place caption leaves the bottom edge. With the frame centred and `--scale`
-pinned to 1, only ≈40px of headroom survives above and below the frame at every
-viewport height, so the crown tops out near `--base-ex: 578` and the tray's floor
-near `--base-ex: 12` — a ≈660-unit spread. Push either further and the crown
-clips, or the tray's caption loses its lower border on a 1280×720 window.
+- **Exploded** (`--base-ex`) is capped at *both* ends: the crown may not rise
+behind the header — the header bar is the ceiling of the unstack, budgeted in
+`measureLayout` — and the tray may not drop so far that its in-place caption leaves
+the bottom edge. With the frame centred, the crown's artwork rides `CROWN_RIDE`
+(677) units above the frame's floor, and the floor itself sits at
+`50vh + height/2`, so the header budget is `50vh − headerHeight − 14`. That fixes
+the exploded scale; whatever the crown does not need is handed back as extra
+travel. Two consequences worth knowing:
 
-So the fixed offsets are sized for the *shortest* viewport that still renders at
-full scale, which leaves a lot of the page unused on a taller display. `--spread`
-on `.journey-sticky` — `clamp(0px, (100vh - 760px) * 0.45, 110px)` — hands that
-slack back: each layer adds `--spread * --drift` to its travel, weighted `-1` at
-the tray through `+1` at the crown so the five tiers stay evenly spaced as they
-open. It is zero at and below 760px tall, so short viewports get exactly the
-geometry the offsets specify, and `render-burger.py --spread N` previews a given
-value offline.
+- **The header is a wall, not a clip.** At every viewport height the crown's
+painted top lands exactly 14 units under the header bar — verified at 660, 760,
+860 and 1060px tall, and on mobile at 820px tall (43 units of clearance there,
+since that layout anchors the stage to the foot of the viewport instead of
+centring it).
+- **Tall windows buy travel, short ones pay in size.** At 1200×1060 the burger
+keeps `--scale` 1 and earns 90 units of `--spread`; at 1200×860 the spread is gone
+and the exploded scale drops to 0.97; at 760 tall it is 0.83. Crucially the
+exploded scale is interpolated from `--scale` by `--explode` (see `--scale-now`),
+so a short viewport only costs the burger size *as it opens* — the assembled hero
+is never shrunk to pay for an unstack it has not performed yet.
+
+`--spread` and `--scale-open` are therefore computed in JS, not CSS: both need the
+*measured* header height, which CSS cannot read. They fall back to `0px` and
+`--scale`, which is what a no-JS visitor sees anyway, since `--explode` is also 0.
+Each layer adds `--spread * --drift` to its travel, weighted `-1` at the tray
+through `+1` at the crown so the five tiers stay evenly spaced as they open, and
+`render-burger.py --spread N` previews a given value offline.
 
 The intermediary layers are positioned for *even layer centres*, not even art gaps:
 the layers differ in height enough that centring on the artwork leaves the crown

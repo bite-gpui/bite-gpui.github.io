@@ -814,18 +814,58 @@ pub use gpui_runtime::*;
         const bar = document.getElementById("progressBar");
         const burger = document.getElementById("burger");
         const heroCopy = document.querySelector(".hero-copy");
+        const header = document.querySelector(".nav");
 
         // Minimum breathing room between the hero copy and the stack.
         const HERO_GAP = 48;
         const BURGER_W = 340;
+
+        // The unstack is budgeted against the header, which is its ceiling: the
+        // crown rises to the header's underside and stops there rather than
+        // sliding behind it.
+        const BURGER_H = 640; // .burger's frame height
+        const CROWN_RIDE = 677; // runtime's --base-ex (578) + its dome's 99 units
+        const HEADER_GAP = 14; // breathing room under the header bar
+        const SPREAD_MAX = 110; // ceiling on the extra travel, as in global.css
 
         function measureLayout() {
             if (!sticky) return;
             const vw = document.documentElement.clientWidth;
             const vh = document.documentElement.clientHeight;
 
-            const scale = Math.max(0.55, Math.min(1, (vh - 80) / 640));
-            sticky.style.setProperty("--scale", String(scale));
+            // Assembled: the frame has to fit the viewport with breathing room.
+            const scale = Math.max(0.55, Math.min(1, (vh - 80) / BURGER_H));
+
+            // Exploded: the stage is centred, so the frame's floor sits at
+            // vh/2 + height/2 and the crown's artwork reaches CROWN_RIDE above
+            // that. Fitting that under the header may cost the burger some size;
+            // whatever the crown does not need is handed back as --spread, which
+            // is what lengthens the unstack on a tall window.
+            //
+            // Narrow screens pin the stage to the foot of the viewport instead
+            // (see the ≤820px block in global.css), so their budget is measured
+            // from the bottom rather than the centre — it has room to spare, so
+            // they keep full size and their own spread rule.
+            const headerH =
+                (header ? header.getBoundingClientRect().height : 64) +
+                HEADER_GAP;
+            const ride = CROWN_RIDE - BURGER_H / 2;
+            const budget = vh / 2 - headerH;
+            const scaleOpen =
+                vw <= 820
+                    ? scale
+                    : Math.max(0.55, Math.min(1, scale, budget / ride));
+            const spread =
+                vw <= 820
+                    ? Math.max(0, Math.min(SPREAD_MAX, (vh - 760) * 0.45))
+                    : Math.max(
+                          0,
+                          Math.min(SPREAD_MAX, budget / scaleOpen - ride),
+                      );
+
+            sticky.style.setProperty("--scale", scale.toFixed(4));
+            sticky.style.setProperty("--scale-open", scaleOpen.toFixed(4));
+            sticky.style.setProperty("--spread", spread.toFixed(1) + "px");
 
             if (vw <= 820) {
                 // The hero moves above the stack on narrow screens, so it needs no room.

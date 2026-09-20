@@ -199,13 +199,20 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
   --explode: 0;
   --hero-dx: 0px;
   --scale: 1;
-  /* Extra unstack travel, granted only when the viewport is tall enough to give
-     it. The exploded offsets below are fixed, and sized for the shortest viewport
-     that still renders at full scale (see the --base-ex block) — which wastes a
-     lot of the page on a taller display. This hands that slack back to the crown
-     and the tray, which is where the unstack reads. Zero at and below 760px tall,
-     so short viewports keep exactly the geometry the offsets specify. */
-  --spread: clamp(0px, calc((100vh - 760px) * 0.45), 110px);
+  --scale-open: 1;
+  /* Extra unstack travel, and the assembled→exploded scale, are both computed in
+     measureLayout(): they have to be budgeted against the *measured* header
+     height, which CSS cannot read. The header is the ceiling of the unstack — the
+     crown rises to its underside and stops, rather than sliding behind it — and
+     any viewing height the crown does not need is handed back as extra travel. */
+  --spread: 0px;
+  /* The stage's scale for the current --explode: full size while assembled, the
+     header-budgeted size once the tiers have parted. Interpolating it means a
+     short viewport costs the burger size only as it opens, so the hero it lands
+     on is never shrunk to pay for the unstack. */
+  --scale-now: calc(
+    var(--scale) + var(--explode) * (var(--scale-open) - var(--scale))
+  );
 }
 
 /* Act I Hero Copy */
@@ -274,7 +281,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
 /* The Burger Assembly Stage */
 .burger-stage {
   position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%) translateX(calc((1 - var(--move)) * var(--hero-dx))) scale(var(--scale));
+  transform: translate(-50%, -50%) translateX(calc((1 - var(--move)) * var(--hero-dx))) scale(var(--scale-now));
   will-change: transform; z-index: 2;
   display: flex; align-items: center; justify-content: center;
 }
@@ -343,11 +350,11 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
    than five discs with gaps. The exploded set spreads the same five tiers over
    the full stage: the tray is dropped to the foot of the frame and the crown is
    pushed to the last few units of headroom the sticky viewport can hold, which is
-   what caps the spread (the crown may not clear the top of the viewport, because
-   .journey-sticky clips), so the fixed set is sized for the shortest viewport that
-   still renders at full scale. --spread adds travel back on taller viewports,
-   weighted by --drift so the five tiers stay evenly spaced as they open. The
-   distance between the two readings is what sells the unstack. */
+   what caps the spread (the crown may not cross the header, which global.css
+   pins and measureLayout() budgets against), so the fixed set is sized for the
+   shortest viewport that still renders at full scale. --spread adds travel back
+   on taller viewports, weighted by --drift so the five tiers stay evenly spaced
+   as they open. The distance between the two readings is what sells the unstack. */
 .layer-platform  { --base: 200px; --base-ex: 12px;  --w: 340px; --drift: -1; }
 .layer-engine    { --base: 218px; --base-ex: 154px; --w: 280px; --drift: -.45; }
 .layer-types     { --base: 260px; --base-ex: 312px; --w: 300px; --drift: 0; }
@@ -1204,7 +1211,7 @@ footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 
   .burger-stage {
     top: auto; bottom: var(--lift, 2vh);
     transform-origin: 50% 100%;
-    transform: translate(-50%, 0) scale(calc(var(--scale) * var(--fit, 1)));
+    transform: translate(-50%, 0) scale(calc(var(--scale-now) * var(--fit, 1)));
   }
   /* The captions stay — they are the only text the unstack has — but compacted to
      a single chip and moved ABOVE their layer. At this width a three-line card is
