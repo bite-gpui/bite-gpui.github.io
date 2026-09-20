@@ -828,10 +828,37 @@ pub use gpui_runtime::*;
         const HEADER_GAP = 14; // breathing room under the header bar
         const SPREAD_MAX = 110; // ceiling on the extra travel, as in global.css
 
+        const stage = document.querySelector(".burger-stage");
+
+        // The viewport height is locked, not read live. A mobile address bar
+        // hiding fires a resize with the *same* width and a taller viewport;
+        // re-deriving --scale/--spread and the scroll denominator from that snaps
+        // the stack mid-unstack. Under the mobile breakpoint a height-only change
+        // within browser-chrome range is ignored, so the locked height tracks the
+        // 100svh units in global.css; any width change (orientation or desktop
+        // resize) and any larger height change re-measure.
+        const CHROME_MAX = 160; // px; ceiling on address-bar / toolbar height
+        let lockedW = document.documentElement.clientWidth;
+        let lockedH = document.documentElement.clientHeight;
+
+        function measureViewport() {
+            const w = document.documentElement.clientWidth;
+            const h = document.documentElement.clientHeight;
+            if (
+                w === lockedW &&
+                w <= 820 &&
+                Math.abs(h - lockedH) <= CHROME_MAX
+            )
+                return false; // address-bar chrome only
+            lockedW = w;
+            lockedH = h;
+            return true;
+        }
+
         function measureLayout() {
             if (!sticky) return;
-            const vw = document.documentElement.clientWidth;
-            const vh = document.documentElement.clientHeight;
+            const vw = lockedW;
+            const vh = lockedH;
 
             // Assembled: the frame has to fit the viewport with breathing room.
             const scale = Math.max(0.55, Math.min(1, (vh - 80) / BURGER_H));
@@ -868,9 +895,25 @@ pub use gpui_runtime::*;
             sticky.style.setProperty("--spread", spread.toFixed(1) + "px");
 
             if (vw <= 820) {
-                // The hero moves above the stack on narrow screens, so it needs no room.
+                // The hero moves above the stack on narrow screens, so it needs no
+                // room. The two --fit/--lift steps that used to be max-height media
+                // queries live here instead: keyed off the locked height they cannot
+                // flip when the address bar moves.
                 sticky.style.setProperty("--hero-dx", "0px");
+                if (stage) {
+                    const fit = vh <= 690 ? 0.7 : vh <= 780 ? 0.88 : 1;
+                    stage.style.setProperty("--fit", String(fit));
+                    stage.style.setProperty(
+                        "--lift",
+                        (vh * 0.01 * (vh <= 690 ? 1 : 2)).toFixed(1) + "px",
+                    );
+                }
             } else {
+                if (stage) {
+                    // Unused above the breakpoint; clear anything a resize left.
+                    stage.style.removeProperty("--fit");
+                    stage.style.removeProperty("--lift");
+                }
                 // Nudge the stack only as far as it takes to clear the hero copy.
                 // Nudging it further would rob the right rail of its space.
                 const heroRight = heroCopy
@@ -885,7 +928,7 @@ pub use gpui_runtime::*;
         function updateJourney() {
             if (!journey || !sticky) return;
             const r = journey.getBoundingClientRect();
-            const travel = journey.offsetHeight - window.innerHeight;
+            const travel = journey.offsetHeight - lockedH;
             const p =
                 travel <= 0 ? 0 : Math.max(0, Math.min(1, -r.top / travel));
 
@@ -1073,6 +1116,8 @@ pub use gpui_runtime::*;
             });
 
         window.addEventListener("resize", () => {
+            // Ignore address-bar-only resizes so the unstack does not snap.
+            if (!measureViewport()) return;
             measureLayout();
             updateJourney();
         });
