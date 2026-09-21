@@ -366,18 +366,22 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
    The assembled set is the tightest that still leaves the patty's seared face and
    the leaf visible — every band below the crown has been pulled down to roughly
    its contact spacing, so the closed burger reads as one stacked object rather
-   than five discs with gaps. The exploded set spreads the same five tiers over
-   the full stage: the tray is dropped to the foot of the frame and the crown is
-   pushed to the last few units of headroom the sticky viewport can hold, which is
-   what caps the spread (the crown may not cross the header, which global.css
-   pins and measureLayout() budgets against), so the fixed set is sized for the
-   shortest viewport that still renders at full scale. --spread adds travel back
-   on taller viewports, weighted by --drift so the five tiers stay evenly spaced
-   as they open. The distance between the two readings is what sells the unstack. */
-.layer-platform  { --base: 200px; --base-ex: 12px;  --w: 340px; --drift: -1; }
-.layer-engine    { --base: 218px; --base-ex: 154px; --w: 280px; --drift: -.45; }
-.layer-types     { --base: 260px; --base-ex: 312px; --w: 300px; --drift: 0; }
-.layer-authoring { --base: 272px; --base-ex: 447px; --w: 260px; --drift: .45; }
+   than five discs with gaps.
+
+   The platform is the floor and does not move: its --base-ex matches its --base
+   and its --drift is 0, so neither the unstack nor the tall-viewport travel can
+   slide the plate out from under the stack. Everything above it lifts off, and
+   the exploded set is measured up from that fixed plate: the crown is pushed to
+   the last few units of headroom the sticky viewport can hold, which is what caps
+   the spread (the crown may not cross the header, which global.css pins and
+   measureLayout() budgets against). --spread hands extra travel back on taller
+   viewports, weighted by --drift from the floor (0) to the crown (1) so the five
+   tiers stay evenly spaced as they open. The distance between the two readings is
+   what sells the unstack. */
+.layer-platform  { --base: 200px; --base-ex: 200px; --w: 340px; --drift: 0; }
+.layer-engine    { --base: 218px; --base-ex: 295px; --w: 280px; --drift: .25; }
+.layer-types     { --base: 260px; --base-ex: 400px; --w: 300px; --drift: .53; }
+.layer-authoring { --base: 272px; --base-ex: 491px; --w: 260px; --drift: .77; }
 .layer-runtime   { --base: 316px; --base-ex: 578px; --w: 280px; --drift: 1; }
 
 /* Contact shading between stacked layers. Each layer is its own SVG painted back
@@ -1371,10 +1375,11 @@ footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 
   /* Re-base the stack to the foot of the frame. On desktop it rides ~200 units up
      inside the frame, which centres it in the viewport while the copy sits off to
      the side; here the copy is above it, so that offset *is* the collision.
-     Dropping --base also lengthens the unstack, because --base-ex is unchanged.
-     These overrides deliberately carry no --base-ex / --drift: render-burger.py
-     keys off the one full rule per layer in the offsets block above. */
-  .layer-platform  { --base: 10px; }
+     Dropping --base also lengthens the unstack, because --base-ex is unchanged —
+     except for the platform, whose --base-ex tracks --base so the plate stays put.
+     These overrides otherwise carry no --base-ex / --drift: render-burger.py keys
+     off the one full rule per layer in the offsets block above. */
+  .layer-platform  { --base: 10px; --base-ex: 10px; }
   .layer-engine    { --base: 28px; }
   .layer-types     { --base: 70px; }
   .layer-authoring { --base: 82px; }

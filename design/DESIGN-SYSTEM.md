@@ -256,11 +256,12 @@ entire unstack. Both ends are bounded — do not expect to push them far:
 - **Closed** (`--base`) is set so each band is only as tall as its contact spacing
 — about 21 units of tray ring, 45 of bottom bun, 15 of leaf, 33 of patty and 95 of
 crown, or 209 units in total, under a third of the 640 frame.
-- **Exploded** (`--base-ex`) is capped at *both* ends: the crown may not rise
-behind the header — the header bar is the ceiling of the unstack, budgeted in
-`measureLayout` — and the tray may not drop so far that its in-place caption leaves
-the bottom edge. With the frame centred, the crown's artwork rides `CROWN_RIDE`
-(677) units above the frame's floor, and the floor itself sits at
+- **Exploded** (`--base-ex`) lifts the four tiers off a *fixed* plate: the
+platform's `--base-ex` equals its `--base` and its `--drift` is 0, so the tray never
+slides out from under the stack — on desktop or under `--spread` on a tall window.
+The crown may not rise behind the header — the header bar is the ceiling of the
+unstack, budgeted in `measureLayout` — and, with the frame centred, the crown's
+artwork rides `CROWN_RIDE` (677) units above the frame's floor, which sits at
 `50vh + height/2`, so the header budget is `50vh − headerHeight − 14`. That fixes
 the exploded scale; whatever the crown does not need is handed back as extra
 travel. Two consequences worth knowing:
@@ -280,7 +281,7 @@ is never shrunk to pay for an unstack it has not performed yet.
 `--spread` and `--scale-open` are therefore computed in JS, not CSS: both need the
 *measured* header height, which CSS cannot read. They fall back to `0px` and
 `--scale`, which is what a no-JS visitor sees anyway, since `--explode` is also 0.
-Each layer adds `--spread * --drift` to its travel, weighted `-1` at the tray
+Each layer adds `--spread * --drift` to its travel, weighted `0` at the fixed tray
 through `+1` at the crown so the five tiers stay evenly spaced as they open, and
 `render-burger.py --spread N` previews a given value offline.
 
@@ -488,7 +489,9 @@ than just its surroundings, and the reason is the one that already caps the
 exploded spread (§2.7): the copy and the exploded stack are competing for a single
 viewport. On desktop the copy sits *beside* the stack, so the stack can be centred;
 on a phone it sits *above* it, so `--base` is re-based to the foot of the frame —
-which lengthens the unstack for free, since `--base-ex` is untouched — and the
+which lengthens the unstack for free, since only the platform's `--base-ex` tracks
+its `--base` (the plate is the fixed floor on both breakpoints) while every other
+tier keeps the shared `--base-ex` — and the
 frame's foot is pinned to the viewport's foot with `transform-origin: 50% 100%` so
 the scale cannot lift the plate off it. `--fit` and `--lift` then only bite on
 *short* viewports (≤780px and ≤690px tall), where the copy and a full-size stack
