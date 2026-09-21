@@ -1410,6 +1410,14 @@ footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 
   .layer-caption .cap-role { font-size: .55rem; }
   /* The scroll hint sits exactly where the crown comes to rest. */
   .scroll-hint { display: none; }
+  /* The stage is pinned to the foot of the viewport here, so the stack covers the
+     bar where it sits on desktop (bottom: 36px). Drop it to the bottom edge, clear
+     of the tray, and lift it above the stage's z-index so a taller/short viewport
+     or the tray's drop shadow can never paint over it. */
+  .progress {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 4;
+  }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .bench-grid { grid-template-columns: 1fr; }
 
