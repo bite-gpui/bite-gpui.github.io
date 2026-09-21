@@ -1,6 +1,7 @@
 # bite-gpui — Design System & Theme Guide
 
-**Variant 2C: Smoked Malt & Smoked Olive Sage**
+**Variant 2C: Smoked Malt & Smoked Olive Sage** (dark, default)
+**Variant 2D: Laurel Sage Daylight** (light, opt-in — see §2.8)
 
 This document defines the visual language, design tokens, colour hierarchy, and
 component rules for the bite-gpui brand and documentation web surfaces.
@@ -47,10 +48,10 @@ canvas and the herb accents).
 | `--bg-2` | `#131B14` | 19, 27, 20 | Elevated chrome: floating CTA bars, toast fill. |
 | `--surface` | `#162018` | 22, 32, 24 | Cards, secondary buttons (Smoked Olive). |
 | `--surface-2` | `#1C2A20` | 28, 42, 32 | Card hover, nested/raised surfaces. |
-| `--inset` | `#0D120E` | 13, 18, 14 | Inset panels: code blocks, terminals, chips, captions. **Darker than any surface** — depth on this theme comes from going down, not up. |
+| `--inset` | `#0D120E` | 13, 18, 14 | Inset panels: code blocks, terminals, chips, captions. **Darker than any surface** — depth comes from going down, not up, in both schemes; the light theme keeps `--inset` recessed too, just as a deeper sage instead of black (§2.8). |
 | `--border` | `#253427` | 37, 52, 39 | Structural borders, dividers, subtle separators. |
 | `--border-2` | `#35493B` | 53, 73, 59 | Emphasised borders: code shells, focused surfaces. |
-| *(literal)* | `#4A5F4F` | 74, 95, 79 | Elevated hover border — shared by `.btn`, `.install-cmd`, `.copy-btn`, `.nav-toggle` and the scrollbar thumb. |
+| `--border-hover` | `#4A5F4F` | 74, 95, 79 | Elevated hover border — shared by `.btn`, `.install-cmd`, `.copy-btn`, `.nav-toggle` and the scrollbar thumb. |
 
 The canvas is **Smoked Olive Sage**: the neutral ramp tilts green (G highest, B
 just over R) instead of warm soot. Against it the malt / brioche spectrum below
@@ -81,9 +82,14 @@ decision, not a convenience.
 | `--brand` | `#8FA89B` | Botanical Herb Sage — the single interactive accent: terminal `$` prompt, active badges, status pills, focus rings, logo version chip. |
 | `--sage-light` | `#B8C9BF` | Sage Fog — **defined but currently unused.** Reserved for a second tier of technical metadata; see §9. |
 | `--brand-dim` | `rgba(143, 168, 155, 0.14)` | Sage Mist — used in exactly two places: the hero eyebrow pill fill, and the active stepper index chip. |
-| *(literal)* | `rgba(143, 168, 155, 0.28)` | Eyebrow pill border. |
-| *(literal)* | `rgba(143, 168, 155, 0.35)` | Copy-toast border; active stepper chip border. |
-| *(literal)* | `rgba(143, 168, 155, 0.4)` | Active stepper index border; the non-zero order badge border. |
+| *(derived)* | `color-mix(… var(--brand) 28%, transparent)` | Eyebrow pill border. |
+| *(derived)* | `color-mix(… var(--brand) 35%, transparent)` | Copy-toast border; active stepper chip border. |
+| *(derived)* | `color-mix(… var(--brand) 40%, transparent)` | Active stepper index border; the non-zero order badge border. |
+
+The three `rgba(143,168,155,…)` literals that used to spell the sage borders out by
+hand are now `color-mix()` on `--brand`, so they follow the accent into the light
+theme (§2.8). Only the *brand* is mixed this way; the crate rails keep their own
+tokens.
 
 `--brand` is intentionally aliased to two further tokens: `--types` and
 `--facade`. The lettuce layer and the recipe book share the sage, because both
@@ -95,8 +101,8 @@ represent "the leaf that ties the stack together".
 | --- | --- | --- |
 | `--text` | `#FAF6F0` | H1/H2, subheads, primary values. |
 | `--text-2` | `#A8A29E` | Body paragraphs, long-form descriptions, nav links. |
-| `--text-3` | `#78716C` | Labels, unselected links, file paths, scroll hints. |
-| *(literal)* | `#5C5751` | Code line numbers and comments — the dimmest text on the site, only ever on `--inset`. |
+| `--text-3` | `#8B8581` | Labels, unselected links, file paths, scroll hints. |
+| `--code-dim` / `--syn-cmt` | `#6A655F` / `#827E79` | Code line numbers (`--code-dim`, incidental UI) and `.c` comments (`--syn-cmt`, body text). On `--inset` only. |
 
 ### 2.5 Kitchen / Architectural Layer Palette
 
@@ -108,25 +114,27 @@ illustration, the captions, the recipe book, and the info panel.
 | `--platform` | `#A8A29E` | Steel Serving Tray | `gpui_platform` — OS SPI |
 | `--engine` | `#C6A15B` | Golden Bottom Bun | `gpui_engine` — Scene IR |
 | `--types` | `#8FA89B` | Sage Leaf | `gpui_types` — Scalar Leaf |
-| `--authoring` | `#C2684F` | The Patty | `gpui_authoring` — Reactive DSL |
+| `--authoring` | `#C77158` | The Patty | `gpui_authoring` — Reactive DSL |
 | `--runtime` | `#DDB27A` | Top Bun | `gpui_runtime` — Harness |
 | `--facade` | `#8FA89B` | The Recipe Book | `gpui` — Unified Facade |
 
 ### 2.6 Secondary Colours Held as Literals
 
-These carry meaning but are not (yet) tokenised, because each is scoped to one
-sub-system. Promote them to `:root` if a second consumer appears.
+These carry meaning but, apart from the receipt and the benchmark bar, are now
+**tokenised** so the light theme can retint them; the two exceptions stay
+literals because they are artwork-like semantics, not surfaces.
 
-| Hex | Role |
+| Hex / Token | Role |
 | --- | --- |
-| `#A9C3B4` | **Mint** — command strings in terminals and the recipe book, `.s` string literals, receipt total, and the "after" benchmark bar label. The "success / command" colour. |
-| `#CFC9C0` | Code body text on `--inset`. |
-| `#C2A5D9` | `.k` syntax keyword — the one cool hue on the site, permitted only inside code blocks. |
-| `#E0BE84` | `.t` syntax type. |
-| `#A3BFC6` | `.f` syntax function — the one cool secondary in code. |
-| `#F7F3ED` / `#1C1917` | Receipt paper / receipt ink. The bench receipt is the only light surface on the site, and it is deliberate: a paper ticket on a dark kitchen pass. |
-| `#A3BCAF` | `.btn-primary` hover. |
-| `#E0A79C` / `#C2684F` | The "before" benchmark bar label / its rust gradient source. Benchmarks encode **before → after** as rust → sage: `.bar-fill.before` is `linear-gradient(90deg, rgba(194,104,79,.4), rgba(194,104,79,.85))` and `.bar-fill.after` is `linear-gradient(90deg, rgba(143,168,155,.5), rgba(143,168,155,.95))`. |
+| `--mint` (`#A9C3B4`) | **Mint** — command strings in terminals and the recipe book, `.s` string literals, receipt total, and the "after" benchmark bar label. The "success / command" colour. |
+| `--code-text` (`#CFC9C0`) | Code body text on `--inset`. |
+| `--syn-kw` (`#C2A5D9`) | `.k` syntax keyword — the one cool hue on the site, permitted only inside code blocks. |
+| `--syn-type` (`#E0BE84`) | `.t` syntax type. |
+| `--syn-fn` (`#A3BFC6`) | `.f` syntax function — the one cool secondary in code. |
+| `--syn-cmt` (`#827E79`) | `.c` syntax comment. |
+| `--brand-hover` (`#A3BCAF`) | `.btn-primary` hover. |
+| `#F7F3ED` / `#1C1917` | Receipt paper / receipt ink. The bench receipt is the only light surface on the site, and it is deliberate: a paper ticket on a kitchen pass. Border and shadow are tokens; the paper is not. |
+| `#E0A79C` / `#C2684F` | The "before" benchmark bar label / its rust gradient source. Benchmarks encode **before → after** as rust → sage: `.bar-fill.before` is `linear-gradient(90deg, rgba(194,104,79,.4), rgba(194,104,79,.85))` and `.bar-fill.after` is `linear-gradient(90deg, rgba(143,168,155,.5), rgba(143,168,155,.95))`. The ramp is left literal in both schemes. |
 
 ### 2.7 Illustration Palettes (not UI tokens)
 
@@ -288,10 +296,97 @@ The intermediary layers are positioned for *even layer centres*, not even art ga
 the layers differ in height enough that centring on the artwork leaves the crown
 crowded and the tray stranded.
 
-The Combo Studio's condiment/beverage icons keep their **natural** colours (a red
-hot-sauce bottle, a green herb shaker) rather than theme tokens. This is
-intentional: an inline `<symbol>` collapses a multi-colour illustration to one
-flat `currentColor`, which would destroy the icons' legibility.
+The Combo Studio's side/beverage icons keep their **natural** colours (a red
+chilli bottle, an amber mustard, a green relish jar, a violet wasm bottle)
+rather than theme tokens. This is intentional: an inline `<symbol>` collapses a
+multi-colour illustration to one flat `currentColor`, which would destroy the
+icons' legibility. The accent *rail* beside each row — its monospace crate line,
+and the tinted code line the same crate maps to — is the one part that is themed,
+via the per-item `color` / `colorLight` pair (§2.8).
+
+### 2.8 Light Theme — Variant 2D · Laurel Sage Daylight
+
+A second, opt-in colour scheme living beside the dark one in the same `:root`
+architecture. It is **not** a separate stylesheet: `global.css` keeps every
+literal that varies between schemes behind a token, so the light theme is the
+`:root[data-theme="light"]` override block and nothing else.
+
+**Activation.** `data-theme="light"` is set on `<html>`. `Layout.astro` writes
+it *before first paint* from an inline bootstrap (stored choice → OS
+`prefers-color-scheme` → dark fallback), and `.theme-toggle` in the nav flips it
+through `window.applyTheme()`, which also persists to `localStorage['bite-theme']`,
+syncs `<meta name="theme-color">` and fires a `bite:themechange` event for
+JS-rendered surfaces. With no JS the page is simply the dark default.
+
+**The one structural rule.** The dark theme signals depth by going *down* into
+`--inset` (§4.2). Light mode changes the *values* but keeps the *ordering*:
+the page is Laurel Sage paper, `--inset` is still the recessed extreme (a deeper
+sage tint here rather than black), and `--surface` / `--surface-2` keep rising
+above it toward white. Preserving `inset < bg < surface < surface-2` is what
+lets a chip stay recessed inside a card and an active pill stay lifted out of an
+inset track without a single light-specific component rule.
+
+| Token | Dark (2C) | Light (2D) | Role |
+| --- | --- | --- | --- |
+| `--bg` | `#121813` | `#E5ECE3` | Laurel Sage canvas (the 127° midpoint). |
+| `--bg-2` | `#131B14` | `#EDF4EB` | Bench band, footer (a step *above* the page). |
+| `--surface` | `#162018` | `#F4F9F2` | Cards. |
+| `--surface-2` | `#1C2A20` | `#FBFDFA` | Card hover / active pill. |
+| `--inset` | `#0D120E` | `#D6E2D4` | Transcripts, code, chips — still the recessed extreme. |
+| `--border` | `#253427` | `#B2C7B1` | Structural borders. |
+| `--border-2` | `#35493B` | `#9BB69C` | Emphasised borders. |
+| `--border-hover` | `#4A5F4F` | `#6E8F72` | Elevated hover border (was a literal). |
+| `--text` | `#FAF6F0` | `#16241A` | Primary ink. |
+| `--text-2` | `#A8A29E` | `#3E5647` | Body copy. |
+| `--text-3` | `#8B8581` | `#536754` | Labels / metadata. |
+| `--brand` | `#8FA89B` | `#2F5A3D` | The interactive sage, darkened to hold contrast on paper. |
+| `--brand-hover` | `#A3BCAF` | `#3C6E4C` | Primary-button hover (was a literal). |
+| `--brand-dim` | `rgba(143,168,155,.14)` | `rgba(47,90,61,.12)` | Sage Mist fills. |
+| `--sage-light` | `#B8C9BF` | `#6E8F78` | Reserved second metadata tier (still unused). |
+| `--malt` | `#D5B895` | `#9A6423` | Logo mark, headline ramp midpoint. |
+| `--toasted` | `#A06C38` | `#6B3A0C` | Headline ramp terminator. |
+| `--platform` | `#A8A29E` | `#58665C` | Steel tray accent. |
+| `--engine` | `#C6A15B` | `#7A5618` | Golden bottom bun accent. |
+| `--types` | `#8FA89B` | `#2F5A3D` | Sage leaf accent (aliases `--brand`). |
+| `--authoring` | `#C77158` | `#9E4027` | Patty accent. |
+| `--runtime` | `#DDB27A` | `#7E591B` | Top bun accent. |
+| `--facade` | `#8FA89B` | `#2F5A3D` | Recipe book accent (aliases `--brand`). |
+| `--shade` | `0 0 0` | `27 46 33` | RGB triplet all shadows mix from. |
+| `--shade-a` | `1` | `.4` | Multiplier on the `--explode`-driven burger shadows. |
+| `--shadow-float` | `.6` alpha | `.18` alpha | Floating panels. |
+| `--shadow-card` | `.45` alpha | `.14` alpha | Receipt / raised card. |
+| `--shadow-lift` | `.4` alpha | `.12` alpha | Subtle lift. |
+| `--shadow-pop` | `.5` alpha | `.18` alpha | Order card / editor window. |
+| `--nav-fill` | `rgba(18,24,19,.85)` | `rgba(229,236,227,.86)` | Scrolled nav fill. |
+| `--nav-sheet-fill` | `rgba(18,24,19,.97)` | `rgba(244,249,242,.97)` | Mobile nav sheet. |
+| `--toast-fill` | `rgba(19,27,20,.95)` | `rgba(252,254,251,.95)` | Copy toast. |
+| `--caption-hover-fill` | `rgba(18,24,19,.92)` | `rgba(244,249,242,.94)` | Hovered layer caption. |
+| `--wash-sage` | `rgba(143,168,155,.055)` | `rgba(47,90,61,.07)` | Hero upper wash. |
+| `--wash-malt` | `rgba(213,184,149,.035)` | `rgba(154,100,35,.06)` | Hero lower wash. |
+| `--grid-line` | `rgba(250,246,240,.026)` | `rgba(22,36,26,.05)` | Masked technical grid. |
+| `--code-text` | `#CFC9C0` | `#23352A` | Terminal / code body. |
+| `--code-dim` | `#6E6963` | `#698167` | Line numbers (incidental UI). |
+| `--mint` | `#A9C3B4` | `#2F6B4A` | Command strings, receipt total. |
+| `--syn-kw` | `#C2A5D9` | `#8C2D5C` | `.k` keyword. |
+| `--syn-fn` | `#A3BFC6` | `#1E5D88` | `.f` function. |
+| `--syn-str` | `#A9C3B4` | `#2D6A4F` | `.s` string. |
+| `--syn-type` | `#E0BE84` | `#8C531F` | `.t` type. |
+| `--syn-cmt` | `#8A8681` | `#4F624F` | `.c` comment. |
+
+Everything the light block does **not** override is shared verbatim: the radii,
+the motion curve, the measured hero choreography, and every illustration
+palette (§2.7). Those are artwork, not theme. Three further literals stay literal
+in both schemes for the same reason and are deliberately *not* tokenised:
+
+- The **diner receipt** (`#F7F3ED` paper / `#1C1917` ink) — a paper ticket in
+either kitchen, now with a hairline border so it separates from the light canvas.
+- The **benchmark bar** fills and their labels — `before → after` is encoded as
+rust → sage, which is a semantic ramp, not a surface. Only the bar *track* is a
+token (`--inset`).
+- The **Combo Studio's option colours** — per-item data, not tokens. Each entry
+carries an extra `colorLight` field tuned for the sage canvas, and `accentOf()`
+selects it; a `bite:themechange` listener re-renders so the dock and code lines
+retint without a reload.
 
 ---
 
@@ -369,24 +464,28 @@ flattening its illustration.
 | Component | Background | Border | Text / Foreground | Accent / Glow |
 | --- | --- | --- | --- | --- |
 | Top nav (unscrolled) | transparent | transparent | `--text-2` links | `--malt` logo mark, `--brand` version chip |
-| Top nav (scrolled) | `rgba(18,24,19,.85)` + `blur(14px) saturate(160%)` | `--border` | `--text` on hover | — |
-| Primary button | `--brand` | `--brand` | `--bg` | hover `#A3BCAF` |
-| Secondary button | `--surface` | `--border-2` | `--text` | hover bg `--surface-2`, border `#4A5F4F` |
+| Top nav (scrolled) | `--nav-fill` + `blur(14px) saturate(160%)` | `--border` | `--text` on hover | — |
+| Theme toggle | `--surface` | `--border-2` | `--text-2` icon (`--text` on hover) | sun shown in dark, moon in light — see §2.8 |
+| Primary button | `--brand` | `--brand` | `--bg` | hover `--brand-hover` |
+| Secondary button | `--surface` | `--border-2` | `--text` | hover bg `--surface-2`, border `--border-hover` |
 | Eyebrow badge pill | `--brand-dim` | `rgba(143,168,155,.28)` | `--brand` | pulsing `--brand` dot |
-| Terminal install box | `--inset` | `--border-2` | `$` in `--types`, command in `--text` | hover border `#4A5F4F` |
-| Copy toast | `rgba(19,27,20,.95)` + `blur(12px)` | `rgba(143,168,155,.35)` | `--text` | `--brand` dot + `rgba(143,168,155,.7)` glow |
+| Terminal install box | `--inset` | `--border-2` | `$` in `--types`, command in `--text` | hover border `--border-hover` |
+| Copy toast | `--toast-fill` + `blur(12px)` | `color-mix(… var(--brand) 35%, transparent)` | `--text` | `--brand` dot + `color-mix(… var(--brand) 70%, transparent)` glow |
 | Layer caption | `color-mix(in srgb, var(--inset) 84%, transparent)` + `blur(10px)` | `--border-2`, left border 3px `--accent` | `--text-2` desc, `--text-3` role | crate `--accent` |
 | Layer info panel | `--surface` | `--border-2` + **left** 4px `--accent` | `.li-name` in `--accent`, `.li-desc` in `--text-2` | role/chips/command chips on `--inset` |
-| Recipe book (facade) | `--surface` | `--border-2` + **right** 4px `--facade` | `--facade` title, `#A9C3B4` commands | `--facade` |
+| Recipe book (facade) | `--surface` | `--border-2` + **right** 4px `--facade` | `--facade` title, `--mint` commands | `--facade` |
 | Studio stepper | `--inset` | `--border-2` | inactive `--text-3`, active `--text` on `--surface-2` | active index chip on `--brand-dim` |
-| Studio cockpit | grid `5fr / 7fr` | — | configure dock (left) · code inspector (right); one switchable column ≤820px | mobile `Configure ⇄ Code` tabs (`.combo-mobile-tab`) |
-| Dock row | `--inset` | `1.5px --border-2` | `--accent` icon + tag, `--text-2` label, `--text-3` kicker | active: `color-mix(--accent 9%, --surface)` bg + `--accent`-tinted border |
-| Dock toggle / radio | `--surface-2` track | `--border-2` | 12px `--text-3` thumb | on: `--accent` track, thumb → `--bg`; the beverages stage re-shapes it into an `18px` radio dial |
-| Code shell | `--inset` | `--border` | `#CFC9C0` body, `#5C5751` line numbers | accent per code line |
+| Studio cockpit | grid `5fr / 7fr`, `align-items: stretch` | — | configure dock (left) · code inspector (right), both stretched to a shared height so their footers line up; one switchable column ≤820px | mobile `Configure ⇄ Code` tabs (`.combo-mobile-tab`) |
+| Studio header | transparent (page) | `--border` bottom divider | `--text` h2, `--text-2` lede, `--brand` kicker dot | two columns — text block left, step switcher right (`nowrap`, so the text column shrinks rather than wrapping the switcher); the control tightens ≤1140px; stacks ≤820px |
+| Dock row | `--inset`, active `--surface` | `1.5px --border-2` | `--accent` icon, `--text-2` label, mono `--text-3` crate line, `--text-3` flavour | active: plain `--surface` fill, `--accent`-tinted border and `--accent` crate text — **no accent wash**, so the switch on the row stays colourless |
+| Dock toggle / radio | off: `--surface-2` well · on: solid `--text` | `--border-2` off / `--text` on | off: thumb `--text-3` · on: thumb punched out of the fill in the row's `--surface` | state is carried by **fill, not hue**: off is an empty well, on is a solid pill, so the enabled control is the highlighted one. The beverages stage re-shapes it into an `18px` radio ring. **Deliberately colourless** — the row's `--accent` crate line carries the identity, never the control |
+| Dock footer | card `--surface` | `--border` top hairline | `--text-3` summary, `--text-2` mark | pinned to the foot of the configure card (`margin-top: auto`); doubles as the hovered row's doc-comment, replacing the old standalone info panel |
+| Code shell (Quickstart) | `--inset` | `--border` | `--code-text` body, `--code-dim` line numbers | accent per code line |
+| Editor window | `--surface`, header + status strips on `--inset` | `--border` card + `--border` hairline between the three zones | `--code-text` body, `--code-dim` line numbers, `--text-3` status labels, `--text` readings | code sits straight on the window surface — **no nested panel**; tinted `1px`-less rows carry `--line-accent` |
 | Bench receipt | `#F7F3ED` (paper) | dashed `#CFC9C0` | `#1C1917` ink | `#A9C3B4` total |
 | Benchmark bar | track `--border` | — | `.before` label `#E0A79C`, `.after` label `#A9C3B4` | fill gradients rust → sage (§2.6) |
 | Interactive burger | translucent plate | plate `#B5AFA7` | captions as above | layer hover glow in crate `--accent` |
-| Scrollbar | `--bg` track | — | thumb `--border-2` | thumb hover `#4A5F4F` |
+| Scrollbar | `--bg` track | — | thumb `--border-2` | thumb hover `--border-hover` |
 
 Four structural conventions hold the whole page together and should be preserved
 in any new component:
@@ -396,9 +495,9 @@ in any new component:
    apart by a 4px accent edge on the side that faces the burger: `--facade` on
    the right of the recipe book, `--accent` on the left of the info panel. That
    edge is the visual signature of "this panel belongs to the stack".
-2. **Depth goes down, not up.** Transcript surfaces (`--inset`) are *darker*
-   than the page. Adding a lighter grey to signal "nested" would break the
-   theme's contrast model.
+2. **Depth is signalled by the extreme surface.** Transcript surfaces (`--inset`)
+   sit at the far end of the luminance range from the card surfaces — the
+   *darkest* panel surface in both schemes (see §2.8) — and are never a mid grey.
 3. **Assembled layers must overlap, and each one owns its crevice.** Each
    `.layer` is positioned by `--base`, the distance from the stack's floor to its
    *frame's* bottom edge — so a taller viewBox pushes the art upward and `--base`
@@ -446,14 +545,22 @@ Display type uses tight tracking: `h1` is `-.045em`, the generic heading rule is
 12` px, with `99px` reserved for pills and `50%` for dots. Use the smallest
 radius that reads as intentional; large radii are for containers only.
 
-**Elevation** — this is a dark theme, so shadows must be deep and rare:
+**Elevation** — shadows are named tokens mixed from a single `--shade` triplet, so
+the same geometry reads as deep on the dark canvas and soft on sage paper (the
+light theme lightens the alpha and tilts `--shade` to deep sage; §2.8):
 
-| Use | Value |
-| --- | --- |
-| Floating panel | `0 18px 40px rgba(0,0,0,.6)` |
-| Raised card | `0 16px 36px rgba(0,0,0,.45)` |
-| Subtle lift | `0 2px 8px rgba(0,0,0,.4)` |
-| Accent glow | `0 0 14px color-mix(in srgb, var(--accent) 35%, transparent)` |
+| Token | Dark | Light |
+| --- | --- | --- |
+| `--shadow-float` (floating panel) | `0 18px 40px rgb(var(--shade) / .6)` | `… / .18` |
+| `--shadow-card` (raised card, receipt) | `0 16px 36px rgb(var(--shade) / .45)` | `… / .14` |
+| `--shadow-lift` (subtle lift) | `0 2px 8px rgb(var(--shade) / .4)` | `… / .12` |
+| `--shadow-pop` (order card) | `0 10px 24px -10px rgb(var(--shade) / .5)` | `… / .18` |
+| Accent glow | `0 0 14px color-mix(in srgb, var(--accent) 35%, transparent)` | same |
+
+The raw `rgba(0,0,0,…)` literals that used to spell these out by hand are gone;
+the two `--explode`-driven burger shadows multiply their alpha by `--shade-a`
+(`1` dark / `.4` light) so the unstack keeps its exact choreography at a
+lighter ink.
 
 The burger illustration is the exception to "rare": it carries two animated
 shadows — one per layer, one for the whole stack — because that pair is what sells
@@ -547,13 +654,17 @@ module.exports = {
         },
         stone: {
           body: '#A8A29E', // --text-2
-          dim:  '#78716C', // --text-3
+          dim:  '#8B8581', // --text-3
         },
       },
     },
   },
 };
 ```
+
+For the light theme, drop in the Variant 2D values from §2.8 behind the same
+keys — every token in that table maps to one of the names above, plus the
+`inset`/`edge` pair which simply lighten instead of darken.
 
 ---
 
@@ -573,6 +684,15 @@ module.exports = {
   rather than adding another raised grey.
 - **Do** reference tokens in CSS (`var(--inset)`) instead of pasting hex, so a
   retune propagates. The one deliberate exception is artwork (§2.7).
+- **Do** route *anything that differs between the dark and light schemes*
+  through a `:root` token. The light theme (§2.8) is nothing but an override
+  block; if a variant value cannot be expressed as a token swap, the token is
+  missing rather than the rule being wrong.
+- **Do** keep `--inset` the *recessed* extreme in both schemes — the darkest panel
+  surface, below the canvas as well as below every card. It is how a transcript
+  announces itself without extra chrome.
+- **Do** darken accents for the light theme rather than recolouring them: `--brand`
+  and the crate hues keep their families and only change value.
 
 ### Don't
 
@@ -585,6 +705,12 @@ module.exports = {
   opacity with `backdrop-filter: blur(...)` to maintain layer depth.
 - **Don't** use `--malt` as a general-purpose accent. It is the mark and the
   headline ramp; the interactive accent is `--brand`.
+- **Don't** add a second stylesheet, a `.light` class, or per-component hex for
+  the light theme. One `:root[data-theme="light"]` override block is the whole
+  scheme (§2.8).
+- **Don't** flip the light theme's depth model upside down independently of the
+  tokens: cards rise toward white *because* their tokens do, not because a rule
+  hardcodes a lighter grey.
 
 ---
 
@@ -599,8 +725,8 @@ into this guide:
 | --- | --- |
 | "Charcoal Border `#242220`" | Actual `--border` is `#253427`. |
 | "Readable Body Text `#D6D3CD` (stone-300)" | Actual `--text-2` is `#A8A29E`. |
-| "Muted Metadata `#8C877F` (stone-400)" | Actual `--text-3` is `#78716C`. |
-| "Dim / Disabled `#57534E`" | No such value; the dimmest text is `#5C5751`, and only on `--inset`. |
+| "Muted Metadata `#8C877F` (stone-400)" | Actual `--text-3` is `#8B8581` (raised from `#78716C` for SC 1.4.3; §10). |
+| "Dim / Disabled `#57534E`" | No such value; the dimmest code text is `--code-dim` (`#6A655F`), and only on `--inset`. |
 | "Toasted Crust `#693B10`" (SVG bun stroke) | No such value. Bun artwork stroke stops are in §2.7. |
 | Plate border `#323742` | No such value; the tray stroke is `#B5AFA7`. |
 | Sesame `#FFF2DF` | No such value; the mark is monochrome and seeds are not separately coloured. |
@@ -642,3 +768,90 @@ canvas and border family moved.
 The scrolled and mobile nav fills, the toast fill, the layer-caption hover fill
 and the scrollbar thumb hover moved with the ramp — they carry the same hue as
 `--bg` / `--bg-2`, lifted as `rgba(...)`.
+
+---
+
+## 10. Accessibility — Contrast
+
+Contrast is verified by a script, not by eye, so it can be re-run whenever a
+token moves:
+
+```sh
+node scripts/check-contrast.mjs            # failures + advisories
+node scripts/check-contrast.mjs --all      # every check
+node scripts/check-contrast.mjs --suggest  # nearest passing colour per failure
+```
+
+It reads the two `:root` blocks out of `src/styles/global.css` and the Combo
+Studio's per-item accents out of `src/components/ComboStudio.astro`, resolves
+hex / `rgb()` / `rgba()` / `color-mix()` / `var()` / alpha compositing, and
+measures: **SC 1.4.3** (4.5:1 normal text, 3:1 large), **SC 1.4.11** (3:1 UI
+parts) and **SC 2.4.11** (3:1 focus indicator). It exits non-zero on any binding
+failure, so it can gate CI.
+
+**Current result: 0 binding failures.** 77 of 85 dark checks and 78 of 85 light
+checks pass. Meet the thresholds by construction:
+
+| Requirement | Ensured by |
+| --- | --- |
+| Body + metadata text ≥ 4.5:1 | `--text` / `--text-2` / `--text-3` on every surface, both schemes |
+| Interactive sage ≥ 4.5:1 | `--brand` on every surface; `--brand` on `--bg` is 7.1:1 dark / 6.6:1 light |
+| Crate rails + labels ≥ 4.5:1 | each of `--platform … --facade` on `--surface` and `--inset` |
+| Combo Studio accents ≥ 4.5:1 | all nine side/driver accents on `--surface` and `--inset` |
+| Code + syntax ≥ 4.5:1 | `--code-text`, `--mint` and every `--syn-*` on `--inset` **and** `--surface` |
+| Focus ring ≥ 3:1 | `--brand` outline on page and card |
+| Switch knob ≥ 3:1 | `--text-3` in the off well (4.1:1 dark / 6.0:1 light); `--surface` on the on fill (15.6:1 / 15.1:1) |
+| Primary button | label `--bg` on `--brand`: 7.1:1 dark / 6.6:1 light |
+
+Reaching 4.5:1 on the surface the palette is drawn on was the binding constraint,
+so these tokens were nudged — no other value moved:
+
+| Token | Dark before → after | Light before → after |
+| --- | --- | --- |
+| `--text-3` | `#78716C` → `#8B8581` | `#5C7261` → `#536754` |
+| `--code-dim` | `#5C5751` → `#6E6963` | `#6E8770` → `#698167` |
+| `--syn-cmt` | `#5C5751` → `#8A8681` | `#6E8770` → `#4F624F` |
+| `--platform` | — | `#5C6B60` → `#58665C` |
+| `--authoring` | `#C2684F` → `#C77158` | `#A5462C` → `#9E4027` |
+| `--runtime` | — | `#8A6220` → `#7E591B` |
+| Combo Studio accents (§2.8) | parley/rust `#C2684F` → `#C77158` | parley/rust → `#9E4027`, pacing/mustard → `#74591A`, surface/nachos → `#7A5414` |
+
+The first pass was bound by `--inset`, the darkest backdrop in both schemes, so
+`--code-dim` and `--syn-cmt` were pitched against it. The editor window then
+traded that well for the card's own `--surface` (§4 — the code now sits straight
+on the window, with no recessed inner panel), which is the *lightest* backdrop
+the palette is drawn on, and both tokens were lifted a second time for it. They
+are now checked against **both** surfaces, `--inset` (the Quickstart code shell)
+and `--surface` (the editor).
+
+`--code-dim` (line numbers) is held to **3:1** rather than 4.5:1, because line
+numbers are incidental UI rather than prose; `--syn-cmt` (comments) is held to the
+full 4.5:1.
+
+The Combo Studio's switches and radios are **deliberately colourless**, and carry
+their state by **fill** rather than hue: off is an empty `--surface-2` well with a
+dim `--text-3` knob at its left, on is a solid `--text` pill with the row's own
+`--surface` punched out of it as the knob. So the control that is switched *on* is
+the one carrying the visual weight, and the per-row accent is never consumed
+twice. The accent reaches the eye through the row's crate **line** and the tinted,
+`--line-accent`-bordered code line it maps to, which is the tie the colour is
+reserved for.
+
+### Advisory (non-binding) non-text contrast
+
+Fifteen checks are reported but not enforced: the hairline `--border` /
+`--border-2` separators, the elevated hover border, and the plain switch track's
+edge. They sit at **1.3–2.4:1** in both schemes. SC 1.4.11 requires 3:1 only for
+parts needed to *identify* a control or understand a graphic; these hairlines
+style regions that are already identified by their fill, position and label, and
+every control state that must be legible — the focus ring, the primary button,
+and the switch knob in both states — passes. Raising the hairlines to a strict
+3:1 would replace the theme's whisper-thin edges with visible strokes;
+`--suggest` prints the exact colours if that tradeoff is ever wanted:
+
+| Advisory | Dark | Light |
+| --- | --- | --- |
+| `--border` on a card | 1.28:1 | 1.68:1 |
+| `--border-2` on a card | 1.73:1 | 2.06:1 |
+| `--border-hover` on a card | 2.43:1 | 3.37:1 |
+| switch track edge (`--border-2` on `--inset`) | 1.95:1 | 1.64:1 |

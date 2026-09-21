@@ -10,11 +10,14 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 ## Design system
 
-Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage**. Full guide:
+Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage** (dark, default) plus
+**Variant 2D — Laurel Sage Daylight** (light, opt-in). Full guide:
 [`design/DESIGN-SYSTEM.md`](design/DESIGN-SYSTEM.md).
 
 - Design tokens live in the `:root` block of `src/styles/global.css`. That block
-  is the source of truth — change it *before* updating any documentation.
+  is the source of truth — change it *before* updating any documentation. The
+  light theme is a single `:root[data-theme="light"]` override next to it; it is
+  a token swap and nothing else (`design/DESIGN-SYSTEM.md` §2.8).
 - The site is plain CSS with custom properties. **There is no Tailwind in the
   build.** Style new components with `var(--token)` rather than pasting hex.
 - Two hues are load-bearing: `--brand` (`#8FA89B`, every interactive affordance)
@@ -22,6 +25,10 @@ Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage**. Full guide:
   introduce neon greens, saturated blues, or magentas — see §8 of the guide.
 - The logo/icon kit is regenerated with `sh scripts/build-logo.sh` from
   `public/logo.svg`; the original artwork is `design/logo-source.jpeg`.
+- Colour contrast is enforced by `npm run check:contrast`
+  (`scripts/check-contrast.mjs`): it reads the tokens and the Combo Studio
+  accents out of source and fails on any WCAG AA violation. Run it after moving
+  a colour token. See §10 of the guide.
 
 ## Documentation
 

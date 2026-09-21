@@ -4,53 +4,57 @@
 <!-- ACT III: COMBO STUDIO (TWO-STAGE SIDES & BEVERAGE BUILDER) -->
 <section class="combo" id="capabilities">
     <div class="container">
-        <div class="section-head">
-            <span class="kicker">
-                Combo Studio · Sides &amp; Beverage Selection
-            </span>
-            <h2>Everything on this menu is decoupled.</h2>
-            <p>
-                Attach modern text layout and frame pacing decorators (Step 1),
-                then select your target OS runtime (Step 2). Inspect how native
-                platform drivers live in <code>Cargo.toml</code> without
-                invalidating application code.
-            </p>
-        </div>
+        <header class="studio-head">
+            <div class="section-head">
+                <span class="kicker">
+                    <i class="kicker-dot" aria-hidden="true"></i>Combo Studio ·
+                    Sides &amp; Beverages
+                </span>
+                <h2>Anything Else?</h2>
+                <p>
+                    Everything on this menu is decoupled. Attach text-layout and
+                    frame-pacing sides (Step 1), then select your target
+                    beverage driver (Step 2). Application views never recompile.
+                </p>
+            </div>
 
-        <!-- Stepper Navigation -->
-        <div
-            class="studio-stepper"
-            role="tablist"
-            aria-label="Studio Configuration Stepper"
-        >
-            <button
-                class="stepper-btn is-active"
-                id="stepBtnCondiments"
-                data-stage="condiments"
-                role="tab"
-                aria-selected="true"
-            >
-                <span class="step-index">1</span>
-                <span>Sides &amp; Condiments</span>
-                <span class="step-chip" id="condimentCountChip">
-                    0 active
-                </span>
-            </button>
-            <span class="stepper-divider">➔</span>
-            <button
-                class="stepper-btn"
-                id="stepBtnBeverages"
-                data-stage="beverages"
-                role="tab"
-                aria-selected="false"
-            >
-                <span class="step-index">2</span>
-                <span>Target Beverage (Platform OS)</span>
-                <span class="step-chip" id="beverageTargetChip">
-                    macOS
-                </span>
-            </button>
-        </div>
+            <div class="studio-head-actions">
+                <!-- Stepper Navigation -->
+                <div
+                    class="studio-stepper"
+                    role="tablist"
+                    aria-label="Studio Configuration Stepper"
+                >
+                    <button
+                        class="stepper-btn is-active"
+                        id="stepBtnCondiments"
+                        data-stage="condiments"
+                        role="tab"
+                        aria-selected="true"
+                    >
+                        <span class="step-index">1</span>
+                        <span>🥫 Sides &amp; Condiments</span>
+                        <span class="step-chip" id="condimentCountChip">
+                            0 active
+                        </span>
+                    </button>
+                    <span class="stepper-divider">➔</span>
+                    <button
+                        class="stepper-btn"
+                        id="stepBtnBeverages"
+                        data-stage="beverages"
+                        role="tab"
+                        aria-selected="false"
+                    >
+                        <span class="step-index">2</span>
+                        <span>🥤 Beverage Driver</span>
+                        <span class="step-chip" id="beverageTargetChip">
+                            macOS
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
 
         <div class="combo-layout" id="comboLayout" data-mobile-tab="configure">
             <!-- MOBILE SWITCHER: Configure ⇄ Code -->
@@ -67,7 +71,7 @@
                     aria-pressed="true"
                     aria-controls="panelConfigure"
                 >
-                    <span>Configure</span>
+                    <span>🛠️ Configure</span>
                     <span class="combo-mobile-tab-chip" id="mobileConfigCount">
                         0 of 4
                     </span>
@@ -79,9 +83,9 @@
                     aria-pressed="false"
                     aria-controls="panelCode"
                 >
-                    <span>View Code</span>
+                    <span>💻 View Code</span>
                     <span class="combo-mobile-tab-chip" id="mobileCodeCount">
-                        0 lines
+                        0 injected
                     </span>
                 </button>
             </div>
@@ -91,11 +95,11 @@
                 <div class="dock-wrapper" id="dockWrapper">
                     <div class="dock-shelf-title">
                         <strong id="dockShelfHeader">
-                            Additive Feature Decorators (Checkboxes)
+                            Additive Sides &amp; Condiments
                         </strong>
                         <span id="dockShelfSub">
-                            Stack as many decorators into your application
-                            pipeline as needed.
+                            Attach as many crate-level sides as you like; they
+                            compose into the frame pipeline.
                         </span>
                     </div>
 
@@ -108,37 +112,18 @@
                         <!-- Populated by renderDock() -->
                     </div>
 
-                    <button
-                        class="dock-switch-stage-btn"
-                        id="dockSwitchStageBtn"
-                        type="button"
-                    >
-                        <span>Choose Target Beverage (Platform OS)</span>
-                        <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.2"
-                        >
-                            <path d="M5 12h14M12 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
-
-                    <button
-                        class="dock-jump-code"
-                        id="dockJumpCode"
-                        type="button"
-                    >
-                        <span>View injected code</span>
-                        <span aria-hidden="true">→</span>
-                    </button>
-                </div>
-
-                <!-- DETAIL / SUMMARY PANEL -->
-                <div class="combo-info-panel" id="infoPanel" aria-live="polite">
-                    <!-- Rendered by renderInfoPanel() -->
+                    <!-- Docked one-line footer: it carries the stage summary by
+                         default and becomes the hovered option's doc-comment
+                         while a row is read, so no separate detail card is
+                         needed. -->
+                    <div class="dock-foot">
+                        <span class="dock-foot-text" id="dockFootText">
+                            3 additive sides attached
+                        </span>
+                        <span class="dock-foot-mark" id="dockFootMark">
+                            Zero engine forks
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -174,13 +159,6 @@
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
                                 <span id="tabMainFileLabel">main.rs</span>
-                                <span
-                                    class="t-file-badge"
-                                    id="tabMainBadge"
-                                    style="display:none;"
-                                >
-                                    0 changes
-                                </span>
                             </button>
                             <button
                                 class="t-file-btn"
@@ -210,16 +188,12 @@
                     </div>
 
                     <div class="order-actions">
-                        <button
-                            class="order-back-btn"
-                            id="orderBackBtn"
-                            type="button"
-                        >
-                            <span aria-hidden="true">←</span>
-                            <span>Configure</span>
-                        </button>
                         <span class="order-badge" id="orderBadge">
-                            0 add-ons active
+                            <span
+                                class="order-badge-dot"
+                                aria-hidden="true"
+                            ></span>
+                            <span id="orderBadgeText">Crisp Apple Fizz</span>
                         </span>
                         <button class="copy-code" id="copyCode">
                             <svg
@@ -246,35 +220,36 @@
                     </div>
                 </div>
 
-                <div class="order-code">
-                    <ol class="code-lines-container" id="codeLinesList"></ol>
-                </div>
+                <ol class="code-lines-container" id="codeLinesList"></ol>
 
-                <div class="order-metrics">
-                    <div class="metric">
-                        <span class="metric-val" id="mGlyph">
-                            835 ms
+                <!-- One flat status line divided by hairline rules, the way a
+                     native editor reads, instead of four boxed tiles. -->
+                <div class="order-status">
+                    <div class="order-status-metrics">
+                        <span class="order-status-item">
+                            Shaping: <strong id="mGlyph">835 ms</strong>
                         </span>
-                        <span class="metric-lbl">Glyph paint</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-val" id="mLayout">
-                            28.5 ms
+                        <span class="order-status-sep" aria-hidden="true">
+                            │
                         </span>
-                        <span class="metric-lbl">Layout</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-val" id="mFps">
-                            Uncapped
+                        <span class="order-status-item">
+                            Layout: <strong id="mLayout">28.5 ms</strong>
                         </span>
-                        <span class="metric-lbl">Frame rate</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-val is-good" id="mPlatform">
-                            macOS (Metal)
+                        <span class="order-status-sep" aria-hidden="true">
+                            │
                         </span>
-                        <span class="metric-lbl">Target OS</span>
+                        <span class="order-status-item">
+                            Cadence: <strong id="mFps">Uncapped</strong>
+                        </span>
+                        <span class="order-status-sep" aria-hidden="true">
+                            │
+                        </span>
+                        <span class="order-status-item">
+                            Driver:{" "}
+                            <strong id="mPlatform">macOS (Metal)</strong>
+                        </span>
                     </div>
+                    <span class="order-status-note">0 view-layer rebuilds</span>
                 </div>
             </aside>
         </div>
@@ -287,88 +262,99 @@
         let currentStage = "condiments"; // 'condiments' | 'beverages'
         let currentActiveFile = "main"; // 'main' | 'cargo'
 
-        // Step 1: additive checkboxes. Headless is a platform driver now, so it
-        // lives with the beverages rather than the decorators.
+        // Step 1: additive crates (checkboxes), each dressed as a side.
         const condimentsState = {
-            spicy: false,
-            mild: false,
-            parley: false,
-            nachos: false,
+            parley: true,
+            pacing: true,
+            surface: true,
+            profiler: false,
         };
 
         // Step 2: mutually exclusive radio (default macOS)
         let activeBeverage = "macos"; // 'macos' | 'linux' | 'windows' | 'headless'
 
-        let focusedItemKey = null;
         let mobileTab = "configure"; // 'configure' | 'code' (mobile cockpit)
 
-        // CONDIMENT DATA (Sides)
+        // SIDE DATA (Step 1 — additive crates, each with a condiment identity)
         const CONDIMENT_DATA = {
-            spicy: {
-                key: "spicy",
-                type: "condiment",
-                name: "Spicy Sauce",
-                tag: "TRACE",
-                kicker: "Telemetry Middleware",
-                crate: "InstrumentedPipeline",
-                color: "#C2684F",
-                desc: "Sub-millisecond pass telemetry for evaluate_roots, layout_roots, and paint_roots. Profile render loops without injecting logging noise into views.",
-                specTrait: "FramePipelineDecorator",
-                specImpact: "Per-pass profiler trace",
-                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 20 L38 20 L36 48 Q28 52 20 48 Z" fill="#7F1D1D"/><path d="M18 20 L38 20 L37 26 L19 26 Z" fill="#B91C1C"/><ellipse cx="28" cy="20" rx="10" ry="2.5" fill="#DC2626"/><rect x="24" y="6" width="8" height="12" rx="1.5" fill="#450A0A"/><path d="M26 6 L30 6 L30 2 L26 2 Z" fill="#FCA5A5"/></svg>',
-            },
-            mild: {
-                key: "mild",
-                type: "condiment",
-                name: "Mild Sauce",
-                tag: "60 FPS",
-                kicker: "Pacing Controller",
-                crate: "ThrottledPipeline",
-                color: "#C9B486",
-                desc: "Locks the frame loop to a deterministic refresh cadence (60 or 120 FPS). Absorbs display refresh jitter up to ¼ interval, preventing test desyncs.",
-                specTrait: "StandardImmediatePipeline",
-                specImpact: "Deterministic 60 FPS pacing",
-                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="13" ry="3.5" fill="#000" opacity=".35"/><path d="M20 22 L36 22 L34 48 Q28 51 22 48 Z" fill="#854D0E"/><path d="M20 22 L36 22 L35 28 L21 28 Z" fill="#CA8A04"/><ellipse cx="28" cy="22" rx="8" ry="2.2" fill="#FACC15"/><rect x="25" y="10" width="6" height="12" rx="1.2" fill="#422006"/></svg>',
-            },
             parley: {
                 key: "parley",
                 type: "condiment",
-                name: "Seasoning Shaker",
-                tag: "PARLEY",
-                kicker: "Linebender Typography",
+                name: "Parley Text Engine",
                 crate: "gpui_parley",
-                color: "#8FA89B",
-                desc: "Linebender Parley Unicode BiDi text layout (Arabic/Hebrew + CJK/Latin), Skrifa outline extraction, and tiny-skia atlas rasterization in pure Rust.",
-                specTrait: "Arc&lt;dyn TextSystem&gt;",
+                pill: "🥫 PARLEY",
+                sub: "🌶️ Sriracha · BiDi layout, complex scripts & fallback",
+                kicker: "Linebender Typography",
+                desc: "Unicode BiDi layout, complex-script shaping and system font fallback from Linebender Parley, rasterised through Skrifa and tiny-skia.",
+                specTrait: "Arc<dyn TextSystem>",
                 specImpact: "835 ms ➔ 2.1 ms glyph paint",
-                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="15" ry="3.5" fill="#000" opacity=".35"/><path d="M16 22 L40 22 L42 46 Q28 50 14 46 Z" fill="#14532D"/><path d="M16 22 L40 22 L40.5 26 L15.5 26 Z" fill="#166534"/><ellipse cx="28" cy="22" rx="12" ry="3" fill="#15803D"/><ellipse cx="28" cy="16" rx="12" ry="5" fill="#22C55E"/></svg>',
+                color: "#C77158",
+                colorLight: "#9E4027",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 20 L38 20 L36 48 Q28 52 20 48 Z" fill="#7F1D1D"/><path d="M18 20 L38 20 L37 26 L19 26 Z" fill="#B91C1C"/><ellipse cx="28" cy="20" rx="10" ry="2.5" fill="#DC2626"/><rect x="24" y="6" width="8" height="12" rx="1.5" fill="#450A0A"/><path d="M26 6 L30 6 L30 2 L26 2 Z" fill="#FCA5A5"/></svg>',
             },
-            nachos: {
-                key: "nachos",
+            pacing: {
+                key: "pacing",
                 type: "condiment",
-                name: "Loaded Nachos",
-                tag: "WGPU",
+                name: "Frame Governor",
+                crate: "gpui_pacing",
+                pill: "🍯 MUSTARD",
+                sub: "🍯 Dijon Mustard · 60 FPS vsync lock & GPU runaway stop",
+                kicker: "Pacing Controller",
+                desc: "Locks the frame loop to a deterministic cadence and stops GPU runaway on idle frames, absorbing display-refresh jitter.",
+                specTrait: "FramePipelineDecorator",
+                specImpact: "Deterministic 60 FPS cadence",
+                color: "#C9B486",
+                colorLight: "#74591A",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="13" ry="3.5" fill="#000" opacity=".35"/><path d="M20 22 L36 22 L34 48 Q28 51 22 48 Z" fill="#854D0E"/><path d="M20 22 L36 22 L35 28 L21 28 Z" fill="#CA8A04"/><ellipse cx="28" cy="22" rx="8" ry="2.2" fill="#FACC15"/><rect x="25" y="10" width="6" height="12" rx="1.2" fill="#422006"/></svg>',
+            },
+            surface: {
+                key: "surface",
+                type: "condiment",
+                name: "WGPU Surface Pass",
+                crate: "gpui_wgpu_surface",
+                pill: "🌮 NACHOS",
+                sub: "🌮 Loaded Nachos · Raw 3D render-pass blit & custom shaders",
                 kicker: "Surface Escape Hatch",
-                crate: "Style::custom · Surface",
-                color: "#D9A55F",
-                desc: "Direct blit of raw wgpu render passes, embedded 3D viewports, or video decoders straight into GPUI draw quad lists without patching core structs.",
-                specTrait: "Styled::custom_style",
+                desc: "Blit raw wgpu render passes, embedded 3D viewports or video decoders straight into GPUI's draw-quad list, without forking the engine.",
+                specTrait: "Style::custom",
                 specImpact: "Zero engine forks",
+                color: "#D9A55F",
+                colorLight: "#7A5414",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="16" ry="3.5" fill="#000" opacity=".35"/><path d="M10 40 Q10 24 28 24 Q46 24 46 40 Q28 46 10 40 Z" fill="#7C2D12"/><path d="M12 38 Q14 28 28 28 Q42 28 44 38 Q28 42 12 38 Z" fill="#B45309"/><path d="M20 30 L26 26 L32 30 Z" fill="#FBBF24"/><path d="M30 32 L36 28 L42 32 Z" fill="#FBBF24"/></svg>',
+            },
+            profiler: {
+                key: "profiler",
+                type: "condiment",
+                name: "Layout Profiler",
+                crate: "gpui_telemetry",
+                pill: "🥒 RELISH",
+                sub: "🥒 Sweet Relish · Microsecond trace spans for shaping & layout",
+                kicker: "Telemetry Middleware",
+                desc: "Sub-millisecond trace spans for text shaping, layout and scene compilation, with no logging noise injected into your views.",
+                specTrait: "InstrumentedPipeline",
+                specImpact: "Per-pass profiler traces",
+                color: "#8FA89B",
+                colorLight: "#2F5A3D",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="15" ry="3.5" fill="#000" opacity=".35"/><path d="M16 22 L40 22 L42 46 Q28 50 14 46 Z" fill="#14532D"/><path d="M16 22 L40 22 L40.5 26 L15.5 26 Z" fill="#166534"/><ellipse cx="28" cy="22" rx="12" ry="3" fill="#15803D"/><ellipse cx="28" cy="16" rx="12" ry="5" fill="#22C55E"/></svg>',
             },
         };
 
-        // BEVERAGE DATA (target platform drivers — radio)
+        // BEVERAGE DATA (Step 2 — mutually exclusive platform drivers)
         const BEVERAGE_DATA = {
             macos: {
                 key: "macos",
                 type: "beverage",
-                name: "Crisp Apple Fizz",
+                name: "macOS (Metal)",
+                short: "macOS",
+                beverage: "Crisp Apple Fizz",
                 tag: "METAL",
                 kicker: "Platform Driver · macOS",
                 crate: "gpui_platform_macos",
+                sub: "🍏 Crisp Apple Fizz · Cocoa CFRunLoop + CAMetalLayer",
+                cargoTarget: `target.'cfg(target_os = "macos")'.dependencies`,
                 color: "#9FC0BC",
-                desc: "Native Cocoa CFRunLoop + CAMetalLayer swapchain. Application code depends only on the Platform SPI, meaning 0 lines of view code recompile on target changes.",
+                colorLight: "#366A66",
+                desc: "Native Cocoa CFRunLoop paired with a CAMetalLayer surface swapchain.",
                 specTrait: "CAMetalLayer + Cocoa Loop",
                 specImpact: "0 lines changed in main.rs",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#0369A1"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#0284C7"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#38BDF8"/><path d="M28 6 Q30 12 34 14" stroke="#F43F5E" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="28" cy="32" r="4.5" fill="#E0F2FE" opacity=".8"/></svg>',
@@ -376,12 +362,17 @@
             linux: {
                 key: "linux",
                 type: "beverage",
-                name: "Open-Source Cola",
+                name: "Linux (Vulkan)",
+                short: "Linux",
+                beverage: "Open-Source Cola",
                 tag: "VULKAN",
                 kicker: "Platform Driver · Linux",
                 crate: "gpui_platform_linux",
+                sub: "🥤 Open-Source Cola · Wayland & X11 with an ash Vulkan swapchain",
+                cargoTarget: `target.'cfg(target_os = "linux")'.dependencies`,
                 color: "#D9A55F",
-                desc: "Wayland (wayland-client) + X11 (xcb) compositor backend with Vulkan surface rendering. Untangled from UI views, preventing workspace-wide recompile cascades.",
+                colorLight: "#7A5414",
+                desc: "Wayland and X11 event dispatcher with an ash Vulkan surface swapchain.",
                 specTrait: "Wayland/X11 + Vulkan",
                 specImpact: "0 lines changed in main.rs",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 18 L38 18 L35 48 Q28 51 21 48 Z" fill="#78350F"/><path d="M18 18 L38 18 L37 24 L19 24 Z" fill="#B45309"/><ellipse cx="28" cy="18" rx="10" ry="2.5" fill="#F59E0B"/><path d="M25 10 L31 10 L30 18 L26 18 Z" fill="#D97706"/><circle cx="28" cy="33" r="4.5" fill="#FEF3C7" opacity=".8"/></svg>',
@@ -389,12 +380,17 @@
             windows: {
                 key: "windows",
                 type: "beverage",
-                name: "Direct3D Punch",
+                name: "Windows (Direct3D 12)",
+                short: "Windows",
+                beverage: "Direct3D Punch",
                 tag: "DX12",
                 kicker: "Platform Driver · Windows",
                 crate: "gpui_platform_windows",
+                sub: "🧊 Direct3D Punch · Win32 event queue + DX12 swapchain blit",
+                cargoTarget: `target.'cfg(target_os = "windows")'.dependencies`,
                 color: "#9BA3C0",
-                desc: "Win32 message dispatch loop paired with a native Direct3D 12 swapchain. Targets cfg(target_os = &quot;windows&quot;) in Cargo.toml without polluting views with #![cfg].",
+                colorLight: "#4A5480",
+                desc: "Win32 event queue paired with a Direct3D 12 swapchain blit, selected purely by cfg(target_os).",
                 specTrait: "Win32 Dispatch + D3D12",
                 specImpact: "0 lines changed in main.rs",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#1E3A8A"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#2563EB"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#60A5FA"/><rect x="23" y="10" width="10" height="4" rx="1" fill="#93C5FD"/><circle cx="28" cy="32" r="4.5" fill="#DBEAFE" opacity=".8"/></svg>',
@@ -402,17 +398,49 @@
             headless: {
                 key: "headless",
                 type: "beverage",
-                name: "In-Memory Soda",
-                tag: "HEADLESS",
+                name: "Headless CI",
+                short: "CI",
+                beverage: "In-Memory Soda",
+                tag: "NULL",
                 kicker: "Platform Driver · Headless CI",
-                crate: "gpui_test / Headless",
+                crate: "gpui_platform_null",
+                sub: "🧪 In-Memory Soda · Software framebuffers for zero-GPU CI",
+                cargoTarget: `target.'cfg(target_os = "none")'.dependencies`,
                 color: "#8E8781",
-                desc: "Pure in-memory synthetic event dispatcher. Run full integration suites in GitHub Actions or Docker with 0 MB display server requirements and zero Xvfb flakiness.",
-                specTrait: "TestDispatcher &amp; TestWindow",
-                specImpact: "0 MB CI Display Footprint",
+                colorLight: "#5E5852",
+                desc: "Pure in-memory software framebuffers, so the whole integration suite runs in CI with no display server and zero Xvfb flakiness.",
+                specTrait: "Software Framebuffer",
+                specImpact: "0 MB CI display footprint",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.2" fill="#000" opacity=".35"/><path d="M16 18 L40 18 L36 48 Q28 51 20 48 Z" fill="#334155"/><path d="M16 18 L40 18 L38 24 L18 24 Z" fill="#475569"/><ellipse cx="28" cy="18" rx="12" ry="2.8" fill="#64748B"/><rect x="20" y="12" width="16" height="4" rx="1.2" fill="#1E293B"/></svg>',
             },
+            wasm: {
+                key: "wasm",
+                type: "beverage",
+                name: "WebAssembly & Embedded",
+                short: "WASM",
+                beverage: "Web Seltzer",
+                tag: "WASM",
+                kicker: "Platform Driver · wasm32",
+                crate: "gpui_platform_web",
+                sub: "🧃 Web Seltzer · wasm32 canvas + JS event loop",
+                cargoTarget: `target.'cfg(target_arch = "wasm32")'.dependencies`,
+                color: "#A79BC0",
+                colorLight: "#5F5480",
+                desc: "The same view code compiled to wasm32 for the browser or an embedded canvas. It is the one driver that changes the entry point: embedded() rather than application(), behind a #[wasm_bindgen(start)] that returns the run handle to the JS host.",
+                specTrait: "embedded() + wasm-bindgen",
+                specImpact: "embedded() · handle returned to JS",
+                svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#4E4577"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#6E62A0"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#A79BC0"/><circle cx="28" cy="33" r="5.2" fill="none" stroke="#E7E1F5" stroke-width="1.3"/><path d="M22.8 33h10.4M28 27.8v10.4" stroke="#E7E1F5" stroke-width="1.1"/></svg>',
+            },
         };
+
+        // Accent colours are per-option data, not theme tokens, so each option
+        // carries a darker `colorLight` variant for the sage-paper theme. The
+        // fixed crate palette retints itself through the CSS tokens in global.css.
+        const accentOf = (item) =>
+            document.documentElement.dataset.theme === "light" &&
+            item.colorLight
+                ? item.colorLight
+                : item.color;
 
         // DOM elements
         const stepBtnCondiments = document.getElementById("stepBtnCondiments");
@@ -425,18 +453,17 @@
         const dockShelfHeader = document.getElementById("dockShelfHeader");
         const dockShelfSub = document.getElementById("dockShelfSub");
         const dockButtonsGroup = document.getElementById("dockButtonsGroup");
-        const dockSwitchStageBtn =
-            document.getElementById("dockSwitchStageBtn");
+        const dockFootText = document.getElementById("dockFootText");
+        const dockFootMark = document.getElementById("dockFootMark");
 
-        const infoPanel = document.getElementById("infoPanel");
         const codeList = document.getElementById("codeLinesList");
         const copyBtn = document.getElementById("copyCode");
         const orderBadge = document.getElementById("orderBadge");
+        const orderBadgeText = document.getElementById("orderBadgeText");
 
         const tabMainFile = document.getElementById("tabMainFile");
         const tabCargoFile = document.getElementById("tabCargoFile");
         const tabMainFileLabel = document.getElementById("tabMainFileLabel");
-        const tabMainBadge = document.getElementById("tabMainBadge");
 
         const mGlyph = document.getElementById("mGlyph");
         const mLayout = document.getElementById("mLayout");
@@ -449,108 +476,31 @@
         const mobileTabCode = document.getElementById("mobileTabCode");
         const mobileConfigCount = document.getElementById("mobileConfigCount");
         const mobileCodeCount = document.getElementById("mobileCodeCount");
-        const dockJumpCode = document.getElementById("dockJumpCode");
-        const orderBackBtn = document.getElementById("orderBackBtn");
 
-        function renderInfoPanel() {
-            if (!infoPanel) return;
+        // The dock's docked footer. By default it summarises the current stage;
+        // while a row is hovered or focused it becomes that option's doc-comment,
+        // which is what the removed detail card used to carry.
+        function renderDockFoot(preview) {
+            if (!dockFootText || !dockFootMark) return;
 
-            if (!focusedItemKey) {
-                infoPanel.classList.remove("has-focus");
-                infoPanel.style.removeProperty("--info-accent");
-
-                if (currentStage === "condiments") {
-                    const activeCount =
-                        Object.values(condimentsState).filter(Boolean).length;
-                    infoPanel.innerHTML = `
-            <div class="info-idle-state">
-              <div class="info-idle-left">
-                <div class="info-idle-icon" aria-hidden="true">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
-                  </svg>
-                </div>
-                <div class="info-idle-text">
-                  <span class="info-idle-title">Step 1: Sides &amp; Condiments (Additive Decorators)</span>
-                  <span class="info-idle-desc">Click any condiment below to toggle feature flags into your build, inspect its decoupled SPI trait, and observe real-time latency changes.</span>
-                </div>
-              </div>
-              <span class="info-idle-badge">${activeCount} of 4 active</span>
-            </div>
-          `;
-                } else {
-                    const bev = BEVERAGE_DATA[activeBeverage];
-                    infoPanel.innerHTML = `
-            <div class="info-idle-state">
-              <div class="info-idle-left">
-                <div class="info-idle-icon" style="color:${bev.color};" aria-hidden="true">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                  </svg>
-                </div>
-                <div class="info-idle-text">
-                  <span class="info-idle-title">Step 2: Platform Beverage Selection (Mutually Exclusive Radio)</span>
-                  <span class="info-idle-desc">A single build targets exactly 1 OS backend. Switch beverages to observe how Cargo.toml handles native drivers without touching UI views.</span>
-                </div>
-              </div>
-              <span class="info-idle-badge" style="color:${bev.color};border-color:${bev.color};">Active: ${bev.name}</span>
-            </div>
-          `;
-                }
+            if (preview) {
+                dockFootText.textContent = `${preview.name} — ${preview.desc}`;
+                dockFootMark.textContent = `${preview.specTrait} · ${preview.specImpact}`;
                 return;
             }
 
-            const data =
-                CONDIMENT_DATA[focusedItemKey] || BEVERAGE_DATA[focusedItemKey];
-            if (!data) return;
-
-            const isEnabled =
-                data.type === "condiment"
-                    ? !!condimentsState[focusedItemKey]
-                    : activeBeverage === focusedItemKey;
-
-            infoPanel.classList.add("has-focus");
-            infoPanel.style.setProperty("--info-accent", data.color);
-            infoPanel.innerHTML = `
-        <div class="info-focused-state">
-          <div class="info-focused-left">
-            <div class="info-focused-icon" aria-hidden="true">${data.svg}</div>
-            <div class="info-focused-text">
-              <div class="info-focused-meta">
-                <span class="info-focused-kicker">${data.kicker}</span>
-                <span class="info-status-pill ${isEnabled ? "is-active" : ""}">
-                  <span class="status-dot"></span>
-                  ${isEnabled ? (data.type === "condiment" ? "Included in build" : "Selected Target OS") : "Inactive"}
-                </span>
-              </div>
-              <span class="info-focused-title">${data.name} <code style="font-size:.74rem;color:${data.color};font-weight:600;">(${data.crate})</code></span>
-              <span class="info-focused-desc">${data.desc}</span>
-            </div>
-          </div>
-
-          <div class="info-focused-right">
-            <div class="info-chips">
-              <span class="info-chip-trait">${data.specTrait}</span>
-              <span class="info-chip-gain">${data.specImpact}</span>
-            </div>
-            <button class="info-reset-btn" id="infoResetBtn" title="Return to general overview">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              <span>Overview</span>
-            </button>
-          </div>
-        </div>
-      `;
-
-            document
-                .getElementById("infoResetBtn")
-                ?.addEventListener("click", (event) => {
-                    event.stopPropagation();
-                    focusedItemKey = null;
-                    document
-                        .querySelectorAll(".dock-row")
-                        .forEach((b) => b.classList.remove("is-focused"));
-                    renderInfoPanel();
-                });
+            if (currentStage === "condiments") {
+                const activeCount =
+                    Object.values(condimentsState).filter(Boolean).length;
+                dockFootText.textContent = `${activeCount} additive side${
+                    activeCount === 1 ? "" : "s"
+                } attached`;
+                dockFootMark.textContent = "Zero engine forks";
+            } else {
+                const bev = BEVERAGE_DATA[activeBeverage];
+                dockFootText.textContent = `Platform: ${bev.name}`;
+                dockFootMark.textContent = "Zero OS driver lock-in";
+            }
         }
 
         // Render dock buttons (condiments vs beverages)
@@ -565,15 +515,11 @@
             dockButtonsGroup.classList.toggle("dock-beverages", !isCondiments);
 
             dockShelfHeader.textContent = isCondiments
-                ? "Additive Feature Decorators (Checkboxes)"
-                : "Mutually Exclusive Target Backend (Radio)";
+                ? "Additive Sides & Condiments"
+                : "Target Beverage Driver (Pick One)";
             dockShelfSub.textContent = isCondiments
-                ? "Stack as many decorators onto your application pipeline as needed."
-                : "A compilation artifact targets exactly one operating system driver at a time.";
-
-            dockSwitchStageBtn.innerHTML = isCondiments
-                ? `<span>Proceed to Target Beverage (Platform OS)</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`
-                : `<span>◂ Back to Sides &amp; Condiments</span>`;
+                ? "Attach as many crate-level sides as you like; they compose into the frame pipeline."
+                : "A build targets exactly one platform driver at a time, resolved from Cargo.toml.";
 
             const items = isCondiments
                 ? Object.values(CONDIMENT_DATA)
@@ -590,21 +536,19 @@
                 btn.dataset.itemKey = item.key;
                 btn.dataset.itemType = item.type;
                 btn.dataset.active = String(isActive);
-                btn.style.setProperty("--accent", item.color);
+                btn.style.setProperty("--accent", accentOf(item));
                 btn.title = `${item.name} (${item.crate})`;
                 btn.setAttribute("aria-label", item.name);
                 btn.setAttribute("aria-pressed", String(isActive));
-                if (item.key === focusedItemKey)
-                    btn.classList.add("is-focused");
 
                 btn.innerHTML = `
                     <span class="dock-row-icon" aria-hidden="true">${item.svg}</span>
                     <span class="dock-row-text">
-                        <span class="dock-row-name">
-                            <span class="dock-row-label">${item.name}</span>
-                            <span class="dock-row-tag">${item.tag}</span>
+                        <span class="dock-row-label">${item.name}</span>
+                        <span class="dock-row-sub">
+                            <span class="dock-row-crate">${item.crate}</span>
+                            <span class="dock-row-flavor">${item.sub}</span>
                         </span>
-                        <span class="dock-row-sub">${item.kicker}</span>
                     </span>
                     <span class="dock-row-switch" aria-hidden="true"><i></i></span>
                 `;
@@ -614,96 +558,69 @@
                         condimentsState[item.key] = !condimentsState[item.key];
                     } else {
                         activeBeverage = item.key;
-                        // Headless stays on the test file; every desktop driver proves the Cargo.toml boundary.
-                        currentActiveFile =
-                            activeBeverage === "headless" ? "main" : "cargo";
+                        // Every driver proves the same Cargo.toml boundary.
+                        currentActiveFile = "cargo";
                     }
-                    focusedItemKey = item.key;
                     renderAll();
                 });
 
+                // Reading a row swaps its doc-comment into the dock footer.
+                btn.addEventListener("mouseenter", () => renderDockFoot(item));
+                btn.addEventListener("mouseleave", () => renderDockFoot(null));
+                btn.addEventListener("focus", () => renderDockFoot(item));
+                btn.addEventListener("blur", () => renderDockFoot(null));
+
                 dockButtonsGroup.appendChild(btn);
             });
+
+            renderDockFoot(null);
         }
 
-        // Code generation for main.rs, tests/smoke.rs or Cargo.toml
+        // Code generation for main.rs or Cargo.toml
         function getCodeContent() {
-            const isHeadless = activeBeverage === "headless";
+            const bev = BEVERAGE_DATA[activeBeverage];
 
             if (currentActiveFile === "cargo") {
-                const activeConds = Object.keys(condimentsState).filter(
-                    (k) => condimentsState[k],
-                );
-                const featuresStr =
-                    activeConds.length > 0
-                        ? `features = [${activeConds.map((c) => `"${c}"`).join(", ")}]`
-                        : "";
-
                 const lines = [
                     {
-                        code: '<span class="c"># Cargo.toml — Leaf Platform Driver Resolution</span>',
-                        raw: "# Cargo.toml",
+                        code: '<span class="c"># Cargo.toml — leaf platform-driver resolution</span>',
+                        raw: "# Cargo.toml — leaf platform-driver resolution",
                     },
                     { code: "[dependencies]", raw: "[dependencies]" },
                     {
-                        code: `bite-gpui = { version = <span class="s">"0.1"</span>${featuresStr ? ", " + featuresStr : ""} }`,
-                        raw: `bite-gpui = { version = "0.1"${featuresStr ? ", " + featuresStr : ""} }`,
+                        code: `bite-gpui = { version = <span class="s">"0.1"</span>, default-features = <span class="k">false</span> }`,
+                        raw: 'bite-gpui = { version = "0.1", default-features = false }',
                     },
                     { code: "", raw: "" },
-                    {
-                        code: '<span class="c"># Target-conditional driver leaf crates (Mutually exclusive)</span>',
-                        raw: "# Target-conditional drivers",
-                    },
                 ];
 
-                if (activeBeverage === "macos") {
+                // One dependency line per attached side.
+                Object.values(CONDIMENT_DATA).forEach((side) => {
+                    if (!condimentsState[side.key]) return;
                     lines.push({
-                        code: `<span class="t">[target.'cfg(target_os = "macos")'.dependencies]</span>`,
-                        raw: `[target.'cfg(target_os = "macos")'.dependencies]`,
-                        condiment: "macos",
-                        tag: "gpui_platform_macos",
+                        code: `${side.crate} = { version = <span class="s">"0.1"</span> }`,
+                        raw: `${side.crate} = { version = "0.1" }`,
+                        condiment: side.key,
+                        tag: side.pill,
                     });
-                    lines.push({
-                        code: `gpui_platform_macos = { version = <span class="s">"0.1"</span> } <span class="c"># CFRunLoop + Metal (CAMetalLayer)</span>`,
-                        raw: `gpui_platform_macos = { version = "0.1" } # CFRunLoop + Metal (CAMetalLayer)`,
-                        condiment: "macos",
-                    });
-                } else if (activeBeverage === "linux") {
-                    lines.push({
-                        code: `<span class="t">[target.'cfg(target_os = "linux")'.dependencies]</span>`,
-                        raw: `[target.'cfg(target_os = "linux")'.dependencies]`,
-                        condiment: "linux",
-                        tag: "gpui_platform_linux",
-                    });
-                    lines.push({
-                        code: `gpui_platform_linux = { version = <span class="s">"0.1"</span> } <span class="c"># Wayland (wayland-client) / X11 + Vulkan</span>`,
-                        raw: `gpui_platform_linux = { version = "0.1" } # Wayland / X11 + Vulkan`,
-                        condiment: "linux",
-                    });
-                } else if (activeBeverage === "windows") {
-                    lines.push({
-                        code: `<span class="t">[target.'cfg(target_os = "windows")'.dependencies]</span>`,
-                        raw: `[target.'cfg(target_os = "windows")'.dependencies]`,
-                        condiment: "windows",
-                        tag: "gpui_platform_windows",
-                    });
-                    lines.push({
-                        code: `gpui_platform_windows = { version = <span class="s">"0.1"</span> } <span class="c"># Win32 message pump + Direct3D 12</span>`,
-                        raw: `gpui_platform_windows = { version = "0.1" } # Win32 + Direct3D 12`,
-                        condiment: "windows",
-                    });
-                } else if (activeBeverage === "headless") {
-                    lines.push({
-                        code: "[dev-dependencies]",
-                        raw: "[dev-dependencies]",
-                    });
-                    lines.push({
-                        code: `bite-gpui = { version = <span class="s">"0.1"</span>, features = [<span class="s">"test-mock"</span>] } <span class="c"># 0 MB in-memory dispatcher</span>`,
-                        raw: `bite-gpui = { version = "0.1", features = ["test-mock"] }`,
-                        condiment: "headless",
-                        tag: "headless-ci",
-                    });
-                }
+                });
+
+                lines.push({ code: "", raw: "" });
+                lines.push({
+                    code: `<span class="c"># Beverage Driver: ${bev.beverage} (${bev.name})</span>`,
+                    raw: `# Beverage Driver: ${bev.beverage} (${bev.name})`,
+                });
+                lines.push({
+                    code: `<span class="t">[${bev.cargoTarget}]</span>`,
+                    raw: `[${bev.cargoTarget}]`,
+                    condiment: bev.key,
+                    tag: bev.tag,
+                });
+                lines.push({
+                    code: `${bev.crate} = { version = <span class="s">"0.1"</span> }`,
+                    raw: `${bev.crate} = { version = "0.1" }`,
+                    condiment: bev.key,
+                });
 
                 lines.push({ code: "", raw: "" });
                 lines.push({
@@ -714,83 +631,71 @@
                 return lines;
             }
 
-            // Rust code: tests/smoke.rs when headless, otherwise main.rs
-            if (isHeadless) {
-                return [
-                    {
-                        code: '<span class="c">// tests/smoke.rs — Pure In-Memory Headless CI</span>',
-                        raw: "// tests/smoke.rs",
-                    },
-                    {
-                        code: '<span class="k">use</span> gpui::<span class="m">*</span>;',
-                        raw: "use gpui::*;",
-                    },
-                    { code: "", raw: "" },
-                    { code: '<span class="c">#[test]</span>', raw: "#[test]" },
-                    {
-                        code: '<span class="k">fn</span> <span class="f">test_headless_render</span>() {',
-                        raw: "fn test_headless_render() {",
-                    },
-                    {
-                        code: '    <span class="c">// Synthetic in-memory dispatcher; zero GPU / Xvfb requirements</span>',
-                        raw: "    // Synthetic in-memory dispatcher; zero GPU / Xvfb requirements",
-                    },
-                    {
-                        code: '    <span class="k">let mut</span> app = <span class="f">headless</span>();',
-                        raw: "    let mut app = headless();",
-                        condiment: "headless",
-                        tag: "headless",
-                    },
-                    {
-                        code: '    <span class="k">let</span> win = app.<span class="f">open_test_window</span>(|<span class="m">cx</span>| cx.<span class="f">new</span>(|_| <span class="t">MyView</span>));',
-                        raw: "    let win = app.open_test_window(|cx| cx.new(|_| MyView));",
-                        condiment: "headless",
-                    },
-                    {
-                        code: '    win.<span class="f">draw</span>();',
-                        raw: "    win.draw();",
-                    },
-                    {
-                        code: '    <span class="f">assert_eq!</span>(win.<span class="f">scene</span>().<span class="f">quads</span>.<span class="f">len</span>(), <span class="s">4</span>);',
-                        raw: "    assert_eq!(win.scene().quads.len(), 4);",
-                    },
-                    { code: "}", raw: "}" },
-                ];
-            }
+            return mainRsLines(bev);
+        }
 
-            // Standard desktop main.rs — identical across macOS, Linux and Windows
+        // main.rs — one program for every native driver: switching the target never
+        // reaches into the view code. wasm32 is the single exception, because it
+        // owns the entry point.
+        function mainRsLines(bev) {
+            const isWasm = activeBeverage === "wasm";
             const lines = [];
             lines.push({
                 code: '<span class="k">use</span> gpui::<span class="m">*</span>;',
                 raw: "use gpui::*;",
             });
 
+            // wasm32 is the one driver that reaches into the entry point.
+            if (isWasm) {
+                lines.push({
+                    code: '<span class="k">use</span> wasm_bindgen::prelude::<span class="m">*</span>;',
+                    raw: "use wasm_bindgen::prelude::*;",
+                    condiment: "wasm",
+                    tag: bev.tag,
+                });
+            }
+
             if (condimentsState.parley) {
                 lines.push({
                     code: '<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;',
                     raw: "use gpui_parley::ParleyTextSystem;",
                     condiment: "parley",
-                    tag: "gpui_parley",
+                    tag: CONDIMENT_DATA.parley.pill,
                 });
             }
 
-            if (condimentsState.nachos) {
+            if (condimentsState.surface) {
                 lines.push({
                     code: '<span class="k">use</span> gpui_wgpu_surface::<span class="t">WgpuSurface</span>;',
                     raw: "use gpui_wgpu_surface::WgpuSurface;",
-                    condiment: "nachos",
-                    tag: "Style::custom",
+                    condiment: "surface",
+                    tag: CONDIMENT_DATA.surface.pill,
                 });
             }
 
             lines.push({ code: "", raw: "" });
+
+            if (isWasm) {
+                lines.push({
+                    code: '<span class="c">#[wasm_bindgen(start)]</span>',
+                    raw: "#[wasm_bindgen(start)]",
+                });
+            }
             lines.push({
-                code: '<span class="k">fn</span> <span class="f">main</span>() {',
-                raw: "fn main() {",
+                code: isWasm
+                    ? '<span class="k">pub fn</span> <span class="f">main</span>() -&gt; <span class="t">Result</span>&lt;(), <span class="t">JsValue</span>&gt; {'
+                    : '<span class="k">fn</span> <span class="f">main</span>() {',
+                raw: isWasm
+                    ? "pub fn main() -> Result<(), JsValue> {"
+                    : "fn main() {",
             });
             lines.push({
-                code: '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// Resolves Platform SPI via Cargo.toml</span>',
-                raw: "    let mut app = application();",
+                code: isWasm
+                    ? '    <span class="k">let</span> app = <span class="f">embedded</span>(); <span class="c">// wasm32: the JS host owns the frame clock</span>'
+                    : '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// Platform SPI resolved from Cargo.toml</span>',
+                raw: isWasm
+                    ? "    let app = embedded(); // wasm32: the JS host owns the frame clock"
+                    : "    let mut app = application(); // Platform SPI resolved from Cargo.toml",
             });
 
             if (condimentsState.parley) {
@@ -798,35 +703,34 @@
                     code: '    app.<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()));',
                     raw: "    app.with_text_system(Arc::new(ParleyTextSystem::new()));",
                     condiment: "parley",
-                    tag: "gpui_parley",
+                    tag: CONDIMENT_DATA.parley.pill,
                 });
             }
 
-            if (condimentsState.spicy || condimentsState.mild) {
-                let pipeCode =
-                    '    app.<span class="f">with_frame_pipeline</span>(<span class="t">StandardImmediatePipeline</span>';
-                if (condimentsState.mild)
-                    pipeCode +=
-                        '.<span class="f">max_fps</span>(<span class="s">60</span>)';
-                if (condimentsState.spicy)
-                    pipeCode +=
-                        '.<span class="f">instrumented</span>(<span class="f">metrics</span>())';
-                pipeCode += ");";
-
+            if (condimentsState.pacing) {
                 lines.push({
-                    code: pipeCode,
-                    raw: pipeCode.replace(/<[^>]*>/g, ""),
-                    condiment: condimentsState.spicy ? "spicy" : "mild",
-                    tag: "FramePipeline",
+                    code: '    app.<span class="f">with_frame_pipeline</span>(<span class="t">ImmediatePipeline</span>::<span class="f">max_fps</span>(<span class="s">60</span>));',
+                    raw: "    app.with_frame_pipeline(ImmediatePipeline::max_fps(60));",
+                    condiment: "pacing",
+                    tag: CONDIMENT_DATA.pacing.pill,
                 });
             }
 
-            if (condimentsState.nachos) {
+            if (condimentsState.surface) {
                 lines.push({
                     code: '    app.<span class="f">with_surface_pipeline</span>(<span class="t">WgpuSurface</span>::<span class="f">new</span>(device, queue));',
                     raw: "    app.with_surface_pipeline(WgpuSurface::new(device, queue));",
-                    condiment: "nachos",
-                    tag: "wgpu surface",
+                    condiment: "surface",
+                    tag: CONDIMENT_DATA.surface.pill,
+                });
+            }
+
+            if (condimentsState.profiler) {
+                lines.push({
+                    code: '    app.<span class="f">with_telemetry</span>(<span class="t">TelemetryLayer</span>::<span class="f">realtime</span>());',
+                    raw: "    app.with_telemetry(TelemetryLayer::realtime());",
+                    condiment: "profiler",
+                    tag: CONDIMENT_DATA.profiler.pill,
                 });
             }
 
@@ -838,7 +742,14 @@
                 code: '        cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">cx</span>| cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)).<span class="f">unwrap</span>();',
                 raw: "        cx.open_window(WindowOptions::default(), |cx| cx.new(|_| MyView)).unwrap();",
             });
-            lines.push({ code: "    });", raw: "    });" });
+            lines.push({
+                code: isWasm
+                    ? '    }) <span class="c">// hand the run handle back to the wasm binding</span>'
+                    : "    });",
+                raw: isWasm
+                    ? "    }) // hand the run handle back to the wasm binding"
+                    : "    });",
+            });
             lines.push({ code: "}", raw: "}" });
 
             return lines;
@@ -849,14 +760,10 @@
         function renderTerminal() {
             if (!codeList) return;
 
-            const isHeadless = activeBeverage === "headless";
-            tabMainFileLabel.textContent = isHeadless
-                ? "tests/smoke.rs"
-                : "main.rs";
-            tabMainBadge.style.display =
-                !isHeadless && currentActiveFile === "cargo"
-                    ? "inline-flex"
-                    : "none";
+            const bev = BEVERAGE_DATA[activeBeverage];
+
+            // main.rs is the same for every driver — the point of the stack.
+            tabMainFileLabel.textContent = "main.rs";
 
             tabMainFile.classList.toggle(
                 "is-active",
@@ -878,11 +785,12 @@
                 if (item.condiment) {
                     li.classList.add("is-added");
                     li.dataset.condiment = item.condiment;
-                    const color =
-                        (
-                            CONDIMENT_DATA[item.condiment] ||
-                            BEVERAGE_DATA[item.condiment]
-                        )?.color || "var(--brand)";
+                    const itemData =
+                        CONDIMENT_DATA[item.condiment] ||
+                        BEVERAGE_DATA[item.condiment];
+                    const color = itemData
+                        ? accentOf(itemData)
+                        : "var(--brand)";
                     li.style.setProperty("--line-accent", color);
                 }
 
@@ -904,80 +812,62 @@
                     li.appendChild(tag);
                 }
 
-                if (item.condiment) {
-                    li.addEventListener("click", () => {
-                        focusedItemKey = item.condiment;
-                        renderAll();
-                    });
-                }
-
                 codeList.appendChild(li);
             });
 
             const activeCondCount =
                 Object.values(condimentsState).filter(Boolean).length;
             condimentCountChip.textContent = `${activeCondCount} active`;
-            beverageTargetChip.textContent = BEVERAGE_DATA[activeBeverage].name;
+            beverageTargetChip.textContent =
+                BEVERAGE_DATA[activeBeverage].short;
 
             if (mobileConfigCount) {
                 mobileConfigCount.textContent =
                     currentStage === "condiments"
                         ? `${activeCondCount} of 4`
-                        : BEVERAGE_DATA[activeBeverage].name;
+                        : BEVERAGE_DATA[activeBeverage].short;
             }
             if (mobileCodeCount) {
-                const lineCount = lines.length;
-                mobileCodeCount.textContent = `${lineCount} line${lineCount === 1 ? "" : "s"}`;
+                const injected = lines.filter((l) => l.condiment).length;
+                mobileCodeCount.textContent = `${injected} injected`;
             }
 
+            // The header pill is the live target readout.
             if (orderBadge) {
-                if (currentStage === "condiments") {
-                    orderBadge.textContent = `${activeCondCount} add-on${activeCondCount === 1 ? "" : "s"} active`;
-                    orderBadge.dataset.nonzero = String(activeCondCount > 0);
-                } else {
-                    orderBadge.textContent = `Target: ${BEVERAGE_DATA[activeBeverage].name}`;
-                    orderBadge.dataset.nonzero = "true";
-                }
+                if (orderBadgeText)
+                    orderBadgeText.textContent =
+                        BEVERAGE_DATA[activeBeverage].beverage;
+                orderBadge.dataset.nonzero = "true";
             }
 
-            if (mGlyph) {
-                mGlyph.textContent = condimentsState.parley
-                    ? "2.1 ms"
-                    : "835 ms";
-                mGlyph.classList.toggle("is-good", condimentsState.parley);
-            }
-            if (mLayout) {
-                mLayout.textContent = condimentsState.parley
-                    ? "4.8 ms"
-                    : "28.5 ms";
-                mLayout.classList.toggle("is-good", condimentsState.parley);
-            }
-            if (mFps) {
-                mFps.textContent = condimentsState.mild ? "60 FPS" : "Uncapped";
-                mFps.classList.toggle("is-good", condimentsState.mild);
-            }
-            if (mPlatform) {
-                if (activeBeverage === "macos")
-                    mPlatform.textContent = "macOS (Metal)";
-                else if (activeBeverage === "linux")
-                    mPlatform.textContent = "Linux (Wayland)";
-                else if (activeBeverage === "windows")
-                    mPlatform.textContent = "Win32 (DX12)";
-                else if (activeBeverage === "headless")
-                    mPlatform.textContent = "0 MB (In-Memory)";
-            }
+            // A detached side dims its reading rather than wearing a colour, so
+            // the footer stays a status line instead of a traffic light.
+            const reading = (el, value, attached) => {
+                if (!el) return;
+                el.textContent = value;
+                el.classList.toggle("is-off", !attached);
+            };
+            reading(
+                mGlyph,
+                condimentsState.parley ? "2.1 ms" : "835 ms",
+                condimentsState.parley,
+            );
+            reading(
+                mLayout,
+                condimentsState.parley ? "4.8 ms" : "28.5 ms",
+                condimentsState.parley,
+            );
+            reading(
+                mFps,
+                condimentsState.pacing ? "60 FPS" : "Uncapped",
+                condimentsState.pacing,
+            );
+            if (mPlatform) mPlatform.textContent = bev.name;
         }
 
         function setStage(stage) {
             currentStage = stage;
-            if (stage === "condiments") {
-                focusedItemKey = null;
-                currentActiveFile = "main";
-            } else {
-                focusedItemKey = activeBeverage;
-                currentActiveFile =
-                    activeBeverage === "headless" ? "main" : "cargo";
-            }
+            currentActiveFile = stage === "condiments" ? "main" : "cargo";
             renderAll();
         }
 
@@ -994,7 +884,6 @@
                 String(!onCondiments),
             );
 
-            renderInfoPanel();
             renderDock();
             renderTerminal();
         }
@@ -1019,10 +908,6 @@
             setMobileTab("configure"),
         );
         mobileTabCode?.addEventListener("click", () => setMobileTab("code"));
-        dockJumpCode?.addEventListener("click", () => setMobileTab("code"));
-        orderBackBtn?.addEventListener("click", () =>
-            setMobileTab("configure"),
-        );
 
         stepBtnCondiments?.addEventListener("click", () =>
             setStage("condiments"),
@@ -1030,12 +915,6 @@
         stepBtnBeverages?.addEventListener("click", () =>
             setStage("beverages"),
         );
-
-        dockSwitchStageBtn?.addEventListener("click", () => {
-            setStage(
-                currentStage === "condiments" ? "beverages" : "condiments",
-            );
-        });
 
         // Dual-file tab switching
         tabMainFile?.addEventListener("click", () => {
@@ -1057,5 +936,9 @@
 
         setMobileTab("configure");
         renderAll();
+
+        // The accent hues above are data, so a theme flip has to re-render the
+        // dock and code lines rather than being handled in CSS.
+        document.addEventListener("bite:themechange", () => renderAll());
     })();
 </script>
