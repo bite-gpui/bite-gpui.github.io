@@ -18,16 +18,26 @@ import CodeTabs from "../components/CodeTabs.astro";
 //   SceneRenderer   bite-gp-engine      — none —                    one per backend, by cfg
 
 const stats = [
-  { value: "5", label: "trait contracts the facade lets you replace" },
+  {
+    value: "5",
+    label: "Trait boundaries",
+    note: "Four of them with a setter at the facade.",
+  },
   {
     value: "2",
-    label: "second implementations published on crates.io",
+    label: "Published swaps",
+    note: "Second implementations on crates.io.",
     win: true,
   },
-  { value: "0", label: "forks of the engine, for either of them" },
+  {
+    value: "0",
+    label: "Forks to maintain",
+    note: "For either published swap.",
+  },
   {
     value: "0.00 px",
-    label: "node-bounds delta from the default engine, over 3501 nodes",
+    label: "Layout delta",
+    note: "Over 3501 nodes, against the default engine.",
     win: true,
   },
 ];
@@ -172,20 +182,20 @@ const artifacts = [
   kicker="Architecture · The seams"
   heading="Five seams."
   accent="Two you can install."
-  lede="GPUI's engine is assembled from five trait contracts, and each has exactly one way in at the facade. A swap is a second implementation you install from crates.io rather than a patch you keep rebased. Two are published from repositories of their own; the other three are named here with what a second implementation would take."
+  lede="Changing how GPUI shapes text or lays out boxes means forking the repository and keeping that fork rebased. The engine is assembled from five trait contracts, four of which have a method on Application that installs a second implementation instead: a crate you depend on, not a patch you maintain. Two of the five have one, published from a repository of its own; the other three are named here with what one would take."
   current="swaps"
   stats={stats}
 >
   <section>
     <div class="section-head">
       <span class="kicker">The shelf</span>
-      <h2>What can be replaced, and by what.</h2>
+      <h2>What you can replace.</h2>
       <p>
-        Every trait below is declared in a layer crate, every hook is a real
-        method on <span class="mono">Application</span>, and every default is
-        the type the facade installs when you say nothing. The facade re-exports
-        all of it, which is why <span class="mono">use gpui::*</span> is enough
-        to name any of them.
+        Read out of the published crates rather than off a diagram: each trait
+        is declared in a layer crate, each hook is a real method on
+        <span class="mono">Application</span>, and each default is the type the
+        facade installs when you say nothing. The facade re-exports all of it,
+        so <span class="mono">use gpui::*</span> names any of them.
       </p>
     </div>
 
@@ -297,10 +307,11 @@ const artifacts = [
   <section>
     <div class="section-head">
       <span class="kicker">Open seams</span>
-      <h2>The three that are not installable yet.</h2>
+      <h2>Three seams with nothing to install.</h2>
       <p>
-        Named so the gaps are visible rather than implied. None of these has a
-        result to show, because none of them has a second implementation.
+        There is nothing to measure in this section, because none of the three
+        has a second implementation. They are named so the gap is visible rather
+        than implied.
       </p>
     </div>
 
@@ -362,15 +373,14 @@ const artifacts = [
   <section>
     <div class="section-head">
       <span class="kicker">Limits</span>
-      <h2>What this page does not say.</h2>
+      <h2>Two of five, not five of five.</h2>
     </div>
     <div class="prose">
       <ul class="checklist">
         <li>
-          <strong>Two of five, not five of five.</strong> The shelf is mostly
-          empty on purpose. Nothing here should be read as "every boundary has
-          an alternative" — three of them have no implementation at all outside
-          the tree.
+          <strong>The shelf is mostly empty on purpose.</strong> Nothing here
+          should be read as "every boundary has an alternative" — three of the
+          five have no implementation at all outside the tree.
         </li>
         <li>
           <strong>A second implementation is not a drop-in replacement.</strong>{" "}
@@ -407,9 +417,9 @@ const artifacts = [
       <span class="kicker">Where they live</span>
       <h2>The published two.</h2>
       <p>
-        Four artefacts: two packages on crates.io, and the two repositories they
-        are developed and released from — each with the publisher that makes its
-        tag the release.
+        Four artefacts: two crates on crates.io, and the two repositories each
+        one is developed and released from, where a publisher turns its tag into
+        the release.
       </p>
     </div>
 
