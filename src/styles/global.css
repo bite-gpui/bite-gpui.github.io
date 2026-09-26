@@ -36,6 +36,7 @@
 
   --ui: "Inter", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1200px;
   --r: 12px;
@@ -824,12 +825,24 @@ html {
 }
 .hero-copy .lede {
   margin-top: 8px;
+  /* The lede is the page's editorial voice, and this is the one paragraph set in
+     the reading serif, in italic. Newsreader rather than a display serif because a
+     guide's lede runs three or four sentences at 1.05rem: that is a reading job,
+     not a title. `pretty` so the paragraph cannot end on a single word, which an
+     italic serif makes conspicuous. */
+  font-family: var(--serif);
+  font-style: italic;
+  text-wrap: pretty;
   font-size: 1.05rem;
   color: var(--text-2);
   line-height: 1.6;
 }
 .hero-copy .lede code {
   font-size: 0.92em;
+  /* The chip keeps the upright mono it has everywhere else on the page: a run of
+     inline code inside an italic paragraph is the one place the slant reads as a
+     mistake rather than as voice. */
+  font-style: normal;
   color: var(--text);
 }
 
@@ -2432,6 +2445,11 @@ footer {
 .page-hero .lede {
   margin-top: 18px;
   max-width: 68ch;
+  /* Set the way the one-pager's lede is, and for the same reason — see
+     .hero-copy .lede for why the serif, the italic and `pretty` are here. */
+  font-family: var(--serif);
+  font-style: italic;
+  text-wrap: pretty;
   font-size: 1.05rem;
   line-height: 1.65;
   color: var(--text-2);
