@@ -17,9 +17,11 @@ const anchors = [
   { href: "/#quickstart", label: "Express Lane", key: "quickstart" },
 ];
 
+// The three guides. `Swaps` is the hub the two swap guides sit under, which is
+// why they are not listed here as well: the shelf names them, and the footer
+// links them directly.
 const pages = [
-  { href: "/parley", label: "Parley", key: "parley" },
-  { href: "/morphorm", label: "Morphorm", key: "morphorm" },
+  { href: "/swaps", label: "Swaps", key: "swaps" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];
@@ -33,8 +35,8 @@ const pages = [
       <span class="logo-version">v1.21.0</span>
     </a>
 
-    <!-- Mobile only. The full row of links plus the CTA needs ~772px, so it
-             overflows well before the hero's own 820px breakpoint. -->
+    <!-- Mobile only. The full row needs 1048px of content box and the sheet has
+             to take over well before the hero's own 820px breakpoint. -->
     <button
       class="nav-toggle"
       id="navToggle"
@@ -185,11 +187,11 @@ const pages = [
   });
 
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
-  // Kept in step with the `max-width: 1280px` query in global.css that
-  // collapses the bar — the row carries eight links plus the CTA now, which is
-  // a wider bar than the hero's own 820px breakpoint.
+  // Kept in step with the `max-width: 1180px` query in global.css that
+  // collapses the bar — the row carries seven links plus the CTA and needs
+  // 1048px of the 1152px content box to keep them on one line.
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 1280) setOpen(false);
+    if (window.innerWidth > 1180) setOpen(false);
   });
 
   // The nav CTA copies the install line rather than jumping: the sheet already

@@ -1,0 +1,433 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeTabs from "../components/CodeTabs.astro";
+
+// The seam inventory, read out of the published crates rather than from a
+// diagram: every trait below is declared in a `bite-gp-*` layer crate, every
+// hook is a real method on `Application`, and every default is the type the
+// facade installs when you say nothing. The two swaps are published from their
+// own repositories; the other three have no second implementation, and this page
+// says so instead of implying one.
+//
+// Where each fact comes from (crates.io 1.21.x sources):
+//   trait           crate               hook                        default
+//   TextSystem      bite-gp-engine      with_text_system            DefaultTextSystem
+//   LayoutEngine    bite-gp-engine      with_layout_engine          TaffyLayoutEngine
+//   FramePipeline   bite-gp-authoring   with_frame_pipeline         StandardImmediatePipeline
+//   Platform        bite-gp-platform    with_platform               one per host, by cfg
+//   SceneRenderer   bite-gp-engine      — none —                    one per backend, by cfg
+
+const stats = [
+  { value: "5", label: "trait contracts the facade lets you replace" },
+  {
+    value: "2",
+    label: "second implementations published on crates.io",
+    win: true,
+  },
+  { value: "0", label: "forks of the engine, for either of them" },
+  {
+    value: "0.00 px",
+    label: "node-bounds delta from the default engine, over 3501 nodes",
+    win: true,
+  },
+];
+
+const seams = [
+  {
+    trait: "TextSystem",
+    owns: "Shaping, line layout and glyph rasterization.",
+    hook: "Application::with_text_system(Arc<dyn TextSystem>)",
+    defined: "gpui_engine",
+    default: "DefaultTextSystem",
+    defaultNote: "over the host's own text backend",
+    swap: "bite-gp-parley",
+    swapType: "ParleyTextSystem",
+    swapVersion: "1.21.1",
+    measured: "2.4× faster wrap",
+    link: "/parley",
+    linkLabel: "Using gpui_parley",
+    published: true,
+  },
+  {
+    trait: "LayoutEngine",
+    owns: "Turning the element tree into laid-out boxes.",
+    hook: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
+    defined: "gpui_engine",
+    default: "TaffyLayoutEngine",
+    defaultNote: "the engine the facade bundles",
+    swap: "bite-gp-morphorm",
+    swapType: "MorphormLayoutEngine",
+    swapVersion: "1.21.2",
+    measured: "3.4–3.8× cheaper",
+    link: "/morphorm",
+    linkLabel: "Using gpui_morphorm",
+    published: true,
+  },
+  {
+    trait: "FramePipeline",
+    owns: "Pacing, presentation order and per-frame instrumentation.",
+    hook: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
+    defined: "gpui_authoring",
+    default: "StandardImmediatePipeline",
+    defaultNote:
+      "and its shipped decorators: .max_fps(n) and .instrumented(metrics)",
+    swap: null,
+    note: "The frame governor the one-pager shows is configuration of this default — ThrottledPipeline and InstrumentedPipeline, both in gpui_runtime — rather than a second implementation. Nothing out of tree publishes one.",
+    link: "/demos",
+    linkLabel: "The open seams",
+    published: false,
+  },
+  {
+    trait: "Platform",
+    owns: "The OS event loop, displays and input.",
+    hook: "Application::with_platform(Rc<dyn Platform>)",
+    defined: "gpui_platform",
+    default: "one per host",
+    defaultNote:
+      "LinuxPlatform over X11 or Wayland, MacPlatform, WindowsPlatform, WebPlatform — compiled in by cfg, never by a manifest line",
+    swap: null,
+    note: "The hook is the constructor, so a platform is chosen with the application rather than chained onto it.",
+    link: "/demos",
+    linkLabel: "The open seams",
+    published: false,
+  },
+  {
+    trait: "SceneRenderer",
+    owns: "The scene IR becoming pixels.",
+    hook: null,
+    defined: "gpui_engine",
+    default: "one per backend",
+    defaultNote:
+      "MetalRenderer, DirectXRenderer, WgpuRenderer on Linux, and a headless one the test harness draws through",
+    swap: null,
+    note: "No Application setter installs one today: the trait is the boundary, and the platform picks the implementation. A second one needs a door before it can be a crate.",
+    link: "/demos",
+    linkLabel: "The open seams",
+    published: false,
+  },
+];
+
+const open = [
+  {
+    seam: "FramePipeline",
+    take: "An out-of-tree pipeline. The shipped decorators are the pattern: a decorator forwards the passes it does not change and decides the ones it does, so a third-party one would wrap or replace StandardImmediatePipeline at the same hook.",
+    project: "pipeline-decorator",
+  },
+  {
+    seam: "Platform",
+    take: "A platform that needs no display, so a CI job can render. The built-in route is the facade with its platform bundle dropped — default-features = false — plus the TestPlatform the test harness already runs on.",
+    project: "headless-platform",
+  },
+  {
+    seam: "SceneRenderer",
+    take: "A renderer out of tree, which is what a raw render-pass blit would actually have to be — and a door at the facade first, because there is no setter to install one through.",
+    project: "scene-renderer",
+  },
+];
+
+const cargo = `<span class="c"># both published swaps, one manifest</span>
+[<span class="t">dependencies</span>]
+bite-gpui = <span class="s">"1.21"</span>
+bite-gp-parley = <span class="s">"1.21"</span>
+bite-gp-morphorm = <span class="s">"1.21"</span>`;
+
+const main = `<span class="k">use</span> gpui::*;
+<span class="k">use</span> gpui_morphorm::<span class="t">MorphormLayoutEngine</span>;
+<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;
+
+<span class="k">fn</span> <span class="f">main</span>() {
+    <span class="f">application</span>()
+        .<span class="f">with_text_system</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>())
+        .<span class="f">with_layout_engine</span>(|| <span class="t">Box</span>::<span class="f">new</span>(<span class="t">MorphormLayoutEngine</span>::<span class="f">new</span>()))
+        .<span class="f">run</span>(|cx: &amp;<span class="k">mut</span> <span class="t">App</span>| { <span class="c">/* the same div() tree */</span> });
+}`;
+
+const artifacts = [
+  {
+    name: "bite-gp-parley",
+    desc: "The second TextSystem. Published, with its own tests and cost examples.",
+    href: "https://crates.io/crates/bite-gp-parley",
+  },
+  {
+    name: "bite-gp-morphorm",
+    desc: "The second LayoutEngine, and the conformance test that compares it to the default.",
+    href: "https://crates.io/crates/bite-gp-morphorm",
+  },
+  {
+    name: "bite-gpui/gpui_parley",
+    desc: "The repository the text engine is developed and released from.",
+    href: "https://github.com/bite-gpui/gpui_parley",
+  },
+  {
+    name: "bite-gpui/gpui_morphorm",
+    desc: "The repository the layout solver is developed and released from.",
+    href: "https://github.com/bite-gpui/gpui_morphorm",
+  },
+];
+---
+
+<Page
+  title="Swaps — bite-gpui"
+  description="The five trait contracts the facade lets you replace, which of them have a published second implementation, and what the open ones would take."
+  kicker="Architecture · The seams"
+  heading="Five seams."
+  accent="Two you can install."
+  lede="GPUI's engine is assembled from five trait contracts, and each has exactly one way in at the facade. A swap is a second implementation you install from crates.io rather than a patch you keep rebased. Two are published from repositories of their own; the other three are named here with what a second implementation would take."
+  current="swaps"
+  stats={stats}
+>
+  <section>
+    <div class="section-head">
+      <span class="kicker">The shelf</span>
+      <h2>What can be replaced, and by what.</h2>
+      <p>
+        Every trait below is declared in a layer crate, every hook is a real
+        method on <span class="mono">Application</span>, and every default is
+        the type the facade installs when you say nothing. The facade re-exports
+        all of it, which is why <span class="mono">use gpui::*</span> is enough
+        to name any of them.
+      </p>
+    </div>
+
+    <div class="seam-grid">
+      {seams.map((seam) => (
+        <article class={`seam${seam.published ? " is-published" : ""}`}>
+          <div class="seam-head">
+            <span class="seam-trait">{seam.trait}</span>
+            {seam.published ? (
+              <span class="pill win">published</span>
+            ) : (
+              <span class="pill flat">open</span>
+            )}
+          </div>
+
+          <p class="seam-role">{seam.owns}</p>
+
+          <div class={`seam-wire${seam.hook ? "" : " is-none"}`}>
+            <span class="seam-wire-label">hook at the facade</span>
+            <code>{seam.hook ?? "none — the trait is the boundary"}</code>
+          </div>
+
+          <dl class="seam-facts">
+            <dt>defined in</dt>
+            <dd>
+              <strong>{seam.defined}</strong>
+            </dd>
+            <dt>default</dt>
+            <dd>
+              <strong>{seam.default}</strong>
+              <br />
+              {seam.defaultNote}
+            </dd>
+            <dt>second implementation</dt>
+            <dd>
+              {seam.swap ? (
+                <>
+                  <strong>{seam.swap}</strong> · {seam.swapType} ·{" "}
+                  {seam.swapVersion}
+                </>
+              ) : (
+                <span>none published</span>
+              )}
+            </dd>
+          </dl>
+
+          {seam.note ? <p class="seam-role">{seam.note}</p> : null}
+
+          <a class="seam-link" href={seam.link}>
+            {seam.linkLabel} →
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Installation</span>
+      <h2>A swap is installed, not applied.</h2>
+      <p>
+        The two published ones are ordinary crate dependencies. Nothing in the
+        tree is forked, so there is no patch to rebase when the engine moves —
+        and because each published package keeps its library target name,
+        <span class="mono">use gpui_parley::…</span> and
+        <span class="mono">use gpui_morphorm::…</span> are what your code
+        already says.
+      </p>
+    </div>
+
+    <CodeTabs
+      panes={[
+        { label: "Cargo.toml", html: cargo },
+        { label: "src/main.rs", html: main },
+      ]}
+    />
+
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>The trait stays where it is.</strong> It is declared in a
+          layer crate — <span class="mono">gpui_engine</span> for three of the
+          five — so implementing it is an <span class="mono">impl</span> in your
+          crate, not an edit to somebody else's.
+        </li>
+        <li>
+          <strong>
+            The hook is one method, called before the first window.
+          </strong>{" "}
+          A layout engine and a frame pipeline take factories because both are
+          per-window; a text system is one
+          <span class="mono">Arc</span> for the process.
+        </li>
+        <li>
+          <strong>The library target name is preserved.</strong> The package is
+          namespaced, the library is not, so an existing
+          <span class="mono">use</span> line keeps compiling and the manifest is
+          the only thing that moves.
+        </li>
+        <li>
+          <strong>Each swap lives in a repository of its own</strong>, with the
+          publisher that releases it, so it versions independently of the engine
+          it plugs into.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Open seams</span>
+      <h2>The three that are not installable yet.</h2>
+      <p>
+        Named so the gaps are visible rather than implied. None of these has a
+        result to show, because none of them has a second implementation.
+      </p>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">
+          What a second implementation would take
+        </span>
+        <span class="table-head-note">
+          filed as usage projects, not as crates
+        </span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>seam</th>
+              <th>what it would take</th>
+              <th>filed as</th>
+            </tr>
+          </thead>
+          <tbody>
+            {open.map((row) => (
+              <tr>
+                <td>
+                  <span class="mono">{row.seam}</span>
+                </td>
+                <td>{row.take}</td>
+                <td>
+                  <span class="pill flat">{row.project}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        These are the categories the project files its own work under — a new
+        flavour of a swappable, a decorator, a new authoring surface — and
+        <a href="/demos">the demos page</a> carries the whole taxonomy with what
+        each category is for.
+      </p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">The two that ship instead</span>
+      <p>
+        The wgpu renderer and the frame governor are on the one-pager's shelf,
+        but neither is a swap: <code>WgpuRenderer</code> is the scene renderer
+        the Linux platform installs, and the governor is
+        <code>StandardImmediatePipeline.max_fps(60)</code> with
+        <code>.instrumented(…)</code> — shipped decorators, configured rather
+        than installed. The seam that replaces the renderer is
+        <code>SceneRenderer</code>, and it has no hook yet.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Limits</span>
+      <h2>What this page does not say.</h2>
+    </div>
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>Two of five, not five of five.</strong> The shelf is mostly
+          empty on purpose. Nothing here should be read as "every boundary has
+          an alternative" — three of them have no implementation at all outside
+          the tree.
+        </li>
+        <li>
+          <strong>A second implementation is not a drop-in replacement.</strong>{" "}
+          Both published swaps are measured against the default on one laptop,
+          two columns each, and both pages say where their own comparison stops.
+          Parley is faster at bulk text and slower per glyph; morphorm is
+          cheaper per frame and cannot express part of CSS.
+        </li>
+        <li>
+          <strong>Two swaps are two decisions.</strong> A text system and a
+          layout engine are installed through different hooks and exercised on
+          different passes, so they compose but do not depend on each other:
+          either can be installed alone, and installing one does not imply the
+          other.
+        </li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Compose them on the one-pager</span>
+      <p>
+        The <a href="/#capabilities">Combo Studio</a> is the interactive version
+        of this shelf: it stacks the add-ons and the platform backend, and shows
+        the
+        <code>main.rs</code> they produce. Two of its four add-ons are the
+        published crates above; the others are shipped configuration, as the
+        panel itself says.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Where they live</span>
+      <h2>The published two.</h2>
+      <p>
+        Four artefacts: two packages on crates.io, and the two repositories they
+        are developed and released from — each with the publisher that makes its
+        tag the release.
+      </p>
+    </div>
+
+    <div class="artifact-grid">
+      {artifacts.map((artifact) => (
+        <a
+          class="artifact"
+          href={artifact.href}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>
+            <span class="artifact-name">{artifact.name}</span>
+            <span class="artifact-desc">{artifact.desc}</span>
+          </span>
+          <span class="artifact-go">→</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</Page>
