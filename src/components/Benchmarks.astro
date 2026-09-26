@@ -8,13 +8,20 @@
       <span class="kicker">Benchmarks</span>
       <h2>Measured, not promised.</h2>
       <p>
-        Every bar has a command behind it, and the command is in the repository. One machine, named: an Intel i7-8750H
-        laptop, <span class="mono">rustc 1.98.1</span>, no pinning, other load present. Read the ratios, and re-run the
-        commands for absolute times. The commands live in
-        <a href="https://github.com/bite-gpui/gpui_parley" target="_blank" rel="noreferrer">
+        Every bar has a command behind it, and the command is in the repository.
+        One machine, named: an Intel i7-8750H laptop,{" "}
+        <span class="mono">rustc 1.98.1</span>, no pinning, other load present.
+        Read the ratios, and re-run the commands for absolute times. The
+        commands live in
+        <a
+          href="https://github.com/bite-gpui/gpui_parley"
+          target="_blank"
+          rel="noreferrer"
+        >
           <span class="mono">bite-gpui/gpui_parley</span>
         </a>
-        , and the run is recorded in its <span class="mono">benchmarks/</span> directory.
+        , and the run is recorded in its <span class="mono">benchmarks/</span>{" "}
+        directory.
       </p>
     </div>
     <div class="bench-grid">
@@ -22,7 +29,9 @@
         <div class="bench-metric">
           <div class="metric-header">
             <span class="metric-title">Raster size, rounded to a lattice</span>
-            <span class="metric-sub">3.3 ms a frame &rarr; 41.1 µs a frame</span>
+            <span class="metric-sub">
+              3.3 ms a frame &rarr; 41.1 µs a frame
+            </span>
           </div>
           <div class="bar-track">
             <div class="bar-fill before"></div>
@@ -31,9 +40,10 @@
             <div class="bar-fill after" style="--w-target: 1.2%;"></div>
           </div>
           <p class="metric-note">
-            80× · a transform that asks for a different font size on every line, 30 lines a frame. The atlas stops
-            missing: 154 misses a frame → 0, in 644 entries instead of 32,508. The step size is a smoothing knob rather
-            than a speed one — every step costs the same ~43 µs.{" "}
+            80× · a transform that asks for a different font size on every line,
+            30 lines a frame. The atlas stops missing: 154 misses a frame → 0,
+            in 644 entries instead of 32,508. The step size is a smoothing knob
+            rather than a speed one — every step costs the same ~43 µs.{" "}
             <span class="cmd">cargo run --release --example raster_cost</span>
           </p>
         </div>
@@ -50,15 +60,19 @@
             <div class="bar-fill after" style="--w-target: 0.9%;"></div>
           </div>
           <p class="metric-note">
-            116× fewer · an instance is a face's hinting program run at a size, and one costs ~31 µs. A frame asks for
-            one size per line, so a cache keyed on face and size builds thirty where one instance per glyph would build
-            three thousand four hundred and eighty. <span class="cmd">cargo run --release --example raster_cost</span>
+            116× fewer · an instance is a face's hinting program run at a size,
+            and one costs ~31 µs. A frame asks for one size per line, so a cache
+            keyed on face and size builds thirty where one instance per glyph
+            would build three thousand four hundred and eighty.{" "}
+            <span class="cmd">cargo run --release --example raster_cost</span>
           </p>
         </div>
 
         <div class="bench-metric">
           <div class="metric-header">
-            <span class="metric-title">Text as triangles instead of rasters</span>
+            <span class="metric-title">
+              Text as triangles instead of rasters
+            </span>
             <span class="metric-sub">26.7 ms a screenful &rarr; 0.69 ms</span>
           </div>
           <div class="bar-track">
@@ -68,9 +82,11 @@
             <div class="bar-fill after" style="--w-target: 2.6%;"></div>
           </div>
           <p class="metric-note">
-            39× the CPU per screenful · each glyph's outline is tessellated once and the same triangles are placed every
-            frame: 639 µs once, then 48 µs a frame to position 3,480 glyphs as 218,322 vertices. What it costs is
-            traffic, not time — see the receipt. <span class="cmd">cargo run --release --example vector_cost</span>
+            39× the CPU per screenful · each glyph's outline is tessellated once
+            and the same triangles are placed every frame: 639 µs once, then 48
+            µs a frame to position 3,480 glyphs as 218,322 vertices. What it
+            costs is traffic, not time — see the receipt.{" "}
+            <span class="cmd">cargo run --release --example vector_cost</span>
           </p>
         </div>
       </div>
@@ -79,7 +95,9 @@
       <aside class="receipt" aria-label="Performance summary receipt">
         <div class="receipt-header">
           <h3>THE DINER RECEIPT</h3>
-          <p style="font-size:0.75rem; color:#64748B;">Order #0042 · Table 6 · Modular GPUI</p>
+          <p style="font-size:0.75rem; color:#64748B;">
+            Order #0042 · Table 6 · Modular GPUI
+          </p>
         </div>
         <div class="receipt-line">
           <span>Raster lattice, a frame</span>
@@ -126,6 +144,8 @@
       { threshold: 0.4 },
     );
 
-    document.querySelectorAll(".bench-metric").forEach((m) => benchIO.observe(m));
+    document
+      .querySelectorAll(".bench-metric")
+      .forEach((m) => benchIO.observe(m));
   })();
 </script>

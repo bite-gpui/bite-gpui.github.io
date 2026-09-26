@@ -2,133 +2,123 @@
 import "../styles/global.css";
 
 const {
-    title = "bite-gpui — GPUI. Take a bite.",
-    description = "A modular re-architecture of GPUI. Deconstructed into an acyclic crate stack.",
+  title = "bite-gpui — GPUI. Take a bite.",
+  description = "A modular re-architecture of GPUI. Deconstructed into an acyclic crate stack.",
 } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" sizes="32x32" />
-        <link
-            rel="icon"
-            href="/icon-192.png"
-            type="image/png"
-            sizes="192x192"
-        />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#121813" id="themeColorMeta" />
-        <meta name="generator" content={Astro.generator} />
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-            rel="stylesheet"
-        />
-        <script is:inline>
-            // Set the colour scheme before first paint so the light theme never
-            // flashes the dark canvas. Stored choice wins; otherwise the OS
-            // preference decides, and the dark kitchen stays the fallback.
-            (() => {
-                const root = document.documentElement;
-                let theme = "dark";
-                try {
-                    const stored = localStorage.getItem("bite-theme");
-                    theme =
-                        stored === "light" || stored === "dark"
-                            ? stored
-                            : window.matchMedia("(prefers-color-scheme: light)")
-                                    .matches
-                              ? "light"
-                              : "dark";
-                } catch {
-                    /* storage disabled — keep the default */
-                }
-                root.dataset.theme = theme;
-            })();
-        </script>
-    </head>
-    <body>
-        <div class="toast" id="toast" role="status" aria-live="polite">
-            <span class="toast-dot" aria-hidden="true"></span>
-            <span id="toast-message">Copied to clipboard</span>
-        </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#121813" id="themeColorMeta" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      // Set the colour scheme before first paint so the light theme never
+      // flashes the dark canvas. Stored choice wins; otherwise the OS
+      // preference decides, and the dark kitchen stays the fallback.
+      (() => {
+        const root = document.documentElement;
+        let theme = "dark";
+        try {
+          const stored = localStorage.getItem("bite-theme");
+          theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+        } catch {
+          /* storage disabled — keep the default */
+        }
+        root.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="toast-dot" aria-hidden="true"></span>
+      <span id="toast-message">Copied to clipboard</span>
+    </div>
 
-        <script>
-            // Shared copy feedback. Defined once here so the copy affordances in
-            // Nav, Journey, ComboStudio and Quickstart stay one-liners, and so
-            // the insecure-context fallback is not duplicated four times. Kept
-            // ahead of <slot /> because component scripts call these at init.
-            const toastEl = document.getElementById("toast");
-            const toastMsg = document.getElementById("toast-message");
-            let toastTimer;
+    <script>
+      // Shared copy feedback. Defined once here so the copy affordances in
+      // Nav, Journey, ComboStudio and Quickstart stay one-liners, and so
+      // the insecure-context fallback is not duplicated four times. Kept
+      // ahead of <slot /> because component scripts call these at init.
+      const toastEl = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-message");
+      let toastTimer;
 
-            window.showToast = (message) => {
-                if (!toastEl || !toastMsg) return;
-                toastMsg.textContent = message;
-                toastEl.classList.add("is-visible");
-                clearTimeout(toastTimer);
-                toastTimer = setTimeout(
-                    () => toastEl.classList.remove("is-visible"),
-                    2200,
-                );
-            };
+      window.showToast = (message) => {
+        if (!toastEl || !toastMsg) return;
+        toastMsg.textContent = message;
+        toastEl.classList.add("is-visible");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(
+          () => toastEl.classList.remove("is-visible"),
+          2200,
+        );
+      };
 
-            window.copyToClipboard = async (text, message) => {
-                const done = () =>
-                    window.showToast(message || "Copied to clipboard");
-                try {
-                    await navigator.clipboard.writeText(text);
-                    done();
-                } catch {
-                    // Insecure contexts and sandboxed iframes have no async clipboard.
-                    const el = document.createElement("textarea");
-                    el.value = text;
-                    el.style.position = "fixed";
-                    el.style.opacity = "0";
-                    document.body.appendChild(el);
-                    el.select();
-                    try {
-                        document.execCommand("copy");
-                        done();
-                    } catch (err) {
-                        console.error("Copy failed", err);
-                    }
-                    document.body.removeChild(el);
-                }
-            };
+      window.copyToClipboard = async (text, message) => {
+        const done = () => window.showToast(message || "Copied to clipboard");
+        try {
+          await navigator.clipboard.writeText(text);
+          done();
+        } catch {
+          // Insecure contexts and sandboxed iframes have no async clipboard.
+          const el = document.createElement("textarea");
+          el.value = text;
+          el.style.position = "fixed";
+          el.style.opacity = "0";
+          document.body.appendChild(el);
+          el.select();
+          try {
+            document.execCommand("copy");
+            done();
+          } catch (err) {
+            console.error("Copy failed", err);
+          }
+          document.body.removeChild(el);
+        }
+      };
 
-            // Single source of truth for the colour scheme. Applies the attribute,
-            // syncs the browser-chrome meta tag and fires `bite:themechange` so
-            // JS-rendered surfaces (ComboStudio) can re-tint their accents.
-            window.applyTheme = (theme, persist = true) => {
-                const next = theme === "light" ? "light" : "dark";
-                document.documentElement.dataset.theme = next;
-                document
-                    .getElementById("themeColorMeta")
-                    ?.setAttribute(
-                        "content",
-                        next === "light" ? "#E5ECE3" : "#121813",
-                    );
-                if (persist) {
-                    try {
-                        localStorage.setItem("bite-theme", next);
-                    } catch {
-                        /* storage disabled — the choice just will not persist */
-                    }
-                }
-                document.dispatchEvent(
-                    new CustomEvent("bite:themechange", {
-                        detail: { theme: next },
-                    }),
-                );
-            };
-        </script>
-        <slot />
-    </body>
+      // Single source of truth for the colour scheme. Applies the attribute,
+      // syncs the browser-chrome meta tag and fires `bite:themechange` so
+      // JS-rendered surfaces (ComboStudio) can re-tint their accents.
+      window.applyTheme = (theme, persist = true) => {
+        const next = theme === "light" ? "light" : "dark";
+        document.documentElement.dataset.theme = next;
+        document
+          .getElementById("themeColorMeta")
+          ?.setAttribute("content", next === "light" ? "#E5ECE3" : "#121813");
+        if (persist) {
+          try {
+            localStorage.setItem("bite-theme", next);
+          } catch {
+            /* storage disabled — the choice just will not persist */
+          }
+        }
+        document.dispatchEvent(
+          new CustomEvent("bite:themechange", {
+            detail: { theme: next },
+          }),
+        );
+      };
+    </script>
+    <slot />
+  </body>
 </html>

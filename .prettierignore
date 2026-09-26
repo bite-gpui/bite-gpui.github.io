@@ -1,0 +1,13 @@
+# build output and generated types
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# managed by npm
+package-lock.json
+
+# assets, and the artwork generator is Python
+public/
+scripts/render-burger.py

@@ -33,7 +33,10 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const css = readFileSync(join(here, "..", "src", "styles", "global.css"), "utf8");
+const css = readFileSync(
+  join(here, "..", "src", "styles", "global.css"),
+  "utf8",
+);
 const comboSource = readFileSync(
   join(here, "..", "src", "components", "ComboStudio.astro"),
   "utf8",
@@ -103,10 +106,20 @@ function parseColor(input, tokens, depth = 0) {
 
   if ((m = str.match(/^rgba?\(([^)]+)\)$/i))) {
     const parts = m[1].split(/[\s,/]+/).filter(Boolean);
-    const num = (v) => (v.endsWith("%") ? (parseFloat(v) / 100) * 255 : parseFloat(v));
+    const num = (v) =>
+      v.endsWith("%") ? (parseFloat(v) / 100) * 255 : parseFloat(v);
     const alpha = (v) =>
-      v === undefined ? 1 : v.endsWith("%") ? parseFloat(v) / 100 : parseFloat(v);
-    return { r: num(parts[0]), g: num(parts[1]), b: num(parts[2]), a: alpha(parts[3]) };
+      v === undefined
+        ? 1
+        : v.endsWith("%")
+          ? parseFloat(v) / 100
+          : parseFloat(v);
+    return {
+      r: num(parts[0]),
+      g: num(parts[1]),
+      b: num(parts[2]),
+      a: alpha(parts[3]),
+    };
   }
 
   if ((m = str.match(/^color-mix\(in srgb,\s*([\s\S]+)\)$/i))) {
@@ -202,7 +215,14 @@ const hex = ({ r, g, b }) =>
 /* ------------------------------------------------------------------- checks */
 
 const SURFACES = ["--bg", "--bg-2", "--surface", "--surface-2", "--inset"];
-const CRATES = ["--platform", "--engine", "--types", "--authoring", "--runtime", "--facade"];
+const CRATES = [
+  "--platform",
+  "--engine",
+  "--types",
+  "--authoring",
+  "--runtime",
+  "--facade",
+];
 
 /** The Combo Studio's per-option accents are data, not tokens (§2.8), so they are
 read straight out of the component that ships them. */
@@ -229,7 +249,8 @@ function buildChecks(themeName) {
     add(`text ${surface}`, "--text", surface);
     add(`text-2 ${surface}`, "--text-2", surface);
     // text-3 is never drawn as *text* on surface-2 (only as the toggle thumb fill).
-    if (surface !== "--surface-2") add(`text-3 ${surface}`, "--text-3", surface);
+    if (surface !== "--surface-2")
+      add(`text-3 ${surface}`, "--text-3", surface);
   }
 
   // Interactive sage, wherever it is drawn as text.
@@ -249,7 +270,13 @@ function buildChecks(themeName) {
     add(`code body (${where})`, "--code-text", bg);
     add(`code line numbers (${where})`, "--code-dim", bg, 3);
     add(`code commands (${where})`, "--mint", bg);
-    for (const syn of ["--syn-kw", "--syn-fn", "--syn-str", "--syn-type", "--syn-cmt"])
+    for (const syn of [
+      "--syn-kw",
+      "--syn-fn",
+      "--syn-str",
+      "--syn-type",
+      "--syn-cmt",
+    ])
       add(`syntax ${syn} (${where})`, syn, bg);
   }
 
@@ -261,9 +288,15 @@ function buildChecks(themeName) {
   add("eyebrow text", "--brand", "--brand-dim", 4.5, { base: "--bg" });
   add("toast text", "--text", "--toast-fill", 4.5, { base: "--bg" });
   for (const crate of ["--platform", "--types", "--runtime"]) {
-    add(`caption ${crate}`, crate, "color-mix(in srgb, var(--inset) 84%, transparent)", 4.5, {
-      base: "--bg",
-    });
+    add(
+      `caption ${crate}`,
+      crate,
+      "color-mix(in srgb, var(--inset) 84%, transparent)",
+      4.5,
+      {
+        base: "--bg",
+      },
+    );
   }
 
   // Combo Studio data accents, used as text on the card and on code chips.
@@ -278,16 +311,24 @@ function buildChecks(themeName) {
 
   // --- advisory: soft fills + hairline separators (SC 1.4.11 decorative) ------
   for (const surface of ["--bg", "--surface", "--inset"]) {
-    add(`advisory: border ${surface}`, "--border", surface, 3, { severity: "advisory" });
-    add(`advisory: border-2 ${surface}`, "--border-2", surface, 3, { severity: "advisory" });
+    add(`advisory: border ${surface}`, "--border", surface, 3, {
+      severity: "advisory",
+    });
+    add(`advisory: border-2 ${surface}`, "--border-2", surface, 3, {
+      severity: "advisory",
+    });
   }
-  add("advisory: hover border", "--border-hover", "--surface", 3, { severity: "advisory" });
+  add("advisory: hover border", "--border-hover", "--surface", 3, {
+    severity: "advisory",
+  });
   // The switch is deliberately colourless: state is carried by fill, not hue. Off
   // is a dim knob in an empty well; on is a solid --text pill with the row's own
   // surface punched out of it, so the knob must stay legible against its fill.
   add("switch knob off well", "--text-3", "--surface-2", 3);
   add("switch knob on fill", "--surface", "--text", 3);
-  add("advisory: switch track edge", "--border-2", "--inset", 3, { severity: "advisory" });
+  add("advisory: switch track edge", "--border-2", "--inset", 3, {
+    severity: "advisory",
+  });
 
   return checks;
 }
@@ -345,7 +386,8 @@ for (const [themeName, tokens] of Object.entries(THEMES)) {
   }
 
   for (const row of rows) {
-    const visible = showAll || row.status !== "PASS" || row.severity === "advisory";
+    const visible =
+      showAll || row.status !== "PASS" || row.severity === "advisory";
     if (!visible) continue;
     const ratio = row.ratio ? row.ratio.toFixed(2) : "  – ";
     const tag = row.severity === "advisory" ? "ADV " : "    ";
@@ -359,8 +401,12 @@ for (const [themeName, tokens] of Object.entries(THEMES)) {
     }
   }
 
-  const failed = rows.filter((r) => r.status === "FAIL" && r.severity === "fail").length;
-  const adv = rows.filter((r) => r.status === "FAIL" && r.severity === "advisory").length;
+  const failed = rows.filter(
+    (r) => r.status === "FAIL" && r.severity === "fail",
+  ).length;
+  const adv = rows.filter(
+    (r) => r.status === "FAIL" && r.severity === "advisory",
+  ).length;
   const passed = rows.filter((r) => r.status === "PASS").length;
   console.log(
     `  ${passed} passed · ${failed} failed · ${adv} advisory (of ${rows.length})`,

@@ -33,14 +33,14 @@ astro dev --background   # then: astro dev status | logs | stop
 The whole page is an argument for this table. Every section, colour and
 illustration is keyed to it.
 
-| Crate | Tier | Role |
-| --- | --- | --- |
-| `crates/gpui` | The facade | Re-exports the three below, so `use gpui::*` compiles unchanged. |
-| `gpui_runtime` | Top bun | Application, event loop, `FramePipeline`. |
-| `gpui_authoring` | Patty | Reactive store, `div`, bifurcated `Window`. |
-| `gpui_types` | Leaf | `Pixels`, `Bounds`, `Rgba`, `Point`. Zero dependencies. |
-| `gpui_engine` | Bottom bun | Scene IR, `LayoutEngine`, `SceneRenderer`. |
-| `gpui_platform` | Plate | Acyclic root. Trait-only OS SPI; links zero drivers. |
+| Crate            | Tier       | Role                                                             |
+| ---------------- | ---------- | ---------------------------------------------------------------- |
+| `crates/gpui`    | The facade | Re-exports the three below, so `use gpui::*` compiles unchanged. |
+| `gpui_runtime`   | Top bun    | Application, event loop, `FramePipeline`.                        |
+| `gpui_authoring` | Patty      | Reactive store, `div`, bifurcated `Window`.                      |
+| `gpui_types`     | Leaf       | `Pixels`, `Bounds`, `Rgba`, `Point`. Zero dependencies.          |
+| `gpui_engine`    | Bottom bun | Scene IR, `LayoutEngine`, `SceneRenderer`.                       |
+| `gpui_platform`  | Plate      | Acyclic root. Trait-only OS SPI; links zero drivers.             |
 
 ## Page structure
 
@@ -48,14 +48,14 @@ illustration is keyed to it.
 self-contained: markup, scoped-by-convention styles (all CSS lives in
 `src/styles/global.css`) and its own `<script>`.
 
-| Component | Section | What it does |
-| --- | --- | --- |
-| `Nav.astro` | Header | Sticky nav. Wordmark plus links and the install CTA on wide screens; a hamburger with a drop-down sheet below 820px. |
-| `Journey.astro` | `#journey` | Acts I–II. The scroll-linked hero: the burger unstacking layer by layer, with click-to-inspect panels and in-place captions. |
-| `ComboStudio.astro` | `#capabilities` | Act III. Two-stage stepper (condiments → beverages) driving a dual-file terminal. |
-| `Benchmarks.astro` | `#benchmarks` | Act IV. Animated frame-time bars and the diner receipt. |
-| `Quickstart.astro` | `#quickstart` | Tabbed code snippets: install, hello-window, Parley, headless test. |
-| `Footer.astro` | Footer | Links and licensing. |
+| Component           | Section         | What it does                                                                                                                 |
+| ------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `Nav.astro`         | Header          | Sticky nav. Wordmark plus links and the install CTA on wide screens; a hamburger with a drop-down sheet below 820px.         |
+| `Journey.astro`     | `#journey`      | Acts I–II. The scroll-linked hero: the burger unstacking layer by layer, with click-to-inspect panels and in-place captions. |
+| `ComboStudio.astro` | `#capabilities` | Act III. Two-stage stepper (condiments → beverages) driving a dual-file terminal.                                            |
+| `Benchmarks.astro`  | `#benchmarks`   | Act IV. Animated frame-time bars and the diner receipt.                                                                      |
+| `Quickstart.astro`  | `#quickstart`   | Tabbed code snippets: install, hello-window, Parley, headless test.                                                          |
+| `Footer.astro`      | Footer          | Links and licensing.                                                                                                         |
 
 Note that `Journey.astro` is by far the largest component and carries most of the
 project's complexity: the burger is five absolutely-positioned `<svg>` layers whose
@@ -70,14 +70,14 @@ Full guide: [`design/DESIGN-SYSTEM.md`](design/DESIGN-SYSTEM.md).
 Three rules matter most day to day:
 
 - **`src/styles/global.css` `:root` is the source of truth.** Change a token there
-  *before* updating any documentation.
+  _before_ updating any documentation.
 - **Style with `var(--token)`, not hex.** There is no Tailwind in the build. The
   one deliberate exception is the burger artwork, which uses literal fills.
 - **Two hues are load-bearing:** `--brand` (`#8FA89B`, every interactive
   affordance) and `--malt` (`#D5B895`, the logo mark and headline ramp only). No
   neon greens, saturated blues or magentas.
 - **Responsive rules live in one place,** the media queries at the tail of
-  `global.css`. The mobile hero is *re-composed* rather than reflowed; the
+  `global.css`. The mobile hero is _re-composed_ rather than reflowed; the
   breakpoints and the reasoning are in `DESIGN-SYSTEM.md` §6.1.
 
 ## Scripts

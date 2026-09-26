@@ -3,1036 +3,901 @@
 
 <!-- ACT I & II: SCROLL-LINKED KITCHEN JOURNEY -->
 <section class="journey" id="journey">
-    <div class="journey-sticky" id="sticky">
-        <div class="hero-copy">
-            <span class="eyebrow">
-                <span class="dot"></span> v1.21.0 · Modular GPUI
-            </span>
-            <h1>
-                GPUI.
-                <br />
-                <em>Take a bite.</em>
-            </h1>
-            <p class="hero-subhead">Stop forking. Start swapping.</p>
-            <p class="lede">
-                Tweak the rendering pipeline, swap the text or layout engine, or
-                take the default burger. Five modular crates let you customize
-                only what you need without splitting the ecosystem into another
-                isolated island.
-            </p>
+  <div class="journey-sticky" id="sticky">
+    <div class="hero-copy">
+      <span class="eyebrow">
+        <span class="dot"></span> v1.21.0 · Modular GPUI
+      </span>
+      <h1>
+        GPUI.
+        <br />
+        <em>Take a bite.</em>
+      </h1>
+      <p class="hero-subhead">Stop forking. Start swapping.</p>
+      <p class="lede">
+        Tweak the rendering pipeline, swap the text or layout engine, or take
+        the default burger. Five modular crates let you customize only what you
+        need without splitting the ecosystem into another isolated island.
+      </p>
 
-            <button
-                class="install-cmd"
-                id="heroInstall"
-                data-copy="cargo add bite-gpui"
-            >
-                <span class="prompt">$</span>
-                <code>cargo add bite-gpui</code>
-                <span class="copy-icon" aria-hidden="true">
-                    <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
-                        <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
-                    </svg>
-                </span>
-            </button>
+      <button
+        class="install-cmd"
+        id="heroInstall"
+        data-copy="cargo add bite-gpui"
+      >
+        <span class="prompt">$</span>
+        <code>cargo add bite-gpui</code>
+        <span class="copy-icon" aria-hidden="true">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </span>
+      </button>
 
-            <div class="scroll-hint">
-                <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M12 5v14M5 12l7 7 7-7"></path>
-                </svg>
-                Scroll to unstack
-            </div>
-        </div>
+      <div class="scroll-hint">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7"></path>
+        </svg>
+        Scroll to unstack
+      </div>
+    </div>
 
-        <!-- Burger Assembly Stage -->
-        <div class="burger-stage">
-            <div
-                class="burger"
-                id="burger"
-                role="group"
-                aria-label="Interactive deconstructed GPUI burger stack"
-            >
-                <!-- TRAY: gpui_platform -->
-                <div
-                    class="layer layer-platform"
-                    data-layer="platform"
-                    style="--accent:var(--platform)"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    aria-label="gpui_platform — OS SPI"
-                >
-                    <svg viewBox="0 0 340 70" aria-hidden="true">
-                        <defs>
-                            <linearGradient
-                                id="trayG"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop offset="0" stop-color="#ADA79E"></stop>
-                                <stop offset=".45" stop-color="#85807A"></stop>
-                                <stop offset="1" stop-color="#37332F"></stop>
-                            </linearGradient>
-                            <radialGradient id="trayS" cx=".35" cy=".3" r=".7">
-                                <stop
-                                    offset="0"
-                                    stop-color="#fff"
-                                    stop-opacity=".22"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#fff"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                            <!-- warm bounce picked up from the burger resting on the tray -->
-                            <radialGradient
-                                id="trayWarm"
-                                cx=".5"
-                                cy=".5"
-                                r=".55"
-                            >
-                                <stop
-                                    offset="0"
-                                    stop-color="#D5B895"
-                                    stop-opacity=".26"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#D5B895"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                        </defs>
-                        <!-- No drawn ground shadow: the CSS drop-shadow on .burger already
+    <!-- Burger Assembly Stage -->
+    <div class="burger-stage">
+      <div
+        class="burger"
+        id="burger"
+        role="group"
+        aria-label="Interactive deconstructed GPUI burger stack"
+      >
+        <!-- TRAY: gpui_platform -->
+        <div
+          class="layer layer-platform"
+          data-layer="platform"
+          style="--accent:var(--platform)"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="gpui_platform — OS SPI"
+        >
+          <svg viewBox="0 0 340 70" aria-hidden="true">
+            <defs>
+              <linearGradient id="trayG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ADA79E"></stop>
+                <stop offset=".45" stop-color="#85807A"></stop>
+                <stop offset="1" stop-color="#37332F"></stop>
+              </linearGradient>
+              <radialGradient id="trayS" cx=".35" cy=".3" r=".7">
+                <stop offset="0" stop-color="#fff" stop-opacity=".22"></stop>
+                <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+              </radialGradient>
+              <!-- warm bounce picked up from the burger resting on the tray -->
+              <radialGradient id="trayWarm" cx=".5" cy=".5" r=".55">
+                <stop offset="0" stop-color="#D5B895" stop-opacity=".26"></stop>
+                <stop offset="1" stop-color="#D5B895" stop-opacity="0"></stop>
+              </radialGradient>
+            </defs>
+            <!-- No drawn ground shadow: the CSS drop-shadow on .burger already
                              grounds the stack, and a second dark ellipse here read as a
                              ghost disc drifting out from under the plate. -->
-                        <ellipse
-                            cx="170"
-                            cy="40"
-                            rx="160"
-                            ry="24"
-                            fill="#302C2A"
-                        ></ellipse>
-                        <ellipse
-                            cx="170"
-                            cy="30"
-                            rx="160"
-                            ry="24"
-                            fill="url(#trayG)"
-                        ></ellipse>
-                        <ellipse
-                            cx="170"
-                            cy="30"
-                            rx="160"
-                            ry="24"
-                            fill="none"
-                            stroke="#B5AFA7"
-                            stroke-width="1"
-                            opacity=".4"
-                        ></ellipse>
-                        <ellipse
-                            cx="170"
-                            cy="30"
-                            rx="140"
-                            ry="19"
-                            fill="none"
-                            stroke="#fff"
-                            stroke-width="1"
-                            opacity=".12"
-                        ></ellipse>
-                        <ellipse
-                            cx="170"
-                            cy="31"
-                            rx="132"
-                            ry="18"
-                            fill="#241F1B"
-                            opacity=".45"
-                        ></ellipse>
-                        <ellipse
-                            cx="170"
-                            cy="30"
-                            rx="126"
-                            ry="15"
-                            fill="url(#trayWarm)"
-                        ></ellipse>
-                        <ellipse
-                            cx="120"
-                            cy="18"
-                            rx="72"
-                            ry="6"
-                            fill="url(#trayS)"
-                        ></ellipse>
-                    </svg>
-                    <div class="layer-caption">
-                        <div class="cap-head">
-                            <span class="cap-crate">gpui_platform</span>
-                            <span class="cap-role">OS SPI</span>
-                        </div>
-                        <span class="cap-desc">
-                            The Platform trait. macos, linux, windows and web
-                            each implement it; the facade picks one by
-                            cfg(target_os).
-                        </span>
-                    </div>
-                </div>
+            <ellipse cx="170" cy="40" rx="160" ry="24" fill="#302C2A"></ellipse>
+            <ellipse
+              cx="170"
+              cy="30"
+              rx="160"
+              ry="24"
+              fill="url(#trayG)"
+            ></ellipse>
+            <ellipse
+              cx="170"
+              cy="30"
+              rx="160"
+              ry="24"
+              fill="none"
+              stroke="#B5AFA7"
+              stroke-width="1"
+              opacity=".4"
+            ></ellipse>
+            <ellipse
+              cx="170"
+              cy="30"
+              rx="140"
+              ry="19"
+              fill="none"
+              stroke="#fff"
+              stroke-width="1"
+              opacity=".12"
+            ></ellipse>
+            <ellipse
+              cx="170"
+              cy="31"
+              rx="132"
+              ry="18"
+              fill="#241F1B"
+              opacity=".45"
+            ></ellipse>
+            <ellipse
+              cx="170"
+              cy="30"
+              rx="126"
+              ry="15"
+              fill="url(#trayWarm)"
+            ></ellipse>
+            <ellipse
+              cx="120"
+              cy="18"
+              rx="72"
+              ry="6"
+              fill="url(#trayS)"
+            ></ellipse>
+          </svg>
+          <div class="layer-caption">
+            <div class="cap-head">
+              <span class="cap-crate">gpui_platform</span>
+              <span class="cap-role">OS SPI</span>
+            </div>
+            <span class="cap-desc">
+              The Platform trait. macos, linux, windows and web each implement
+              it; the facade picks one by cfg(target_os).
+            </span>
+          </div>
+        </div>
 
-                <!-- BOTTOM BUN: gpui_engine -->
-                <div
-                    class="layer layer-engine"
-                    data-layer="engine"
-                    style="--accent:var(--engine)"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    aria-label="gpui_engine — Render"
-                >
-                    <svg viewBox="0 0 300 82" aria-hidden="true">
-                        <defs>
-                            <linearGradient
-                                id="bbWall"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop offset="0" stop-color="#E0A863"></stop>
-                                <stop offset=".3" stop-color="#C07C36"></stop>
-                                <stop offset=".62" stop-color="#7A3F12"></stop>
-                                <stop offset=".85" stop-color="#4A2408"></stop>
-                                <stop offset="1" stop-color="#2A1305"></stop>
-                            </linearGradient>
-                            <radialGradient
-                                id="bbCrumb"
-                                cx=".48"
-                                cy=".42"
-                                r=".6"
-                            >
-                                <stop offset="0" stop-color="#FFF8ED"></stop>
-                                <stop offset=".3" stop-color="#FCE0BC"></stop>
-                                <stop offset=".65" stop-color="#E2B175"></stop>
-                                <stop offset=".88" stop-color="#B47228"></stop>
-                                <stop offset="1" stop-color="#7A3E10"></stop>
-                            </radialGradient>
-                            <radialGradient
-                                id="bbSheen"
-                                cx=".5"
-                                cy=".45"
-                                r=".55"
-                            >
-                                <stop
-                                    offset="0"
-                                    stop-color="#FFE8C7"
-                                    stop-opacity=".5"
-                                ></stop>
-                                <stop
-                                    offset=".6"
-                                    stop-color="#E8A958"
-                                    stop-opacity=".3"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#BC6E1E"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                        </defs>
-                        <!-- Contact shade cast onto the tray. Tapers to nothing where the heel curves away. -->
-                        <path
-                            class="crevice"
-                            d="M 10,46 C 10,58 72,68 150,68 C 228,68 290,58 290,46 C 290,58 232,72 150,72 C 68,72 10,58 10,46 Z"
-                            fill="#1A0C04"
-                            opacity=".9"
-                        ></path>
-                        <!-- Wall and curved heel are one silhouette on a single vertical ramp, so the
+        <!-- BOTTOM BUN: gpui_engine -->
+        <div
+          class="layer layer-engine"
+          data-layer="engine"
+          style="--accent:var(--engine)"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="gpui_engine — Render"
+        >
+          <svg viewBox="0 0 300 82" aria-hidden="true">
+            <defs>
+              <linearGradient id="bbWall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E0A863"></stop>
+                <stop offset=".3" stop-color="#C07C36"></stop>
+                <stop offset=".62" stop-color="#7A3F12"></stop>
+                <stop offset=".85" stop-color="#4A2408"></stop>
+                <stop offset="1" stop-color="#2A1305"></stop>
+              </linearGradient>
+              <radialGradient id="bbCrumb" cx=".48" cy=".42" r=".6">
+                <stop offset="0" stop-color="#FFF8ED"></stop>
+                <stop offset=".3" stop-color="#FCE0BC"></stop>
+                <stop offset=".65" stop-color="#E2B175"></stop>
+                <stop offset=".88" stop-color="#B47228"></stop>
+                <stop offset="1" stop-color="#7A3E10"></stop>
+              </radialGradient>
+              <radialGradient id="bbSheen" cx=".5" cy=".45" r=".55">
+                <stop offset="0" stop-color="#FFE8C7" stop-opacity=".5"></stop>
+                <stop offset=".6" stop-color="#E8A958" stop-opacity=".3"></stop>
+                <stop offset="1" stop-color="#BC6E1E" stop-opacity="0"></stop>
+              </radialGradient>
+            </defs>
+            <!-- Contact shade cast onto the tray. Tapers to nothing where the heel curves away. -->
+            <path
+              class="crevice"
+              d="M 10,46 C 10,58 72,68 150,68 C 228,68 290,58 290,46 C 290,58 232,72 150,72 C 68,72 10,58 10,46 Z"
+              fill="#1A0C04"
+              opacity=".9"
+            ></path>
+            <!-- Wall and curved heel are one silhouette on a single vertical ramp, so the
                              base is a shaded cylinder bottom rather than a dark disc behind it. -->
-                        <path
-                            d="M 10,22 L 10,46 C 10,58 72,68 150,68 C 228,68 290,58 290,46 L 290,22 C 290,10 228,0 150,0 C 72,0 10,10 10,22 Z"
-                            fill="url(#bbWall)"
-                        ></path>
-                        <ellipse
-                            cx="150"
-                            cy="22"
-                            rx="140"
-                            ry="22"
-                            fill="url(#bbCrumb)"
-                        ></ellipse>
-                        <ellipse
-                            cx="149"
-                            cy="21"
-                            rx="118"
-                            ry="17"
-                            fill="url(#bbSheen)"
-                        ></ellipse>
-                        <!-- Ambient rim light along the plancha cut, from the reference. -->
-                        <path
-                            d="M 12,22 C 12,36 74,43 150,43 C 226,43 288,36 288,22"
-                            fill="none"
-                            stroke="#F5CB8E"
-                            stroke-width="1.3"
-                            opacity=".4"
-                        ></path>
-                    </svg>
-                    <div class="layer-caption">
-                        <div class="cap-head">
-                            <span class="cap-crate">gpui_engine</span>
-                            <span class="cap-role">Render</span>
-                        </div>
-                        <span class="cap-desc">
-                            Scene IR, LayoutEngine, SceneRenderer.
-                        </span>
-                    </div>
-                </div>
+            <path
+              d="M 10,22 L 10,46 C 10,58 72,68 150,68 C 228,68 290,58 290,46 L 290,22 C 290,10 228,0 150,0 C 72,0 10,10 10,22 Z"
+              fill="url(#bbWall)"
+            ></path>
+            <ellipse
+              cx="150"
+              cy="22"
+              rx="140"
+              ry="22"
+              fill="url(#bbCrumb)"
+            ></ellipse>
+            <ellipse
+              cx="149"
+              cy="21"
+              rx="118"
+              ry="17"
+              fill="url(#bbSheen)"
+            ></ellipse>
+            <!-- Ambient rim light along the plancha cut, from the reference. -->
+            <path
+              d="M 12,22 C 12,36 74,43 150,43 C 226,43 288,36 288,22"
+              fill="none"
+              stroke="#F5CB8E"
+              stroke-width="1.3"
+              opacity=".4"
+            ></path>
+          </svg>
+          <div class="layer-caption">
+            <div class="cap-head">
+              <span class="cap-crate">gpui_engine</span>
+              <span class="cap-role">Render</span>
+            </div>
+            <span class="cap-desc">Scene IR, LayoutEngine, SceneRenderer.</span>
+          </div>
+        </div>
 
-                <!-- LETTUCE: gpui_types -->
-                <div
-                    class="layer layer-types"
-                    data-layer="types"
-                    style="--accent:var(--types)"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    aria-label="gpui_types — Leaf"
-                >
-                    <svg viewBox="0 0 320 44" aria-hidden="true">
-                        <defs>
-                            <linearGradient
-                                id="letG"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop offset="0" stop-color="#B0CBBB"></stop>
-                                <stop offset=".5" stop-color="#8AA694"></stop>
-                                <stop offset="1" stop-color="#62806D"></stop>
-                            </linearGradient>
-                            <!-- Silky sheen across the leaf. A radial gradient rather than the
+        <!-- LETTUCE: gpui_types -->
+        <div
+          class="layer layer-types"
+          data-layer="types"
+          style="--accent:var(--types)"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="gpui_types — Leaf"
+        >
+          <svg viewBox="0 0 320 44" aria-hidden="true">
+            <defs>
+              <linearGradient id="letG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#B0CBBB"></stop>
+                <stop offset=".5" stop-color="#8AA694"></stop>
+                <stop offset="1" stop-color="#62806D"></stop>
+              </linearGradient>
+              <!-- Silky sheen across the leaf. A radial gradient rather than the
                                  reference's blur filter: this layer repaints on every scroll frame. -->
-                            <radialGradient id="letSilk" cx=".5" cy=".5" r=".5">
-                                <stop
-                                    offset="0"
-                                    stop-color="#A4CBB6"
-                                    stop-opacity=".42"
-                                ></stop>
-                                <stop
-                                    offset=".6"
-                                    stop-color="#A4CBB6"
-                                    stop-opacity=".18"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#A4CBB6"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                            <!-- Occlusion where the leaf tucks under the patty. A radial gradient
+              <radialGradient id="letSilk" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#A4CBB6" stop-opacity=".42"></stop>
+                <stop
+                  offset=".6"
+                  stop-color="#A4CBB6"
+                  stop-opacity=".18"
+                ></stop>
+                <stop offset="1" stop-color="#A4CBB6" stop-opacity="0"></stop>
+              </radialGradient>
+              <!-- Occlusion where the leaf tucks under the patty. A radial gradient
                                  rather than a ramp across the whole silhouette: the leaf's tips
                                  reach wider than the patty, and a ramp darkened them into a
                                  dark green wing under the patty's lip that read as a ghost
                                  shadow rather than as leaf. This one fades out at the patty's
                                  own width, so the tips stay leaf-coloured, and it is clipped
                                  to the silhouette so it can never paint outside the leaf. -->
-                            <radialGradient
-                                id="letOcclusion"
-                                cx=".5"
-                                cy=".5"
-                                r=".5"
-                            >
-                                <stop
-                                    offset="0"
-                                    stop-color="#1A0C04"
-                                    stop-opacity=".55"
-                                ></stop>
-                                <stop
-                                    offset=".55"
-                                    stop-color="#1A0C04"
-                                    stop-opacity=".26"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#1A0C04"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                            <clipPath id="letClip">
-                                <path d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"></path>
-                            </clipPath>
-                        </defs>
-                        <!-- Contact shade cast onto the bottom bun: the leaf's own silhouette shifted
+              <radialGradient id="letOcclusion" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#1A0C04" stop-opacity=".55"></stop>
+                <stop
+                  offset=".55"
+                  stop-color="#1A0C04"
+                  stop-opacity=".26"
+                ></stop>
+                <stop offset="1" stop-color="#1A0C04" stop-opacity="0"></stop>
+              </radialGradient>
+              <clipPath id="letClip">
+                <path d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"></path>
+              </clipPath>
+            </defs>
+            <!-- Contact shade cast onto the bottom bun: the leaf's own silhouette shifted
                              down, so the shade follows the lower edge exactly. -->
-                        <path
-                            class="crevice"
-                            transform="translate(0 3)"
-                            d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"
-                            fill="#1A0C04"
-                            opacity=".9"
-                        ></path>
-                        <!-- The silhouette's upper edge tracks the patty's base arc, so it hides
+            <path
+              class="crevice"
+              transform="translate(0 3)"
+              d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"
+              fill="#1A0C04"
+              opacity=".9"
+            ></path>
+            <!-- The silhouette's upper edge tracks the patty's base arc, so it hides
                              behind the patty; the tips then drop away either side well below
                              that arc, which is what stops them reading as wings pinned to the
                              patty's underside. -->
-                        <path
-                            d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"
-                            fill="url(#letG)"
-                            stroke="#54705F"
-                            stroke-width=".9"
-                        ></path>
-                        <ellipse
-                            cx="160"
-                            cy="20"
-                            rx="112"
-                            ry="8"
-                            fill="url(#letSilk)"
-                        ></ellipse>
-                        <g clip-path="url(#letClip)">
-                            <ellipse
-                                cx="160"
-                                cy="10"
-                                rx="131"
-                                ry="14"
-                                fill="url(#letOcclusion)"
-                            ></ellipse>
-                        </g>
-                        <!-- No veins. A lit rib line this thin reads as a scratch across the
+            <path
+              d="M 19,18 C 20,9 25,2.4 35,0.9 C 76,5.6 118,10.6 160,10.6 C 202,10.6 244,5.6 285,0.9 C 295,2.4 300,9 301,18 C 302,25 298,29 291,30 C 270,33 240,31 214,30.2 C 196,29.6 178,29.4 160,29.4 C 142,29.4 124,29.6 106,30.2 C 80,31 50,33 29,30 C 22,29 18,25 19,18 Z"
+              fill="url(#letG)"
+              stroke="#54705F"
+              stroke-width=".9"
+            ></path>
+            <ellipse
+              cx="160"
+              cy="20"
+              rx="112"
+              ry="8"
+              fill="url(#letSilk)"
+            ></ellipse>
+            <g clip-path="url(#letClip)">
+              <ellipse
+                cx="160"
+                cy="10"
+                rx="131"
+                ry="14"
+                fill="url(#letOcclusion)"
+              ></ellipse>
+            </g>
+            <!-- No veins. A lit rib line this thin reads as a scratch across the
                              leaf at the size the hero renders, and the curled frill lobes that
                              preceded it read as three leaves of another variety lying on top.
                              The silhouette, the silk sheen and the occlusion carry the form. -->
-                    </svg>
-                    <div class="layer-caption">
-                        <div class="cap-head">
-                            <span class="cap-crate">gpui_types</span>
-                            <span class="cap-role">Leaf</span>
-                        </div>
-                        <span class="cap-desc">
-                            Pixels, Bounds, Rgba, Point. No gpui deps.
-                        </span>
-                    </div>
-                </div>
+          </svg>
+          <div class="layer-caption">
+            <div class="cap-head">
+              <span class="cap-crate">gpui_types</span>
+              <span class="cap-role">Leaf</span>
+            </div>
+            <span class="cap-desc">
+              Pixels, Bounds, Rgba, Point. No gpui deps.
+            </span>
+          </div>
+        </div>
 
-                <!-- PATTY: gpui_authoring -->
-                <div
-                    class="layer layer-authoring"
-                    data-layer="authoring"
-                    style="--accent:var(--authoring)"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    aria-label="gpui_authoring — DSL"
-                >
-                    <svg viewBox="0 0 280 72" aria-hidden="true">
-                        <defs>
-                            <linearGradient
-                                id="patWall"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop offset="0" stop-color="#8A5638"></stop>
-                                <stop offset=".3" stop-color="#6B4029"></stop>
-                                <stop offset=".55" stop-color="#4E2A18"></stop>
-                                <stop offset=".8" stop-color="#3A1F11"></stop>
-                                <stop offset="1" stop-color="#26120A"></stop>
-                            </linearGradient>
-                            <radialGradient
-                                id="patTop"
-                                cx=".5"
-                                cy=".36"
-                                r=".58"
-                            >
-                                <stop offset="0" stop-color="#7A4830"></stop>
-                                <stop offset=".6" stop-color="#552C1A"></stop>
-                                <stop offset="1" stop-color="#331709"></stop>
-                            </radialGradient>
-                        </defs>
-                        <!-- Contact shade cast onto the lettuce. -->
-                        <path
-                            class="crevice"
-                            d="M 10,44 C 10,50 68,54 140,54 C 212,54 270,50 270,44 C 270,54 214,56 140,56 C 66,56 10,54 10,44 Z"
-                            fill="#1A0C04"
-                            opacity=".9"
-                        ></path>
-                        <path
-                            d="M 10,22 L 10,44 C 10,50 68,54 140,54 C 212,54 270,50 270,44 L 270,22 C 270,14 212,8 140,8 C 68,8 10,14 10,22 Z"
-                            fill="url(#patWall)"
-                        ></path>
-                        <ellipse
-                            cx="140"
-                            cy="22"
-                            rx="130"
-                            ry="14"
-                            fill="url(#patTop)"
-                        ></ellipse>
-                        <!-- No caramelised edge here: the arc crossed the wall's own ramp
+        <!-- PATTY: gpui_authoring -->
+        <div
+          class="layer layer-authoring"
+          data-layer="authoring"
+          style="--accent:var(--authoring)"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="gpui_authoring — DSL"
+        >
+          <svg viewBox="0 0 280 72" aria-hidden="true">
+            <defs>
+              <linearGradient id="patWall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#8A5638"></stop>
+                <stop offset=".3" stop-color="#6B4029"></stop>
+                <stop offset=".55" stop-color="#4E2A18"></stop>
+                <stop offset=".8" stop-color="#3A1F11"></stop>
+                <stop offset="1" stop-color="#26120A"></stop>
+              </linearGradient>
+              <radialGradient id="patTop" cx=".5" cy=".36" r=".58">
+                <stop offset="0" stop-color="#7A4830"></stop>
+                <stop offset=".6" stop-color="#552C1A"></stop>
+                <stop offset="1" stop-color="#331709"></stop>
+              </radialGradient>
+            </defs>
+            <!-- Contact shade cast onto the lettuce. -->
+            <path
+              class="crevice"
+              d="M 10,44 C 10,50 68,54 140,54 C 212,54 270,50 270,44 C 270,54 214,56 140,56 C 66,56 10,54 10,44 Z"
+              fill="#1A0C04"
+              opacity=".9"
+            ></path>
+            <path
+              d="M 10,22 L 10,44 C 10,50 68,54 140,54 C 212,54 270,50 270,44 L 270,22 C 270,14 212,8 140,8 C 68,8 10,14 10,22 Z"
+              fill="url(#patWall)"
+            ></path>
+            <ellipse
+              cx="140"
+              cy="22"
+              rx="130"
+              ry="14"
+              fill="url(#patTop)"
+            ></ellipse>
+            <!-- No caramelised edge here: the arc crossed the wall's own ramp
                              and read as a seam across the patty rather than an edge. -->
-                        <g
-                            stroke="#160702"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            fill="none"
-                            opacity=".7"
-                        >
-                            <path d="M 52,17 Q 78,24 104,18"></path>
-                            <path d="M 122,17 Q 148,25 174,18"></path>
-                            <path d="M 192,17 Q 214,23 238,18"></path>
-                            <path
-                                d="M 70,27 Q 94,33 118,28"
-                                stroke-width="1.2"
-                            ></path>
-                            <path
-                                d="M 146,27 Q 170,33 194,28"
-                                stroke-width="1.2"
-                            ></path>
-                        </g>
-                        <!-- Caramelised lip, from the reference. One arc tracing the front
+            <g
+              stroke="#160702"
+              stroke-width="2"
+              stroke-linecap="round"
+              fill="none"
+              opacity=".7"
+            >
+              <path d="M 52,17 Q 78,24 104,18"></path>
+              <path d="M 122,17 Q 148,25 174,18"></path>
+              <path d="M 192,17 Q 214,23 238,18"></path>
+              <path d="M 70,27 Q 94,33 118,28" stroke-width="1.2"></path>
+              <path d="M 146,27 Q 170,33 194,28" stroke-width="1.2"></path>
+            </g>
+            <!-- Caramelised lip, from the reference. One arc tracing the front
                              edge of the seared face, where it curves into the wall. An
                              earlier attempt drew a separate highlight under each sear mark
                              instead, which stacked two lines on each other and read as an
                              embossed ridge rather than a grilled edge. -->
-                        <path
-                            d="M 16,26 C 46,33 96,36 140,36 C 184,36 234,33 264,26"
-                            fill="none"
-                            stroke="#8A5638"
-                            stroke-width="1.1"
-                            opacity=".4"
-                        ></path>
-                        <ellipse
-                            cx="100"
-                            cy="19"
-                            rx="28"
-                            ry="5"
-                            fill="#84482B"
-                            opacity=".3"
-                            transform="rotate(-6 100 19)"
-                        ></ellipse>
-                        <ellipse
-                            cx="182"
-                            cy="20"
-                            rx="26"
-                            ry="4.5"
-                            fill="#84482B"
-                            opacity=".25"
-                            transform="rotate(6 182 20)"
-                        ></ellipse>
-                    </svg>
-                    <div class="layer-caption">
-                        <div class="cap-head">
-                            <span class="cap-crate">gpui_authoring</span>
-                            <span class="cap-role">DSL</span>
-                        </div>
-                        <span class="cap-desc">
-                            Reactive store, div, bifurcated Window.
-                        </span>
-                    </div>
-                </div>
+            <path
+              d="M 16,26 C 46,33 96,36 140,36 C 184,36 234,33 264,26"
+              fill="none"
+              stroke="#8A5638"
+              stroke-width="1.1"
+              opacity=".4"
+            ></path>
+            <ellipse
+              cx="100"
+              cy="19"
+              rx="28"
+              ry="5"
+              fill="#84482B"
+              opacity=".3"
+              transform="rotate(-6 100 19)"
+            ></ellipse>
+            <ellipse
+              cx="182"
+              cy="20"
+              rx="26"
+              ry="4.5"
+              fill="#84482B"
+              opacity=".25"
+              transform="rotate(6 182 20)"
+            ></ellipse>
+          </svg>
+          <div class="layer-caption">
+            <div class="cap-head">
+              <span class="cap-crate">gpui_authoring</span>
+              <span class="cap-role">DSL</span>
+            </div>
+            <span class="cap-desc">
+              Reactive store, div, bifurcated Window.
+            </span>
+          </div>
+        </div>
 
-                <!-- TOP BUN: gpui_runtime -->
-                <div
-                    class="layer layer-runtime"
-                    data-layer="runtime"
-                    style="--accent:var(--runtime)"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    aria-label="gpui_runtime — Harness"
-                >
-                    <svg viewBox="0 0 300 110" aria-hidden="true">
-                        <defs>
-                            <radialGradient id="topG" cx=".44" cy=".26" r=".68">
-                                <stop offset="0" stop-color="#FAF6F0"></stop>
-                                <stop offset=".22" stop-color="#D5B895"></stop>
-                                <stop offset=".58" stop-color="#A06C38"></stop>
-                                <stop offset=".86" stop-color="#693B10"></stop>
-                                <stop offset="1" stop-color="#351B06"></stop>
-                            </radialGradient>
-                            <radialGradient
-                                id="topSheen"
-                                cx=".5"
-                                cy=".5"
-                                r=".5"
-                            >
-                                <stop
-                                    offset="0"
-                                    stop-color="#FFF8EE"
-                                    stop-opacity=".5"
-                                ></stop>
-                                <stop
-                                    offset=".55"
-                                    stop-color="#FFF8EE"
-                                    stop-opacity=".22"
-                                ></stop>
-                                <stop
-                                    offset="1"
-                                    stop-color="#FFF8EE"
-                                    stop-opacity="0"
-                                ></stop>
-                            </radialGradient>
-                        </defs>
-                        <!-- Contact shade as a crescent that traces the underside and tapers to nothing
+        <!-- TOP BUN: gpui_runtime -->
+        <div
+          class="layer layer-runtime"
+          data-layer="runtime"
+          style="--accent:var(--runtime)"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="gpui_runtime — Harness"
+        >
+          <svg viewBox="0 0 300 110" aria-hidden="true">
+            <defs>
+              <radialGradient id="topG" cx=".44" cy=".26" r=".68">
+                <stop offset="0" stop-color="#FAF6F0"></stop>
+                <stop offset=".22" stop-color="#D5B895"></stop>
+                <stop offset=".58" stop-color="#A06C38"></stop>
+                <stop offset=".86" stop-color="#693B10"></stop>
+                <stop offset="1" stop-color="#351B06"></stop>
+              </radialGradient>
+              <radialGradient id="topSheen" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#FFF8EE" stop-opacity=".5"></stop>
+                <stop
+                  offset=".55"
+                  stop-color="#FFF8EE"
+                  stop-opacity=".22"
+                ></stop>
+                <stop offset="1" stop-color="#FFF8EE" stop-opacity="0"></stop>
+              </radialGradient>
+            </defs>
+            <!-- Contact shade as a crescent that traces the underside and tapers to nothing
                              at the lip. A full ellipse would protrude past the lip at both sides and
                              read as a dark lobe floating behind the bun. -->
-                        <path
-                            d="M 10,74 C 12,88 66,101 150,101 C 234,101 288,88 290,74 C 290,90 236,106 150,106 C 64,106 10,90 10,74 Z"
-                            class="crevice"
-                            fill="#1A0C04"
-                            opacity=".9"
-                        ></path>
-                        <path
-                            d="M 10,74 C 12,28 66,4 150,4 C 234,4 288,28 290,74 C 290,88 240,101 150,101 C 60,101 10,88 10,74 Z"
-                            fill="url(#topG)"
-                            stroke="#56270A"
-                            stroke-width="1.4"
-                        ></path>
-                        <path
-                            d="M 14,76 C 14,89 64,99 150,99 C 236,99 286,89 286,76"
-                            fill="none"
-                            stroke="#F5CB8E"
-                            stroke-width="1.2"
-                            opacity=".3"
-                        ></path>
-                        <ellipse
-                            cx="112"
-                            cy="32"
-                            rx="68"
-                            ry="22"
-                            fill="url(#topSheen)"
-                            transform="rotate(-14 106 30)"
-                        ></ellipse>
-                        <path
-                            d="M 78,22 C 100,13 134,14 152,22 C 134,19 100,18 78,22 Z"
-                            fill="#FFFFFF"
-                            opacity=".55"
-                        ></path>
-                        <g>
-                            <g transform="translate(78 46) rotate(-25)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(122 30) rotate(12)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(172 36) rotate(-8)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(218 50) rotate(22)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(102 62) rotate(-14)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(196 60) rotate(26)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(148 52) rotate(-4)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.6"
-                                    ry="2.2"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(58 62) rotate(10)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.4"
-                                    ry="2.1"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.4"
-                                    ry="2.1"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                            <g transform="translate(242 66) rotate(-18)">
-                                <ellipse
-                                    cx="0.8"
-                                    cy="1.2"
-                                    rx="4.4"
-                                    ry="2.1"
-                                    fill="#3D1A04"
-                                    opacity=".52"
-                                ></ellipse>
-                                <ellipse
-                                    rx="4.4"
-                                    ry="2.1"
-                                    fill="#FAF6F0"
-                                    opacity=".94"
-                                ></ellipse>
-                            </g>
-                        </g>
-                    </svg>
-                    <div class="layer-caption">
-                        <div class="cap-head">
-                            <span class="cap-crate">gpui_runtime</span>
-                            <span class="cap-role">Harness</span>
-                        </div>
-                        <span class="cap-desc">
-                            Application, event loop, FramePipeline decorators.
-                        </span>
-                    </div>
-                </div>
+            <path
+              d="M 10,74 C 12,88 66,101 150,101 C 234,101 288,88 290,74 C 290,90 236,106 150,106 C 64,106 10,90 10,74 Z"
+              class="crevice"
+              fill="#1A0C04"
+              opacity=".9"
+            ></path>
+            <path
+              d="M 10,74 C 12,28 66,4 150,4 C 234,4 288,28 290,74 C 290,88 240,101 150,101 C 60,101 10,88 10,74 Z"
+              fill="url(#topG)"
+              stroke="#56270A"
+              stroke-width="1.4"
+            ></path>
+            <path
+              d="M 14,76 C 14,89 64,99 150,99 C 236,99 286,89 286,76"
+              fill="none"
+              stroke="#F5CB8E"
+              stroke-width="1.2"
+              opacity=".3"
+            ></path>
+            <ellipse
+              cx="112"
+              cy="32"
+              rx="68"
+              ry="22"
+              fill="url(#topSheen)"
+              transform="rotate(-14 106 30)"
+            ></ellipse>
+            <path
+              d="M 78,22 C 100,13 134,14 152,22 C 134,19 100,18 78,22 Z"
+              fill="#FFFFFF"
+              opacity=".55"
+            ></path>
+            <g>
+              <g transform="translate(78 46) rotate(-25)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(122 30) rotate(12)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(172 36) rotate(-8)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(218 50) rotate(22)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(102 62) rotate(-14)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(196 60) rotate(26)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(148 52) rotate(-4)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.6"
+                  ry="2.2"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(58 62) rotate(10)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.4"
+                  ry="2.1"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.4"
+                  ry="2.1"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+              <g transform="translate(242 66) rotate(-18)">
+                <ellipse
+                  cx="0.8"
+                  cy="1.2"
+                  rx="4.4"
+                  ry="2.1"
+                  fill="#3D1A04"
+                  opacity=".52"
+                ></ellipse>
+                <ellipse
+                  rx="4.4"
+                  ry="2.1"
+                  fill="#FAF6F0"
+                  opacity=".94"
+                ></ellipse>
+              </g>
+            </g>
+          </svg>
+          <div class="layer-caption">
+            <div class="cap-head">
+              <span class="cap-crate">gpui_runtime</span>
+              <span class="cap-role">Harness</span>
             </div>
+            <span class="cap-desc">
+              Application, event loop, FramePipeline decorators.
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <aside class="recipe-book">
-                <div class="rb-head">
-                    <span class="rb-title">bite-gpui</span>
-                    <span class="rb-badge">The Menu</span>
-                </div>
-                <p>
-                    The umbrella facade re-exports the authoring and runtime
-                    layers under a single crate.
-                </p>
-                <pre><code>pub use gpui_authoring::*;
+      <aside class="recipe-book">
+        <div class="rb-head">
+          <span class="rb-title">bite-gpui</span>
+          <span class="rb-badge">The Menu</span>
+        </div>
+        <p>
+          The umbrella facade re-exports the authoring and runtime layers under
+          a single crate.
+        </p>
+        <pre><code>pub use gpui_authoring::*;
 pub use gpui_runtime::*;
 
 // use gpui::*; compiles unchanged!</code></pre>
-            </aside>
-        </div>
-
-        <!-- Filled by renderLayerInfo() when a burger layer is clicked -->
-        <aside class="layer-info" id="layerInfo" aria-live="polite"></aside>
-
-        <div class="progress">
-            <i id="progressBar"></i>
-        </div>
+      </aside>
     </div>
+
+    <!-- Filled by renderLayerInfo() when a burger layer is clicked -->
+    <aside class="layer-info" id="layerInfo" aria-live="polite"></aside>
+
+    <div class="progress">
+      <i id="progressBar"></i>
+    </div>
+  </div>
 </section>
 
 <script>
-    (() => {
-        const journey = document.getElementById("journey");
-        const sticky = document.getElementById("sticky");
-        const bar = document.getElementById("progressBar");
-        const burger = document.getElementById("burger");
-        const heroCopy = document.querySelector(".hero-copy");
-        const header = document.querySelector(".nav");
+  (() => {
+    const journey = document.getElementById("journey");
+    const sticky = document.getElementById("sticky");
+    const bar = document.getElementById("progressBar");
+    const burger = document.getElementById("burger");
+    const heroCopy = document.querySelector(".hero-copy");
+    const header = document.querySelector(".nav");
 
-        // Minimum breathing room between the hero copy and the stack.
-        const HERO_GAP = 48;
-        const BURGER_W = 340;
+    // Minimum breathing room between the hero copy and the stack.
+    const HERO_GAP = 48;
+    const BURGER_W = 340;
 
-        // The unstack is budgeted against the header, which is its ceiling: the
-        // crown rises to the header's underside and stops there rather than
-        // sliding behind it.
-        const BURGER_H = 640; // .burger's frame height
-        const CROWN_RIDE = 677; // runtime's --base-ex (578) + its dome's 99 units
-        const HEADER_GAP = 14; // breathing room under the header bar
-        const SPREAD_MAX = 110; // ceiling on the extra travel, as in global.css
+    // The unstack is budgeted against the header, which is its ceiling: the
+    // crown rises to the header's underside and stops there rather than
+    // sliding behind it.
+    const BURGER_H = 640; // .burger's frame height
+    const CROWN_RIDE = 677; // runtime's --base-ex (578) + its dome's 99 units
+    const HEADER_GAP = 14; // breathing room under the header bar
+    const SPREAD_MAX = 110; // ceiling on the extra travel, as in global.css
 
-        const stage = document.querySelector(".burger-stage");
+    const stage = document.querySelector(".burger-stage");
 
-        // The viewport height is locked, not read live. A mobile address bar
-        // hiding fires a resize with the *same* width and a taller viewport;
-        // re-deriving --scale/--spread and the scroll denominator from that snaps
-        // the stack mid-unstack. Under the mobile breakpoint a height-only change
-        // within browser-chrome range is ignored, so the locked height tracks the
-        // 100svh units in global.css; any width change (orientation or desktop
-        // resize) and any larger height change re-measure.
-        const CHROME_MAX = 160; // px; ceiling on address-bar / toolbar height
-        let lockedW = document.documentElement.clientWidth;
-        let lockedH = document.documentElement.clientHeight;
+    // The viewport height is locked, not read live. A mobile address bar
+    // hiding fires a resize with the *same* width and a taller viewport;
+    // re-deriving --scale/--spread and the scroll denominator from that snaps
+    // the stack mid-unstack. Under the mobile breakpoint a height-only change
+    // within browser-chrome range is ignored, so the locked height tracks the
+    // 100svh units in global.css; any width change (orientation or desktop
+    // resize) and any larger height change re-measure.
+    const CHROME_MAX = 160; // px; ceiling on address-bar / toolbar height
+    let lockedW = document.documentElement.clientWidth;
+    let lockedH = document.documentElement.clientHeight;
 
-        function measureViewport() {
-            const w = document.documentElement.clientWidth;
-            const h = document.documentElement.clientHeight;
-            if (
-                w === lockedW &&
-                w <= 820 &&
-                Math.abs(h - lockedH) <= CHROME_MAX
-            )
-                return false; // address-bar chrome only
-            lockedW = w;
-            lockedH = h;
-            return true;
+    function measureViewport() {
+      const w = document.documentElement.clientWidth;
+      const h = document.documentElement.clientHeight;
+      if (w === lockedW && w <= 820 && Math.abs(h - lockedH) <= CHROME_MAX)
+        return false; // address-bar chrome only
+      lockedW = w;
+      lockedH = h;
+      return true;
+    }
+
+    function measureLayout() {
+      if (!sticky) return;
+      const vw = lockedW;
+      const vh = lockedH;
+
+      // Assembled: the frame has to fit the viewport with breathing room.
+      const scale = Math.max(0.55, Math.min(1, (vh - 80) / BURGER_H));
+
+      // Exploded: the stage is centred, so the frame's floor sits at
+      // vh/2 + height/2 and the crown's artwork reaches CROWN_RIDE above
+      // that. Fitting that under the header may cost the burger some size;
+      // whatever the crown does not need is handed back as --spread, which
+      // is what lengthens the unstack on a tall window.
+      //
+      // Narrow screens pin the stage to the foot of the viewport instead
+      // (see the ≤820px block in global.css), so their budget is measured
+      // from the bottom rather than the centre — it has room to spare, so
+      // they keep full size and their own spread rule.
+      const headerH =
+        (header ? header.getBoundingClientRect().height : 64) + HEADER_GAP;
+      const ride = CROWN_RIDE - BURGER_H / 2;
+      const budget = vh / 2 - headerH;
+      const scaleOpen =
+        vw <= 820 ? scale : Math.max(0.55, Math.min(1, scale, budget / ride));
+      const spread =
+        vw <= 820
+          ? Math.max(0, Math.min(SPREAD_MAX, (vh - 760) * 0.45))
+          : Math.max(0, Math.min(SPREAD_MAX, budget / scaleOpen - ride));
+
+      sticky.style.setProperty("--scale", scale.toFixed(4));
+      sticky.style.setProperty("--scale-open", scaleOpen.toFixed(4));
+      sticky.style.setProperty("--spread", spread.toFixed(1) + "px");
+
+      if (vw <= 820) {
+        // The hero moves above the stack on narrow screens, so it needs no
+        // room. The two --fit/--lift steps that used to be max-height media
+        // queries live here instead: keyed off the locked height they cannot
+        // flip when the address bar moves.
+        sticky.style.setProperty("--hero-dx", "0px");
+        if (stage) {
+          const fit = vh <= 690 ? 0.7 : vh <= 780 ? 0.88 : 1;
+          stage.style.setProperty("--fit", String(fit));
+          stage.style.setProperty(
+            "--lift",
+            (vh * 0.01 * (vh <= 690 ? 1 : 2)).toFixed(1) + "px",
+          );
         }
-
-        function measureLayout() {
-            if (!sticky) return;
-            const vw = lockedW;
-            const vh = lockedH;
-
-            // Assembled: the frame has to fit the viewport with breathing room.
-            const scale = Math.max(0.55, Math.min(1, (vh - 80) / BURGER_H));
-
-            // Exploded: the stage is centred, so the frame's floor sits at
-            // vh/2 + height/2 and the crown's artwork reaches CROWN_RIDE above
-            // that. Fitting that under the header may cost the burger some size;
-            // whatever the crown does not need is handed back as --spread, which
-            // is what lengthens the unstack on a tall window.
-            //
-            // Narrow screens pin the stage to the foot of the viewport instead
-            // (see the ≤820px block in global.css), so their budget is measured
-            // from the bottom rather than the centre — it has room to spare, so
-            // they keep full size and their own spread rule.
-            const headerH =
-                (header ? header.getBoundingClientRect().height : 64) +
-                HEADER_GAP;
-            const ride = CROWN_RIDE - BURGER_H / 2;
-            const budget = vh / 2 - headerH;
-            const scaleOpen =
-                vw <= 820
-                    ? scale
-                    : Math.max(0.55, Math.min(1, scale, budget / ride));
-            const spread =
-                vw <= 820
-                    ? Math.max(0, Math.min(SPREAD_MAX, (vh - 760) * 0.45))
-                    : Math.max(
-                          0,
-                          Math.min(SPREAD_MAX, budget / scaleOpen - ride),
-                      );
-
-            sticky.style.setProperty("--scale", scale.toFixed(4));
-            sticky.style.setProperty("--scale-open", scaleOpen.toFixed(4));
-            sticky.style.setProperty("--spread", spread.toFixed(1) + "px");
-
-            if (vw <= 820) {
-                // The hero moves above the stack on narrow screens, so it needs no
-                // room. The two --fit/--lift steps that used to be max-height media
-                // queries live here instead: keyed off the locked height they cannot
-                // flip when the address bar moves.
-                sticky.style.setProperty("--hero-dx", "0px");
-                if (stage) {
-                    const fit = vh <= 690 ? 0.7 : vh <= 780 ? 0.88 : 1;
-                    stage.style.setProperty("--fit", String(fit));
-                    stage.style.setProperty(
-                        "--lift",
-                        (vh * 0.01 * (vh <= 690 ? 1 : 2)).toFixed(1) + "px",
-                    );
-                }
-            } else {
-                if (stage) {
-                    // Unused above the breakpoint; clear anything a resize left.
-                    stage.style.removeProperty("--fit");
-                    stage.style.removeProperty("--lift");
-                }
-                // Nudge the stack only as far as it takes to clear the hero copy.
-                // Nudging it further would rob the right rail of its space.
-                const heroRight = heroCopy
-                    ? heroCopy.getBoundingClientRect().right
-                    : 0;
-                const burgerLeft = vw / 2 - (BURGER_W / 2) * scale;
-                const dx = Math.max(0, heroRight + HERO_GAP - burgerLeft);
-                sticky.style.setProperty("--hero-dx", dx + "px");
-            }
+      } else {
+        if (stage) {
+          // Unused above the breakpoint; clear anything a resize left.
+          stage.style.removeProperty("--fit");
+          stage.style.removeProperty("--lift");
         }
+        // Nudge the stack only as far as it takes to clear the hero copy.
+        // Nudging it further would rob the right rail of its space.
+        const heroRight = heroCopy ? heroCopy.getBoundingClientRect().right : 0;
+        const burgerLeft = vw / 2 - (BURGER_W / 2) * scale;
+        const dx = Math.max(0, heroRight + HERO_GAP - burgerLeft);
+        sticky.style.setProperty("--hero-dx", dx + "px");
+      }
+    }
 
-        function updateJourney() {
-            if (!journey || !sticky) return;
-            const r = journey.getBoundingClientRect();
-            const travel = journey.offsetHeight - lockedH;
-            const p =
-                travel <= 0 ? 0 : Math.max(0, Math.min(1, -r.top / travel));
+    function updateJourney() {
+      if (!journey || !sticky) return;
+      const r = journey.getBoundingClientRect();
+      const travel = journey.offsetHeight - lockedH;
+      const p = travel <= 0 ? 0 : Math.max(0, Math.min(1, -r.top / travel));
 
-            const MOVE_END = 0.18;
-            const EXPLODE_BEG = 0.14;
-            const EXPLODE_END = 0.52;
+      const MOVE_END = 0.18;
+      const EXPLODE_BEG = 0.14;
+      const EXPLODE_END = 0.52;
 
-            const move = Math.min(p / MOVE_END, 1);
-            const explode = Math.max(
-                0,
-                Math.min((p - EXPLODE_BEG) / (EXPLODE_END - EXPLODE_BEG), 1),
-            );
+      const move = Math.min(p / MOVE_END, 1);
+      const explode = Math.max(
+        0,
+        Math.min((p - EXPLODE_BEG) / (EXPLODE_END - EXPLODE_BEG), 1),
+      );
 
-            sticky.style.setProperty("--move", move.toFixed(4));
-            sticky.style.setProperty("--explode", explode.toFixed(4));
-            if (bar) bar.style.width = (p * 100).toFixed(1) + "%";
-            sticky.classList.toggle("is-exploded", explode > 0.5);
-            // Captions only become click targets once they are mostly faded in.
-            sticky.classList.toggle("has-captions", explode > 0.3);
-            // The copy is invisible well before the tiers part—but an element at
-            // opacity 0 still swallows clicks, so without this its slab sits on
-            // top of the burger and eats taps meant for the layers underneath.
-            sticky.classList.toggle("hero-gone", move > 0.55);
-        }
+      sticky.style.setProperty("--move", move.toFixed(4));
+      sticky.style.setProperty("--explode", explode.toFixed(4));
+      if (bar) bar.style.width = (p * 100).toFixed(1) + "%";
+      sticky.classList.toggle("is-exploded", explode > 0.5);
+      // Captions only become click targets once they are mostly faded in.
+      sticky.classList.toggle("has-captions", explode > 0.3);
+      // The copy is invisible well before the tiers part—but an element at
+      // opacity 0 still swallows clicks, so without this its slab sits on
+      // top of the burger and eats taps meant for the layers underneath.
+      sticky.classList.toggle("hero-gone", move > 0.55);
+    }
 
-        const panel = document.getElementById("layerInfo");
-        const layerEls = burger ? [...burger.querySelectorAll(".layer")] : [];
+    const panel = document.getElementById("layerInfo");
+    const layerEls = burger ? [...burger.querySelectorAll(".layer")] : [];
 
-        // Detail copy for the crate each burger layer represents.
-        const LAYER_DATA = {
-            platform: {
-                path: "crates/gpui_platform",
-                name: "gpui_platform",
-                package: "bite-gp-platform",
-                role: "OS SPI",
-                accent: "var(--platform)",
-                tag: "Platform contract",
-                desc: "The Platform trait and the platform-level contracts: displays, input, clipboard, menus and screen capture. Each OS backend implements it, and the facade selects one by cfg(target_os).",
-                depends: ["gpui_engine", "gpui_types"],
-            },
-            engine: {
-                path: "crates/gpui_engine",
-                name: "gpui_engine",
-                package: "bite-gp-engine",
-                role: "Render",
-                accent: "var(--engine)",
-                tag: "Scene IR",
-                desc: "Owns the retained scene graph, the layout pass, and the renderer that flattens styled nodes into quads. It knows how to draw, not how to describe a UI.",
-                depends: ["gpui_types"],
-            },
-            types: {
-                path: "crates/gpui_types",
-                name: "gpui_types",
-                package: "bite-gp-types",
-                role: "Leaf",
-                accent: "var(--types)",
-                tag: "No gpui deps",
-                desc: "Pixels, Bounds, Point, Size, and Rgba: the shared vocabulary every other tier speaks. It names no other gpui crate, so it sits at the bottom of the stack; its own dependencies are third-party (taffy, serde, refineable).",
-                depends: [],
-            },
-            authoring: {
-                path: "crates/gpui_authoring",
-                name: "gpui_authoring",
-                package: "bite-gp-authoring",
-                role: "DSL",
-                accent: "var(--authoring)",
-                tag: "Reactive DSL",
-                desc: "The ergonomic surface: a reactive entity store, the div and stack builders, and a Window split into render and event halves. It lowers onto the engine's scene graph.",
-                depends: [
-                    "gpui_types",
-                    "gpui_engine",
-                    "gpui_engine_default",
-                    "gpui_platform",
-                ],
-            },
-            runtime: {
-                path: "crates/gpui_runtime",
-                name: "gpui_runtime",
-                package: "bite-gp-runtime",
-                role: "Harness",
-                accent: "var(--runtime)",
-                tag: "Application + decorators",
-                desc: "Drives the process: the Application builder, run and run_embedded, and the ThrottledPipeline and InstrumentedPipeline decorators that cap a frame rate or time the root passes of the pipeline they wrap.",
-                depends: ["gpui_authoring"],
-            },
-        };
+    // Detail copy for the crate each burger layer represents.
+    const LAYER_DATA = {
+      platform: {
+        path: "crates/gpui_platform",
+        name: "gpui_platform",
+        package: "bite-gp-platform",
+        role: "OS SPI",
+        accent: "var(--platform)",
+        tag: "Platform contract",
+        desc: "The Platform trait and the platform-level contracts: displays, input, clipboard, menus and screen capture. Each OS backend implements it, and the facade selects one by cfg(target_os).",
+        depends: ["gpui_engine", "gpui_types"],
+      },
+      engine: {
+        path: "crates/gpui_engine",
+        name: "gpui_engine",
+        package: "bite-gp-engine",
+        role: "Render",
+        accent: "var(--engine)",
+        tag: "Scene IR",
+        desc: "Owns the retained scene graph, the layout pass, and the renderer that flattens styled nodes into quads. It knows how to draw, not how to describe a UI.",
+        depends: ["gpui_types"],
+      },
+      types: {
+        path: "crates/gpui_types",
+        name: "gpui_types",
+        package: "bite-gp-types",
+        role: "Leaf",
+        accent: "var(--types)",
+        tag: "No gpui deps",
+        desc: "Pixels, Bounds, Point, Size, and Rgba: the shared vocabulary every other tier speaks. It names no other gpui crate, so it sits at the bottom of the stack; its own dependencies are third-party (taffy, serde, refineable).",
+        depends: [],
+      },
+      authoring: {
+        path: "crates/gpui_authoring",
+        name: "gpui_authoring",
+        package: "bite-gp-authoring",
+        role: "DSL",
+        accent: "var(--authoring)",
+        tag: "Reactive DSL",
+        desc: "The ergonomic surface: a reactive entity store, the div and stack builders, and a Window split into render and event halves. It lowers onto the engine's scene graph.",
+        depends: [
+          "gpui_types",
+          "gpui_engine",
+          "gpui_engine_default",
+          "gpui_platform",
+        ],
+      },
+      runtime: {
+        path: "crates/gpui_runtime",
+        name: "gpui_runtime",
+        package: "bite-gp-runtime",
+        role: "Harness",
+        accent: "var(--runtime)",
+        tag: "Application + decorators",
+        desc: "Drives the process: the Application builder, run and run_embedded, and the ThrottledPipeline and InstrumentedPipeline decorators that cap a frame rate or time the root passes of the pipeline they wrap.",
+        depends: ["gpui_authoring"],
+      },
+    };
 
-        let selectedLayer = null;
+    let selectedLayer = null;
 
-        function renderLayerInfo(key) {
-            if (!panel) return;
+    function renderLayerInfo(key) {
+      if (!panel) return;
 
-            if (!key) {
-                panel.classList.remove("is-visible");
-                panel.innerHTML = "";
-                return;
-            }
+      if (!key) {
+        panel.classList.remove("is-visible");
+        panel.innerHTML = "";
+        return;
+      }
 
-            const data = LAYER_DATA[key];
-            if (!data) return;
+      const data = LAYER_DATA[key];
+      if (!data) return;
 
-            panel.style.setProperty("--accent", data.accent);
-            panel.innerHTML = `
+      panel.style.setProperty("--accent", data.accent);
+      panel.innerHTML = `
                 <div class="li-head">
                     <span class="li-path">${data.path}</span>
                     <button class="li-close" id="liClose" type="button" aria-label="Close layer info">
@@ -1049,97 +914,90 @@ pub use gpui_runtime::*;
                     <span class="li-label">Depends on</span>
                     <div class="li-chips">
                         ${
-                            data.depends.length
-                                ? data.depends
-                                      .map(
-                                          (crate) =>
-                                              `<span class="li-chip">${crate}</span>`,
-                                      )
-                                      .join("")
-                                : '<span class="li-chip is-none">nothing yet</span>'
+                          data.depends.length
+                            ? data.depends
+                                .map(
+                                  (crate) =>
+                                    `<span class="li-chip">${crate}</span>`,
+                                )
+                                .join("")
+                            : '<span class="li-chip is-none">nothing yet</span>'
                         }
                     </div>
                 </div>
                 <code class="li-cmd">cargo add ${data.package}</code>
             `;
-            panel.classList.add("is-visible");
+      panel.classList.add("is-visible");
 
-            panel
-                .querySelector("#liClose")
-                ?.addEventListener("click", (event) => {
-                    event.stopPropagation();
-                    clearSelection();
-                });
+      panel.querySelector("#liClose")?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        clearSelection();
+      });
+    }
+
+    function clearSelection() {
+      selectedLayer = null;
+      layerEls.forEach((layer) => {
+        layer.classList.remove("is-selected");
+        layer.setAttribute("aria-pressed", "false");
+      });
+      renderLayerInfo(null);
+    }
+
+    function toggleLayer(key) {
+      if (!key) return;
+      if (selectedLayer === key) {
+        clearSelection();
+        return;
+      }
+      selectedLayer = key;
+      layerEls.forEach((layer) => {
+        const isOn = layer.dataset.layer === key;
+        layer.classList.toggle("is-selected", isOn);
+        layer.setAttribute("aria-pressed", String(isOn));
+      });
+      renderLayerInfo(key);
+    }
+
+    layerEls.forEach((layer) => {
+      // Clicks arriving from the slice's SVG or its caption both land here.
+      layer.addEventListener("click", () => toggleLayer(layer.dataset.layer));
+      layer.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        toggleLayer(layer.dataset.layer);
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && selectedLayer) clearSelection();
+    });
+
+    window.addEventListener("scroll", updateJourney, { passive: true });
+
+    document
+      .getElementById("heroInstall")
+      ?.addEventListener("click", function () {
+        const copyVal = this.dataset.copy;
+        if (copyVal) {
+          window.copyToClipboard(copyVal, "Copied cargo add bite-gpui");
         }
+      });
 
-        function clearSelection() {
-            selectedLayer = null;
-            layerEls.forEach((layer) => {
-                layer.classList.remove("is-selected");
-                layer.setAttribute("aria-pressed", "false");
-            });
-            renderLayerInfo(null);
-        }
+    window.addEventListener("resize", () => {
+      // Ignore address-bar-only resizes so the unstack does not snap.
+      if (!measureViewport()) return;
+      measureLayout();
+      updateJourney();
+    });
 
-        function toggleLayer(key) {
-            if (!key) return;
-            if (selectedLayer === key) {
-                clearSelection();
-                return;
-            }
-            selectedLayer = key;
-            layerEls.forEach((layer) => {
-                const isOn = layer.dataset.layer === key;
-                layer.classList.toggle("is-selected", isOn);
-                layer.setAttribute("aria-pressed", String(isOn));
-            });
-            renderLayerInfo(key);
-        }
-
-        layerEls.forEach((layer) => {
-            // Clicks arriving from the slice's SVG or its caption both land here.
-            layer.addEventListener("click", () =>
-                toggleLayer(layer.dataset.layer),
-            );
-            layer.addEventListener("keydown", (event) => {
-                if (event.key !== "Enter" && event.key !== " ") return;
-                event.preventDefault();
-                toggleLayer(layer.dataset.layer);
-            });
-        });
-
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape" && selectedLayer) clearSelection();
-        });
-
-        window.addEventListener("scroll", updateJourney, { passive: true });
-
-        document
-            .getElementById("heroInstall")
-            ?.addEventListener("click", function () {
-                const copyVal = this.dataset.copy;
-                if (copyVal) {
-                    window.copyToClipboard(
-                        copyVal,
-                        "Copied cargo add bite-gpui",
-                    );
-                }
-            });
-
-        window.addEventListener("resize", () => {
-            // Ignore address-bar-only resizes so the unstack does not snap.
-            if (!measureViewport()) return;
-            measureLayout();
-            updateJourney();
-        });
-
+    measureLayout();
+    updateJourney();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
         measureLayout();
         updateJourney();
-        if (document.fonts && document.fonts.ready) {
-            document.fonts.ready.then(() => {
-                measureLayout();
-                updateJourney();
-            });
-        }
-    })();
+      });
+    }
+  })();
 </script>

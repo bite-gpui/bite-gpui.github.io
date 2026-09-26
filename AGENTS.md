@@ -15,7 +15,7 @@ Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage** (dark, default) plus
 [`design/DESIGN-SYSTEM.md`](design/DESIGN-SYSTEM.md).
 
 - Design tokens live in the `:root` block of `src/styles/global.css`. That block
-  is the source of truth — change it *before* updating any documentation. The
+  is the source of truth — change it _before_ updating any documentation. The
   light theme is a single `:root[data-theme="light"]` override next to it; it is
   a token swap and nothing else (`design/DESIGN-SYSTEM.md` §2.8).
 - The site is plain CSS with custom properties. **There is no Tailwind in the
