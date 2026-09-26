@@ -327,14 +327,33 @@ html {
   margin-left: -4px;
 }
 
-/* The mark and the way back travel together, so a sub-page opens the same way as
-   the frontdoor does: the same three things in the same three places, with the
-   crumb's "← Frontdoor" beside the version chip rather than after a pipe. */
-.nav-brand {
+/* The mark opens the bar and nothing else sits with it: identity, then a pipe,
+   then where you can go. The way back and the section are the two groups after it,
+   each opening with a pipe — and the section closing with one only when it has
+   pages one level in, to fence those off from the pages that stand beside it:
+   /swaps closes before Demos · Compare, /demos does not, because everything after
+   it is at the same level.
+
+   The pipes are the groups' own pseudo-elements rather than flex items of the bar.
+   As items, each would cost one of the bar's own 32px gaps, and two of those put
+   the section row 1px inside a 1152px content box. */
+.nav-back-group,
+.nav-trail {
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* Two pixels of the gap are for the pill's padding, which reaches into it. */
+  gap: 12px;
   flex-shrink: 0;
+  white-space: nowrap;
+}
+.nav-back-group::before,
+.nav-back-group::after,
+.nav-trail.has-nested::after {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 16px;
+  background: var(--border-2);
 }
 .nav-back {
   display: inline-flex;
@@ -357,31 +376,7 @@ html {
   color: var(--text);
 }
 
-/* The section you are in and its pages, between a pipe on each side. It stays
-   outside the collapsible part of the bar, so the way back is one tap away at
-   every width — which is also why the sheet's rail keeps the section's pages
-   rather than leaving them to the group above it (they are hidden here, reachable
-   there).
-
-   The pipes are pseudo-elements rather than flex items. As items, each would cost
-   one of the bar's own 32px gaps, and two of those put the section row 1px inside
-   a 1152px content box. */
-.nav-trail {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.nav-trail::before,
-.nav-trail::after {
-  content: "";
-  flex: none;
-  width: 1px;
-  height: 16px;
-  background: var(--border-2);
-}
-/* The hub opens the group: everything after it is one level inside it, so they
+/* The hub opens the section: everything after it is one level inside it, so they
    take the crumb's size rather than the rail's. */
 .nav-trail-links {
   display: flex;
@@ -450,10 +445,15 @@ html {
 }
 /* The frontdoor's row is the wider of the two and keeps its wordmark all the way
    down — it has no way back to gain. The version chip is what it gives up at the
-   narrowest, where the mark, the wordmark and both controls are 270px of the
-   274px a 320px bar has. */
+   narrowest, and the pipes around the way back go with it: at 320px what is left
+   is the mark, "← Frontdoor", the hamburger and the theme switch, 251px of the
+   274px the bar has. */
 @media (max-width: 420px) {
   .nav .logo-version {
+    display: none;
+  }
+  .nav-back-group::before,
+  .nav-back-group::after {
     display: none;
   }
 }
@@ -569,6 +569,10 @@ html {
 }
 .nav-cta {
   flex-shrink: 0;
+  /* The row's slack lands here rather than before the links, so that everything
+     from the mark to the last of the guides reads left to right in its groups, with
+     the install line and the theme switch held out at the far end. */
+  margin-left: auto;
 }
 .nav-cta-prompt {
   opacity: 0.62;
@@ -592,7 +596,6 @@ html {
      that falls back to something wider eats into that margin, not into a
      wrap. */
   gap: 14px;
-  margin-left: auto;
   list-style: none;
   padding: 0;
   margin-block: 0;
@@ -612,23 +615,33 @@ html {
 .nav-links li[data-in-trail] {
   display: none;
 }
-/* The current entry is a pill: a fill with a hairline ring around it. On a rail of
-   five same-weight links, colour alone was the quietest possible signal — and on
+/* The current entry is a pill: a solid fill with the canvas read back out of it,
+   the same fill-not-hue state the Combo Studio's switches use. Solid `--text`
+   rather than the brand, so the marker never spends the colour the install CTA and
+   every other interactive affordance carry — and so it reads in both themes: a
+   light pill with dark ink here, a dark one with light ink on the sage paper. On
    the one-pager it moves, marking the chapter the reader has scrolled into
    (`aria-current="location"`, set by the script in Nav.astro).
 
-   Painted with box-shadow rather than padding and a border, because a padded pill
-   grows the box it marks: the link shoves its neighbours along the row every time
-   the marker moves, and on the one-pager that is on every scroll. A spread shadow
-   is paint only, so the row is the same width in every state and the marked link
-   never moves. */
+   The padding is cancelled by a matching negative margin rather than left to grow
+   the box, so the marked link occupies exactly the space it did unmarked: a padded
+   pill shoves its neighbours along the row every time the marker moves, and on the
+   one-pager that is on every scroll. A spread box-shadow would be paint-only too,
+   but Chrome paints an inline box's shadow over its own text, so the label would
+   come out blank. */
 .nav a[aria-current="page"],
 .nav a[aria-current="location"] {
-  color: var(--text);
+  color: var(--bg);
   border-radius: 99px;
-  box-shadow:
-    0 0 0 5px var(--surface),
-    0 0 0 6px var(--border-2);
+  background: var(--text);
+  padding: 4px 9px;
+  margin: -4px -9px;
+}
+/* The section's dot rides inside that pill when the pill lands on the hub it
+   marks, so it reads back out of the fill the way the label does. */
+.nav a[aria-current] .nav-section-dot {
+  background: var(--bg);
+  box-shadow: none;
 }
 /* Hairline between the one-page chapters and the four guide pages. Purely visual,
    so it is `aria-hidden` in the markup and dropped on the sheet. Sized and centred
@@ -3401,17 +3414,22 @@ footer {
     font-size: 0.95rem;
     border-bottom: 1px solid var(--border);
   }
-  /* A column, so the current row is a band rather than the pill the desktop row
-     paints: a spread shadow around a full-width row would be a box the width of
-     the sheet. The weight the pill could not afford to carry is available here,
-     where nothing sits beside the row to be shoved. */
+  /* A column, so the current row is the same solid fill the desktop row paints,
+     squared off and inset a little: a spread shadow around a full-width row would
+     be a box the width of the sheet. The weight the pill could not afford to carry
+     is available here, where nothing sits beside the row to be shoved. */
   .nav-links a[aria-current="page"],
   .nav-links a[aria-current="location"] {
-    padding-inline: 10px;
+    padding: 13px 10px;
+    margin: 0;
     border-radius: 8px;
-    background: var(--surface-2);
+    background: var(--text);
+    color: var(--bg);
     font-weight: 600;
     box-shadow: none;
+  }
+  .nav-links a[aria-current] .nav-section-dot {
+    background: var(--bg);
   }
   .nav-links li:last-child a {
     border-bottom: 0;

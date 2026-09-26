@@ -67,41 +67,42 @@ const topLevel = guides.filter((guide) => !guide.parent);
 
 <nav class={`nav${here ? " is-section" : ""}`} id="nav">
   <div class="nav-inner">
-    {/* The brand never goes away: it is the only mark on the bar and the only
-         thing on it that means "home". A sub-page keeps the wordmark and the
-         version chip exactly where they are and adds the way back beside them,
-         so the bar opens the same way on every page. The wordmark and the chip are
-         the two things that step aside on a narrow section bar; the mark and the
-         way back are not. */}
-    <div class="nav-brand">
-      <a
-        href={here ? "/#journey" : "#journey"}
-        class="logo"
-        title={here ? "Back to the frontdoor" : undefined}
-      >
-        <Logo />
-        <span class="logo-word">bite-gpui</span>
-        <span class="logo-version">v1.21.0</span>
-      </a>
-      {section ? (
+    {/* The brand opens the bar and nothing else sits with it: identity, then a
+         pipe, then where you can go. The wordmark and the version chip are the two
+         things that step aside on a narrow section bar; the mark never does. */}
+    <a
+      href={here ? "/#journey" : "#journey"}
+      class="logo"
+      title={here ? "Back to the frontdoor" : undefined}
+    >
+      <Logo />
+      <span class="logo-word">bite-gpui</span>
+      <span class="logo-version">v1.21.0</span>
+    </a>
+
+    {section ? (
+      /* The way back, in its own pipe-delimited group: it is not the brand and not
+           the section, it is the step up. It stays outside the collapsible part of
+           the bar, so it is one tap away at every width. */
+      <div class="nav-back-group">
         <a class="nav-back" href="/#journey">
           <span aria-hidden="true">←</span>
           <span>Frontdoor</span>
         </a>
-      ) : null}
-    </div>
+      </div>
+    ) : null}
 
     {section ? (
-      /* The section you are in and its pages, between two pipes. The hub opens
-           the group, because everything after it is one level inside it; the page
-           itself is not named again, because the rail marks it and two current
-           markers in one bar is one too many.
+      /* The section you are in and its pages. The hub opens the group, because
+           everything after it is one level inside it; the page itself is not named
+           again, because the group marks it and two current markers in one bar is
+           one too many.
 
-           The pipes are this element's own pseudo-elements rather than siblings,
-           which is not a style choice: as siblings each one costs a flex gap of the
-           bar's own 32px, and two of those put the section row 1px inside a 1152px
-           content box. */
-      <div class="nav-trail">
+           A pipe closes the group only when it has pages one level in, to fence
+           those off from the pages that stand beside the section: /swaps closes
+           before Demos · Compare, /demos does not, because everything after it is
+           at the same level. */
+      <div class={`nav-trail${sectionPages.length ? " has-nested" : ""}`}>
         <ul class="nav-trail-links">
           <li>
             <a
