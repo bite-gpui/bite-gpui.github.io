@@ -304,15 +304,16 @@ const vectors = [
             The layout comparison is one tree, not a suite of them.
           </strong>{" "}
           A second <span class="mono">LayoutEngine</span> exists now, and it
-          puts the same twelve nodes in the same places as taffy —{" "}
-          <strong>0.00 px</strong> apart at scale 1.0, 1.5 and 2.0 — while
-          costing roughly <strong>3–4×</strong> less per frame and{" "}
-          <strong>1.3–1.4×</strong>
-          less for bounds, across two runs. And it is one tree, on one laptop,
-          built from the constructs the conversion claims to handle. It says the
-          mapping is right where it says it is right; it does not say the two
-          engines are equivalent in general, and the constructs morphorm cannot
-          express are listed with the numbers rather than left out.
+          puts the same nodes in the same places as taffy —{" "}
+          <strong>0.00 px</strong> apart on a 12-node tree and on 176–3501 nodes
+          of changing buttons — while costing <strong>3.3–3.7×</strong> less for
+          50 to 1000 buttons. At a thousand, that is <strong>47%</strong> of a
+          16.7 ms frame against <strong>13%</strong>. It is still one tree, on
+          one laptop, built from the constructs the conversion claims to handle:
+          it does not say the two engines are equivalent in general, and the
+          constructs morphorm cannot express —{" "}
+          <span class="mono">flex_grow</span> among them — are listed with the
+          numbers rather than left out.
         </li>
         <li>
           <strong>No competitor numbers.</strong> Nothing here is measured
