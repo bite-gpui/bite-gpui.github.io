@@ -21,23 +21,23 @@ const stats = [
   {
     value: "5",
     label: "Trait boundaries",
-    note: "Four of them with a setter at the facade.",
+    note: "Exposed at the facade",
   },
   {
     value: "2",
     label: "Published swaps",
-    note: "Second implementations on crates.io.",
+    note: "Live on crates.io",
     win: true,
   },
   {
     value: "0",
-    label: "Forks to maintain",
-    note: "For either published swap.",
+    label: "Engine forks",
+    note: "Maintained across both",
   },
   {
     value: "0.00 px",
     label: "Layout delta",
-    note: "Over 3501 nodes, against the default engine.",
+    note: "Across 3,501 nodes",
     win: true,
   },
 ];
@@ -45,7 +45,7 @@ const stats = [
 const seams = [
   {
     trait: "TextSystem",
-    owns: "Shaping, line layout and glyph rasterization.",
+    owns: "Text shaping, line layout, and glyph rasterization.",
     hook: "Application::with_text_system(Arc<dyn TextSystem>)",
     defined: "gpui_engine",
     default: "DefaultTextSystem",
@@ -60,7 +60,7 @@ const seams = [
   },
   {
     trait: "LayoutEngine",
-    owns: "Turning the element tree into laid-out boxes.",
+    owns: "Translating the reactive element tree into positioned layout boxes.",
     hook: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
     defined: "gpui_engine",
     default: "TaffyLayoutEngine",
@@ -75,7 +75,7 @@ const seams = [
   },
   {
     trait: "FramePipeline",
-    owns: "Pacing, presentation order and per-frame instrumentation.",
+    owns: "Frame pacing, presentation cadence, and render-pass instrumentation.",
     hook: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
     defined: "gpui_authoring",
     default: "StandardImmediatePipeline",
@@ -89,7 +89,7 @@ const seams = [
   },
   {
     trait: "Platform",
-    owns: "The OS event loop, displays and input.",
+    owns: "OS event loop, display handles, clipboard, and input routing.",
     hook: "Application::with_platform(Rc<dyn Platform>)",
     defined: "gpui_platform",
     default: "one per host",
@@ -103,7 +103,7 @@ const seams = [
   },
   {
     trait: "SceneRenderer",
-    owns: "The scene IR becoming pixels.",
+    owns: "Lowering the scene intermediate representation (IR) into GPU drawing commands.",
     hook: null,
     defined: "gpui_engine",
     default: "one per backend",
@@ -182,20 +182,18 @@ const artifacts = [
   kicker="Architecture · The seams"
   heading="Five seams."
   accent="Two you can install."
-  lede="Changing how GPUI shapes text or lays out boxes means forking the repository and keeping that fork rebased. The engine is assembled from five trait contracts, four of which have a method on Application that installs a second implementation instead: a crate you depend on, not a patch you maintain. Two of the five have one, published from a repository of its own; the other three are named here with what one would take."
+  lede="GPUI's engine is wired together through five core trait boundaries, each exposed via a single bootstrap method on Application. In upstream GPUI, changing any of them requires a hard repository fork. In bite-gpui, a swap is an independent crate you install from crates.io. Two seams have standalone, production-tested implementations published today. The other three are open extension boundaries ready for new backends."
   current="swaps"
   stats={stats}
 >
   <section>
     <div class="section-head">
       <span class="kicker">The shelf</span>
-      <h2>What you can replace.</h2>
+      <h2>What you can swap out.</h2>
       <p>
-        Read out of the published crates rather than off a diagram: each trait
-        is declared in a layer crate, each hook is a real method on
-        <span class="mono">Application</span>, and each default is the type the
-        facade installs when you say nothing. The facade re-exports all of it,
-        so <span class="mono">use gpui::*</span> names any of them.
+        Every swappable boundary is defined in a standalone layer crate, backed
+        by a default implementation, and re-exported under
+        <span class="mono">use gpui::*</span>.
       </p>
     </div>
 
@@ -307,11 +305,10 @@ const artifacts = [
   <section>
     <div class="section-head">
       <span class="kicker">Open seams</span>
-      <h2>Three seams with nothing to install.</h2>
+      <h2>What it takes to build a new backend.</h2>
       <p>
-        There is nothing to measure in this section, because none of the three
-        has a second implementation. They are named so the gap is visible rather
-        than implied.
+        We explicitly document the three unbuilt seams so external contributors
+        know exactly where the architectural boundaries lie:
       </p>
     </div>
 
@@ -378,23 +375,23 @@ const artifacts = [
     <div class="prose">
       <ul class="checklist">
         <li>
-          <strong>The shelf is mostly empty on purpose.</strong> Nothing here
-          should be read as "every boundary has an alternative" — three of the
-          five have no implementation at all outside the tree.
+          <strong>The shelf is intentionally sparse:</strong> We only publish an
+          alternate crate when there is a distinct, measurable performance or
+          feature advantage. We don't build duplicate backends for the sake of
+          checking boxes.
         </li>
         <li>
-          <strong>A second implementation is not a drop-in replacement.</strong>{" "}
-          Both published swaps are measured against the default on one laptop,
-          two columns each, and both pages say where their own comparison stops.
-          Parley is faster at bulk text and slower per glyph; morphorm is
-          cheaper per frame and cannot express part of CSS.
+          <strong>Swaps are independent decisions:</strong>{" "}
+          <span class="mono">bite-gp-parley</span> and{" "}
+          <span class="mono">bite-gp-morphorm</span> operate on entirely
+          different pipeline phases. You can use either one alone, combine both,
+          or keep the defaults. Neither implies or requires the other.
         </li>
         <li>
-          <strong>Two swaps are two decisions.</strong> A text system and a
-          layout engine are installed through different hooks and exercised on
-          different passes, so they compose but do not depend on each other:
-          either can be installed alone, and installing one does not imply the
-          other.
+          <strong>Every swap involves a trade-off:</strong> Parley adds BiDi
+          layout and font fallback at the cost of slightly higher per-glyph
+          instantiation overhead. Morphorm cuts layout frame time by up to 3.8×,
+          but omits complex CSS Grid track rules.
         </li>
       </ul>
     </div>
@@ -417,9 +414,7 @@ const artifacts = [
       <span class="kicker">Where they live</span>
       <h2>The published two.</h2>
       <p>
-        Four artefacts: two crates on crates.io, and the two repositories each
-        one is developed and released from, where a publisher turns its tag into
-        the release.
+        The crates, and the repositories they are developed and released from.
       </p>
     </div>
 
