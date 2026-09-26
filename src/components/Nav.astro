@@ -32,21 +32,45 @@ import Logo from "./Logo.astro";
     <div class="nav-menu" id="navMenu">
       <ul class="nav-links">
         <li>
-          <a href="#journey">The Kitchen</a>
+          <a href="#journey">The Layers</a>
         </li>
         <li>
-          <a href="#capabilities">Studio</a>
+          <a href="#capabilities">Combos</a>
         </li>
         <li>
-          <a href="#benchmarks">Benchmarks</a>
+          <a href="#benchmarks">The Receipt</a>
         </li>
         <li>
-          <a href="#quickstart">Quickstart</a>
+          <a href="#quickstart">Express Lane</a>
         </li>
       </ul>
-      <a class="btn btn-primary nav-cta" href="#quickstart">
-        cargo add bite-gpui
-      </a>
+      <button
+        class="btn btn-primary nav-cta"
+        id="navInstall"
+        type="button"
+        data-copy="cargo add bite-gpui"
+        aria-label="Copy cargo add bite-gpui"
+      >
+        <span class="nav-cta-prompt" aria-hidden="true">
+          $
+        </span>
+        <span>cargo add bite-gpui</span>
+        <span class="nav-cta-copy" aria-hidden="true">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </span>
+      </button>
     </div>
 
     <!-- Light/dark switch. A sibling of .nav-menu rather than a child, so it
@@ -128,6 +152,19 @@ import Logo from "./Logo.astro";
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
   window.addEventListener("resize", () => {
     if (window.innerWidth > 820) setOpen(false);
+  });
+
+  // The nav CTA copies the install line rather than jumping: the sheet already
+  // carries Express Lane for navigation, and the command is what a reader wants
+  // from a bar that is on screen the whole way down the page. It closes the
+  // sheet itself, since only the anchors above are wired to do that.
+  const installBtn = document.getElementById("navInstall");
+  installBtn?.addEventListener("click", () => {
+    window.copyToClipboard(
+      installBtn.dataset.copy,
+      `Copied ${installBtn.dataset.copy}`,
+    );
+    setOpen(false);
   });
 
   onScroll();

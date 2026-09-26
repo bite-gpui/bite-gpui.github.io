@@ -8,13 +8,14 @@
       <div class="section-head">
         <span class="kicker">
           <i class="kicker-dot" aria-hidden="true"></i>Combo Studio · Sides
-          &amp; Beverages
+          &amp; Drinks
         </span>
-        <h2>Anything Else?</h2>
+        <h2>Build your combo.</h2>
         <p>
-          Everything on this menu is decoupled. Attach text-layout and
-          frame-pacing sides (Step 1), then see which backend cfg(target_os)
-          compiles in (Step 2). Application views never recompile.
+          Upstream GPUI gives you a fixed meal—take it or leave it.
+          <code>bite-gpui</code> lets you customize every layer. Pick your
+          add-on sides and sauces (Step 1), pair your platform drink (Step 2),
+          and ship. Zero engine forks, and your UI views never recompile.
         </p>
       </div>
 
@@ -33,9 +34,9 @@
             aria-selected="true"
           >
             <span class="step-index">1</span>
-            <span>🥫 Sides &amp; Condiments</span>
+            <span>🍟 Sides &amp; Sauces</span>
             <span class="step-chip" id="condimentCountChip">
-              0 active
+              0 added
             </span>
           </button>
           <span class="stepper-divider">➔</span>
@@ -47,7 +48,7 @@
             aria-selected="false"
           >
             <span class="step-index">2</span>
-            <span>🥤 Beverage Driver</span>
+            <span>🥤 Fountain Drink</span>
             <span class="step-chip" id="beverageTargetChip">
               macOS
             </span>
@@ -94,12 +95,10 @@
       <div class="combo-panel combo-panel-config" id="panelConfigure">
         <div class="dock-wrapper" id="dockWrapper">
           <div class="dock-shelf-title">
-            <strong id="dockShelfHeader">
-              Additive Sides &amp; Condiments
-            </strong>
+            <strong id="dockShelfHeader"> Extra Sides &amp; Sauces </strong>
             <span id="dockShelfSub">
-              Attach as many crate-level sides as you like; they compose into
-              the frame pipeline.
+              Stack as many pipeline add-ons as you want. They snap directly
+              into your frame loop.
             </span>
           </div>
 
@@ -118,7 +117,7 @@
                          needed. -->
           <div class="dock-foot">
             <span class="dock-foot-text" id="dockFootText">
-              3 additive sides attached
+              3 sides added
             </span>
             <span class="dock-foot-mark" id="dockFootMark">
               Zero engine forks
@@ -180,7 +179,9 @@
           <div class="order-actions">
             <span class="order-badge" id="orderBadge">
               <span class="order-badge-dot" aria-hidden="true"></span>
-              <span id="orderBadgeText">Crisp Apple Fizz</span>
+              <span id="orderBadgeText">
+                🍏 Crisp Apple Fizz (macOS / Metal)
+              </span>
             </span>
             <button class="copy-code" id="copyCode">
               <svg
@@ -196,7 +197,7 @@
                 <rect x="9" y="9" width="12" height="12" rx="2"></rect>
                 <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
               </svg>
-              <span>Copy</span>
+              <span>Copy Order</span>
             </button>
           </div>
         </div>
@@ -262,8 +263,8 @@
         type: "condiment",
         name: "Parley Text Engine",
         crate: "bite-gp-parley",
-        pill: "🥫 PARLEY",
-        sub: "🌶️ Sriracha · BiDi layout, complex scripts & fallback",
+        pill: "🥫 SRIRACHA",
+        sub: "🌶️ Sriracha · Extra kick: BiDi text, complex script shaping & font fallback",
         kicker: "Linebender Typography",
         desc: "Unicode BiDi layout, complex-script shaping and system font fallback from Linebender Parley, rasterised through Skrifa and tiny-skia.",
         specTrait: "Arc<dyn TextSystem>",
@@ -277,8 +278,8 @@
         type: "condiment",
         name: "Frame Governor",
         crate: "bite-gp-runtime",
-        pill: "🍯 MUSTARD",
-        sub: "🍯 Dijon Mustard · 60 FPS cap & deferred frames",
+        pill: "🍯 HONEY MUSTARD",
+        sub: "🍯 Honey Mustard · Smooth pacing: hard 60 FPS cap & deferred idle frames",
         kicker: "Pacing Decorator",
         desc: "Caps a frame rate by deferring frames that arrive sooner than the target. A deferred frame is not dropped: the window stays dirty and the next frame draws it.",
         specTrait: "ThrottledPipeline",
@@ -292,8 +293,8 @@
         type: "condiment",
         name: "WGPU Renderer",
         crate: "bite-gp-wgpu",
-        pill: "🌮 NACHOS",
-        sub: "🌮 Loaded Nachos · Raw 3D render-pass blit & custom shaders",
+        pill: "🌮 LOADED NACHOS",
+        sub: "🌮 Loaded Nachos · The works: Raw 3D render passes & custom WGSL shaders",
         kicker: "Renderer Seam",
         desc: "The wgpu renderer that implements SceneRenderer and turns the engine's Scene into GPU work. It is the shipped renderer; implementing SceneRenderer yourself is the seam that replaces it.",
         specTrait: "SceneRenderer",
@@ -307,8 +308,8 @@
         type: "condiment",
         name: "Layout Profiler",
         crate: "bite-gp-runtime",
-        pill: "🥒 RELISH",
-        sub: "🥒 Sweet Relish · Per-pass timings for evaluate, layout & paint",
+        pill: "🥒 EXTRA PICKLES",
+        sub: "🥒 Extra Pickles · Crunch the numbers: per-pass layout and paint timers",
         kicker: "Instrumented Pipeline",
         desc: "Times the root passes of the pipeline it wraps — evaluate_roots, layout_roots, paint_roots — recording into PhaseMetrics without touching the views it draws.",
         specTrait: "InstrumentedPipeline",
@@ -327,6 +328,8 @@
         name: "macOS (Metal)",
         short: "macOS",
         beverage: "Crisp Apple Fizz",
+        emoji: "🍏",
+        pairing: "macOS / Metal",
         tag: "METAL",
         kicker: "Platform Driver · macOS",
         crate: "bite-gp-macos",
@@ -345,6 +348,8 @@
         name: "Linux (Vulkan)",
         short: "Linux",
         beverage: "Open-Source Cola",
+        emoji: "🥤",
+        pairing: "Linux / Vulkan",
         tag: "VULKAN",
         kicker: "Platform Driver · Linux",
         crate: "bite-gp-linux",
@@ -363,6 +368,8 @@
         name: "Windows (Direct3D 12)",
         short: "Windows",
         beverage: "Direct3D Punch",
+        emoji: "🧊",
+        pairing: "Windows / Direct3D 12",
         tag: "DX12",
         kicker: "Platform Driver · Windows",
         crate: "bite-gp-windows",
@@ -381,6 +388,8 @@
         name: "Headless CI",
         short: "CI",
         beverage: "In-Memory Soda",
+        emoji: "🧪",
+        pairing: "Headless / no display",
         tag: "NULL",
         kicker: "Platform Driver · Headless CI",
         crate: "bite-gpui (no default features)",
@@ -399,6 +408,8 @@
         name: "WebAssembly & Embedded",
         short: "WASM",
         beverage: "Web Seltzer",
+        emoji: "🧃",
+        pairing: "Web / wasm32",
         tag: "WASM",
         kicker: "Platform Driver · wasm32",
         crate: "bite-gp-web",
@@ -468,9 +479,7 @@
       if (currentStage === "condiments") {
         const activeCount =
           Object.values(condimentsState).filter(Boolean).length;
-        dockFootText.textContent = `${activeCount} additive side${
-          activeCount === 1 ? "" : "s"
-        } attached`;
+        dockFootText.textContent = `${activeCount} side${activeCount === 1 ? "" : "s"} added`;
         dockFootMark.textContent = "Zero engine forks";
       } else {
         const bev = BEVERAGE_DATA[activeBeverage];
@@ -491,10 +500,10 @@
       dockButtonsGroup.classList.toggle("dock-beverages", !isCondiments);
 
       dockShelfHeader.textContent = isCondiments
-        ? "Additive Sides & Condiments"
-        : "Target Beverage Driver (Pick One)";
+        ? "Extra Sides & Sauces"
+        : "Fountain Drink (Pick One)";
       dockShelfSub.textContent = isCondiments
-        ? "Attach as many crate-level sides as you like; they compose into the frame pipeline."
+        ? "Stack as many pipeline add-ons as you want. They snap directly into your frame loop."
         : "Exactly one backend compiles, chosen by cfg(target_os) — not by Cargo.toml.";
 
       const items = isCondiments
@@ -638,6 +647,10 @@
           tag: CONDIMENT_DATA.parley.pill,
         });
         lines.push({
+          code: '<span class="c">// 🌶️ Sriracha: add BiDi text layout</span>',
+          raw: "// 🌶️ Sriracha: add BiDi text layout",
+        });
+        lines.push({
           code: '<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;',
           raw: "use gpui_parley::ParleyTextSystem;",
         });
@@ -666,7 +679,7 @@
       }
       lines.push({
         code: isWasm
-          ? '<span class="k">pub fn</span> <span class="f">main</span>() -&gt; <span class="t">Result</span>&lt;(), <span class="t">JsValue</span>&gt; {'
+          ? '<span class="k">pub fn</span> <span class="f">start</span>() {'
           : '<span class="k">fn</span> <span class="f">main</span>() {',
         raw: isWasm ? "pub fn start() {" : "fn main() {",
       });
@@ -678,17 +691,22 @@
         });
       }
 
+      const entryNote = isHeadless
+        ? "// No display server, no GPU"
+        : isWasm
+          ? "// The JS host owns the frame clock"
+          : "// Platform driver poured fresh via cfg(target_os)";
+      lines.push({
+        code: `    <span class="c">${entryNote}</span>`,
+        raw: `    ${entryNote}`,
+      });
       lines.push({
         code: isHeadless
-          ? '    <span class="k">let mut</span> app = <span class="f">headless</span>(); <span class="c">// no display server, no GPU</span>'
-          : isWasm
-            ? '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// the JS host owns the frame clock</span>'
-            : '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// backend chosen by cfg(target_os)</span>',
+          ? '    <span class="k">let mut</span> app = <span class="f">headless</span>();'
+          : '    <span class="k">let mut</span> app = <span class="f">application</span>();',
         raw: isHeadless
-          ? "    let mut app = headless(); // no display server, no GPU"
-          : isWasm
-            ? "    let mut app = application(); // the JS host owns the frame clock"
-            : "    let mut app = application(); // backend chosen by cfg(target_os)",
+          ? "    let mut app = headless();"
+          : "    let mut app = application();",
       });
 
       if (condimentsState.profiler) {
@@ -700,6 +718,10 @@
 
       if (condimentsState.parley) {
         lines.push({
+          code: '    <span class="c">// 🌶️ Add Sriracha</span>',
+          raw: "    // 🌶️ Add Sriracha",
+        });
+        lines.push({
           code: '    <span class="k">let</span> app = app.<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()));',
           raw: "    let app = app.with_text_system(Arc::new(ParleyTextSystem::new()));",
           condiment: "parley",
@@ -708,6 +730,13 @@
       }
 
       if (condimentsState.pacing || condimentsState.profiler) {
+        const sideNotes = [];
+        if (condimentsState.pacing) sideNotes.push("🍯 Add Honey Mustard");
+        if (condimentsState.profiler) sideNotes.push("🥒 Add Extra Pickles");
+        lines.push({
+          code: `    <span class="c">// ${sideNotes.join(" + ")}</span>`,
+          raw: `    // ${sideNotes.join(" + ")}`,
+        });
         let pipeline = "StandardImmediatePipeline";
         if (condimentsState.pacing) pipeline += ".max_fps(60)";
         if (condimentsState.profiler)
@@ -724,10 +753,14 @@
 
       if (condimentsState.surface) {
         lines.push({
-          code: '    <span class="c">// Renderer: gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.</span>',
-          raw: "    // Renderer: gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.",
+          code: '    <span class="c">// 🌮 Loaded Nachos: custom 3D WGPU blitter</span>',
+          raw: "    // 🌮 Loaded Nachos: custom 3D WGPU blitter",
           condiment: "surface",
           tag: CONDIMENT_DATA.surface.pill,
+        });
+        lines.push({
+          code: '    <span class="c">// gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.</span>',
+          raw: "    // gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.",
         });
       }
 
@@ -743,7 +776,9 @@
         code: isWasm
           ? '    }) <span class="c">// hand the run handle back to the wasm binding</span>'
           : "    });",
-        raw: "    });",
+        raw: isWasm
+          ? "    }) // hand the run handle back to the wasm binding"
+          : "    });",
       });
       lines.push({ code: "}", raw: "}" });
 
@@ -803,7 +838,7 @@
 
       const activeCondCount =
         Object.values(condimentsState).filter(Boolean).length;
-      condimentCountChip.textContent = `${activeCondCount} active`;
+      condimentCountChip.textContent = `${activeCondCount} added`;
       beverageTargetChip.textContent = BEVERAGE_DATA[activeBeverage].short;
 
       if (mobileConfigCount) {
@@ -820,7 +855,7 @@
       // The header pill is the live target readout.
       if (orderBadge) {
         if (orderBadgeText)
-          orderBadgeText.textContent = BEVERAGE_DATA[activeBeverage].beverage;
+          orderBadgeText.textContent = `${bev.emoji} ${bev.beverage} (${bev.pairing})`;
         orderBadge.dataset.nonzero = "true";
       }
 

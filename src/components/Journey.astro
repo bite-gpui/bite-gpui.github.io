@@ -6,18 +6,19 @@
   <div class="journey-sticky" id="sticky">
     <div class="hero-copy">
       <span class="eyebrow">
-        <span class="dot"></span> v1.21.0 · Modular GPUI
+        <span class="dot"></span> v1.21.0 · Modular GPUI Architecture
       </span>
       <h1>
         GPUI.
         <br />
         <em>Take a bite.</em>
       </h1>
-      <p class="hero-subhead">Stop forking. Start swapping.</p>
+      <h2 class="hero-subhead">Stop forking. Start swapping.</h2>
       <p class="lede">
-        Tweak the rendering pipeline, swap the text or layout engine, or take
-        the default burger. Five modular crates let you customize only what you
-        need without splitting the ecosystem into another isolated island.
+        Zed’s GPUI is fast, but tightly coupled. <code>bite-gpui</code> breaks
+        the engine into five standalone crates. Tweak the frame pipeline, drop
+        in BiDi text layout, or run headless tests. Your <code>div()</code> code
+        stays 100% compatible.
       </p>
 
       <button
@@ -57,7 +58,7 @@
         >
           <path d="M12 5v14M5 12l7 7 7-7"></path>
         </svg>
-        Scroll to unstack
+        Scroll to unstack the layers
       </div>
     </div>
 
@@ -67,7 +68,7 @@
         class="burger"
         id="burger"
         role="group"
-        aria-label="Interactive deconstructed GPUI burger stack"
+        aria-label="Interactive stack of the five bite-gpui crates"
       >
         <!-- TRAY: gpui_platform -->
         <div
@@ -77,7 +78,7 @@
           role="button"
           tabindex="0"
           aria-pressed="false"
-          aria-label="gpui_platform — OS SPI"
+          aria-label="gpui_platform — Platform SPI"
         >
           <svg viewBox="0 0 340 70" aria-hidden="true">
             <defs>
@@ -153,11 +154,11 @@
           <div class="layer-caption">
             <div class="cap-head">
               <span class="cap-crate">gpui_platform</span>
-              <span class="cap-role">OS SPI</span>
+              <span class="cap-role">Platform SPI</span>
             </div>
             <span class="cap-desc">
-              The Platform trait. macos, linux, windows and web each implement
-              it; the facade picks one by cfg(target_os).
+              Hardware and OS bindings. One of macOS, Linux, Windows or Web
+              compiles in via cfg(target_os).
             </span>
           </div>
         </div>
@@ -170,7 +171,7 @@
           role="button"
           tabindex="0"
           aria-pressed="false"
-          aria-label="gpui_engine — Render"
+          aria-label="gpui_engine — Scene &amp; Render"
         >
           <svg viewBox="0 0 300 82" aria-hidden="true">
             <defs>
@@ -233,9 +234,12 @@
           <div class="layer-caption">
             <div class="cap-head">
               <span class="cap-crate">gpui_engine</span>
-              <span class="cap-role">Render</span>
+              <span class="cap-role">Scene &amp; Render</span>
             </div>
-            <span class="cap-desc">Scene IR, LayoutEngine, SceneRenderer.</span>
+            <span class="cap-desc">
+              Scene intermediate representation (IR), text layout bindings, and
+              renderer traits.
+            </span>
           </div>
         </div>
 
@@ -247,7 +251,7 @@
           role="button"
           tabindex="0"
           aria-pressed="false"
-          aria-label="gpui_types — Leaf"
+          aria-label="gpui_types — Zero-dep Leaf"
         >
           <svg viewBox="0 0 320 44" aria-hidden="true">
             <defs>
@@ -330,10 +334,11 @@
           <div class="layer-caption">
             <div class="cap-head">
               <span class="cap-crate">gpui_types</span>
-              <span class="cap-role">Leaf</span>
+              <span class="cap-role">Zero-dep Leaf</span>
             </div>
             <span class="cap-desc">
-              Pixels, Bounds, Rgba, Point. No gpui deps.
+              Pixels, Bounds, Point, and Rgba. Pure geometry primitives with
+              zero GPUI dependencies.
             </span>
           </div>
         </div>
@@ -346,7 +351,7 @@
           role="button"
           tabindex="0"
           aria-pressed="false"
-          aria-label="gpui_authoring — DSL"
+          aria-label="gpui_authoring — Reactive DSL"
         >
           <svg viewBox="0 0 280 72" aria-hidden="true">
             <defs>
@@ -430,10 +435,11 @@
           <div class="layer-caption">
             <div class="cap-head">
               <span class="cap-crate">gpui_authoring</span>
-              <span class="cap-role">DSL</span>
+              <span class="cap-role">Reactive DSL</span>
             </div>
             <span class="cap-desc">
-              Reactive store, div, bifurcated Window.
+              Reactive stores, div() builders, and a window split into render
+              and event halves.
             </span>
           </div>
         </div>
@@ -446,7 +452,7 @@
           role="button"
           tabindex="0"
           aria-pressed="false"
-          aria-label="gpui_runtime — Harness"
+          aria-label="gpui_runtime — Application Harness"
         >
           <svg viewBox="0 0 300 110" aria-hidden="true">
             <defs>
@@ -652,10 +658,11 @@
           <div class="layer-caption">
             <div class="cap-head">
               <span class="cap-crate">gpui_runtime</span>
-              <span class="cap-role">Harness</span>
+              <span class="cap-role">Application Harness</span>
             </div>
             <span class="cap-desc">
-              Application, event loop, FramePipeline decorators.
+              App lifecycle, native OS event dispatch, and pluggable
+              FramePipeline decorators.
             </span>
           </div>
         </div>
@@ -664,16 +671,17 @@
       <aside class="recipe-book">
         <div class="rb-head">
           <span class="rb-title">bite-gpui</span>
-          <span class="rb-badge">The Menu</span>
+          <span class="rb-badge">DROP-IN FACADE</span>
         </div>
         <p>
-          The umbrella facade re-exports the authoring and runtime layers under
-          a single crate.
+          Re-exports the runtime and authoring layers under a single crate. Use
+          it as a direct replacement for upstream GPUI — zero view rewrites
+          required.
         </p>
         <pre><code>pub use gpui_authoring::*;
 pub use gpui_runtime::*;
 
-// use gpui::*; compiles unchanged!</code></pre>
+// `use gpui::*;` compiles unchanged!</code></pre>
       </aside>
     </div>
 
@@ -861,8 +869,8 @@ pub use gpui_runtime::*;
         package: "bite-gp-authoring",
         role: "DSL",
         accent: "var(--authoring)",
-        tag: "Reactive DSL",
-        desc: "The ergonomic surface: a reactive entity store, the div and stack builders, and a Window split into render and event halves. It lowers onto the engine's scene graph.",
+        tag: "REACTIVE UI LAYER",
+        desc: "The primary authoring surface for building user interfaces. Contains the reactive entity store, declarative div() tree builders, and a window architecture split cleanly into render and event-handling phases. Lowers directly to the engine scene graph without caring how pixels are drawn.",
         depends: [
           "gpui_types",
           "gpui_engine",
@@ -925,9 +933,21 @@ pub use gpui_runtime::*;
                         }
                     </div>
                 </div>
-                <code class="li-cmd">cargo add ${data.package}</code>
+                <button class="li-cmd" type="button" aria-label="Copy cargo add ${data.package}">
+                    <span class="li-cmd-text">cargo add ${data.package}</span>
+                    <span class="li-cmd-icon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                    </span>
+                </button>
             `;
       panel.classList.add("is-visible");
+
+      panel.querySelector(".li-cmd")?.addEventListener("click", () => {
+        window.copyToClipboard(
+          `cargo add ${data.package}`,
+          `Copied cargo add ${data.package}`,
+        );
+      });
 
       panel.querySelector("#liClose")?.addEventListener("click", (event) => {
         event.stopPropagation();

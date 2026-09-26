@@ -439,6 +439,20 @@ html {
 .nav-cta {
   flex-shrink: 0;
 }
+.nav-cta-prompt {
+  opacity: 0.62;
+  font-weight: 700;
+}
+.nav-cta-copy {
+  display: grid;
+  place-items: center;
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
+}
+.nav-cta:hover .nav-cta-copy,
+.nav-cta:focus-visible .nav-cta-copy {
+  opacity: 1;
+}
 .nav-links {
   display: flex;
   gap: 28px;
@@ -463,6 +477,7 @@ html {
   gap: 8px;
   padding: 8px 16px;
   border-radius: 8px;
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
   border: 1px solid var(--border-2);
@@ -630,6 +645,9 @@ html {
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.015em;
+  /* An h2, so the global heading rule's tighter line-height would apply here;
+     this keeps the subhead on the body's rhythm, as it read as a paragraph. */
+  line-height: 1.6;
   color: var(--text);
 }
 .hero-copy .lede {
@@ -637,6 +655,10 @@ html {
   font-size: 1.05rem;
   color: var(--text-2);
   line-height: 1.6;
+}
+.hero-copy .lede code {
+  font-size: 0.92em;
+  color: var(--text);
 }
 
 .install-cmd {
@@ -865,6 +887,9 @@ html {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  /* The band is a fixed 48px; the tighter rhythm here is what leaves two lines
+     of room for the summary below without growing it. */
+  line-height: 1.2;
 }
 .layer-caption .cap-crate {
   font-family: var(--mono);
@@ -884,10 +909,13 @@ html {
 .layer-caption .cap-desc {
   font-size: 0.68rem;
   color: var(--text-2);
-  line-height: 1.35;
-  white-space: nowrap;
+  line-height: 1.25;
+  /* Two lines, clamped. A summary is a sentence, not a label, and a layer's own
+     width holds about 45 characters, so one line cannot carry it. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 /* The caption is a real click target, but only once it is actually on screen —
    otherwise its invisible 48px band would steal clicks from the slice above it. */
@@ -1091,7 +1119,11 @@ html {
   font-style: italic;
 }
 .layer-info .li-cmd {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
   margin-top: 12px;
   padding: 8px;
   background: var(--inset);
@@ -1100,8 +1132,26 @@ html {
   font-family: var(--mono);
   font-size: 0.67rem;
   color: var(--mint);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.layer-info .li-cmd:hover {
+  border-color: var(--border-hover);
+}
+.layer-info .li-cmd:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+.layer-info .li-cmd-text {
   overflow-x: auto;
   white-space: nowrap;
+}
+.layer-info .li-cmd-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
 }
 
 /* Layer Hover Highlight & Selection
@@ -1723,9 +1773,13 @@ html {
   transition: color 0.2s ease;
 }
 .dock-row-flavor {
+  /* Two lines, clamped. The flavour is a sentence beside the crate name, so one
+     line of the ~240px left over beside it clips more than half of it. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   min-width: 0;
 }
 
@@ -1846,7 +1900,7 @@ html {
 }
 
 /* ============================================================
-   ACT IV: BENCHMARKS & DINER RECEIPT
+   ACT IV: BENCHMARKS & ITEM RECEIPT
    ============================================================ */
 .bench-wrapper {
   background: var(--bg-2);
@@ -1948,6 +2002,10 @@ html {
 .metric-note .cmd {
   color: var(--text-2);
 }
+.metric-note strong {
+  color: var(--text-2);
+  font-weight: 700;
+}
 
 .receipt {
   background: #f7f3ed;
@@ -1975,30 +2033,16 @@ html {
   );
   background-size: 16px 16px;
 }
-.receipt-header {
-  text-align: center;
-  border-bottom: 2px dashed #cfc9c0;
-  padding-bottom: 14px;
-  margin-bottom: 14px;
-}
-.receipt-header h3 {
-  font-size: 1.05rem;
+/* The receipt is one preformatted block, not a table of rows: its `=` rules and
+   its value column only line up if nothing re-flows them. */
+.receipt-text {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
   color: #1c1917;
-  font-weight: 800;
-  font-family: var(--ui);
-}
-.receipt-line {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  margin-bottom: 8px;
-}
-.receipt-line.total {
-  border-top: 2px solid #1c1917;
-  padding-top: 10px;
-  margin-top: 14px;
-  font-weight: 800;
-  font-size: 0.9rem;
 }
 
 /* ============================================================
