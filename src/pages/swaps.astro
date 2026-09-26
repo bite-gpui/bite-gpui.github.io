@@ -25,7 +25,7 @@ const stats = [
   },
   {
     value: "2",
-    label: "Published swaps",
+    label: "Ready to pick",
     note: "Live on crates.io",
     win: true,
   },
@@ -45,7 +45,7 @@ const stats = [
 const seams = [
   {
     trait: "TextSystem",
-    owns: "Shaping, line layout, font fallback, and glyph rasterization.",
+    owns: "Text shaping, line layout, and glyph rasterization.",
     hook: "Application::with_text_system(Arc<dyn TextSystem>)",
     call: "ParleyTextSystem::new()",
     defined: "gpui_engine",
@@ -61,7 +61,7 @@ const seams = [
   },
   {
     trait: "LayoutEngine",
-    owns: "Turning the element tree into laid-out boxes.",
+    owns: "Translating the reactive element tree into positioned layout boxes.",
     hook: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
     call: "|| Box::new(MorphormLayoutEngine::new())",
     defined: "gpui_engine",
@@ -77,7 +77,7 @@ const seams = [
   },
   {
     trait: "FramePipeline",
-    owns: "Frame pacing, presentation cadence, and render-pass instrumentation.",
+    owns: "Pacing, presentation order, and render instrumentation.",
     hook: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
     // Not stock: the shipped default carries `.max_fps(n)` and `.instrumented(metrics)`
     // as decorators, and the one-pager's governor is that default configured.
@@ -186,9 +186,9 @@ const artifacts = [
   title="Swaps — bite-gpui"
   description="The five trait contracts the facade lets you replace, which of them have a published second implementation, and what the open ones would take."
   kicker="Architecture · The seams"
-  heading="Five trait boundaries."
-  accent="Two drop-in crates you can install today."
-  lede="In upstream GPUI, customizing the engine requires a permanent repository fork. bite-gpui wires the engine through five trait boundaries on Application — turning architectural changes into independent crates you install from crates.io without touching upstream code."
+  heading="Pick your"
+  accent="swaps."
+  lede="Why maintain an engine fork? Swap your text shaper or layout solver with a single line in Cargo.toml. Your existing div() views stay completely untouched."
   current="swaps"
   stats={stats}
 >
