@@ -1,9 +1,16 @@
 ---
 import Logo from "./Logo.astro";
 
-// `current` marks the active page for screen readers and the active-link style.
-// The four anchors are written absolute (`/#…`) rather than bare (`#…`) so the
-// same link works from a sub-page as from the one-pager.
+// Two modes, both derived from `current` rather than switched at runtime. A
+// static site already knows which page it is rendering, so nothing here is
+// simulated: the one-pager gets the frontdoor bar, and every sub-page gets a
+// breadcrumb in place of the brand and its own rail.
+//
+// On a sub-page the four chapter anchors are not rendered at all, and that is the
+// point: they are links into the one-pager's chapters, and a reader who is
+// already inside a guide is not helped by four of them competing with the one
+// they came for. The footer still carries all four on every page, and the crumb's
+// `Frontdoor` is the way back to them.
 const { current = "" } = Astro.props;
 
 const anchors = [
@@ -17,23 +24,62 @@ const anchors = [
   { href: "/#quickstart", label: "Express Lane", key: "quickstart" },
 ];
 
-// The three guides. `Swaps` is the hub the two swap guides sit under, which is
-// why they are not listed here as well: the shelf names them, and the footer
-// links them directly.
-const pages = [
+// Every sub-page, and the page that contains it. `parent` is the one the
+// breadcrumb names: the two swap guides live under the hub, so their crumb stops
+// at Swaps rather than at the frontdoor.
+const guides = [
   { href: "/swaps", label: "Swaps", key: "swaps" },
+  { href: "/parley", label: "Parley", key: "parley", parent: "swaps" },
+  { href: "/morphorm", label: "Morphorm", key: "morphorm", parent: "swaps" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];
+
+const here = guides.find((guide) => guide.key === current);
+// What the frontdoor shows: the hub and the two standalone guides. The swap guides
+// are one level down, inside the hub, and the frontdoor is not the place to flatten
+// that.
+const topLevel = guides.filter((guide) => !guide.parent);
+// The trail names only what the reader came through. The page they are on is
+// marked in the rail, and naming it here as well would put two current markers in
+// one bar.
+const parent = here?.parent
+  ? guides.find((guide) => guide.key === here.parent)
+  : undefined;
 ---
 
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#journey" class="logo">
-      <Logo />
-      <span>bite-gpui</span>
-      <span class="logo-version">v1.21.0</span>
-    </a>
+    {here ? (
+      // `/#journey` rather than a bare `#journey`: the one-pager's own brand link
+      // can be a bare hash because it only ever renders there.
+      <span class="nav-crumb">
+        <a
+          class="nav-crumb-back"
+          href="/#journey"
+          title="Back to the frontdoor"
+        >
+          <span aria-hidden="true">←</span>
+          <span>Frontdoor</span>
+        </a>
+        {parent ? (
+          <>
+            <span class="nav-crumb-sep" aria-hidden="true">
+              /
+            </span>
+            <a class="nav-crumb-section" href={parent.href}>
+              {parent.label}
+            </a>
+          </>
+        ) : null}
+      </span>
+    ) : (
+      <a href="#journey" class="logo">
+        <Logo />
+        <span>bite-gpui</span>
+        <span class="logo-version">v1.21.0</span>
+      </a>
+    )}
 
     <!-- Mobile only. The full row needs 1048px of content box and the sheet has
              to take over well before the hero's own 820px breakpoint. -->
@@ -56,30 +102,46 @@ const pages = [
              nav row as they always did; a drop-down sheet at ≤820px. -->
     <div class="nav-menu" id="navMenu">
       <ul class="nav-links">
-        {anchors.map((link) => (
-          <li>
-            <a
-              id={link.id}
-              href={link.href}
-              aria-current={current === link.key ? "page" : undefined}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-        <!-- Splits the page's own anchors from the sub-pages. Purely visual, so
-             it is hidden from the accessibility tree and again on the sheet. -->
-        <li class="nav-divider" aria-hidden="true"></li>
-        {pages.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              aria-current={current === link.key ? "page" : undefined}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
+        {here ? (
+          guides.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={current === link.key ? "page" : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        ) : (
+          <>
+            {anchors.map((link) => (
+              <li>
+                <a
+                  id={link.id}
+                  href={link.href}
+                  aria-current={current === link.key ? "page" : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+            {/* Splits the page's own anchors from the sub-pages. Purely visual,
+                  so it is hidden from the accessibility tree and again on the
+                  sheet. */}
+            <li class="nav-divider" aria-hidden="true" />
+            {topLevel.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  aria-current={current === link.key ? "page" : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </>
+        )}
       </ul>
       <button
         class="btn btn-primary nav-cta"
@@ -111,8 +173,8 @@ const pages = [
     </div>
 
     <!-- Light/dark switch. A sibling of .nav-menu rather than a child, so it
-             stays in the bar beside the hamburger at ≤820px instead of moving
-             into the drop-down sheet. -->
+             stays in the bar beside the hamburger when the bar collapses instead
+             of moving into the drop-down sheet. -->
     <button
       class="theme-toggle"
       id="themeToggle"
@@ -188,8 +250,9 @@ const pages = [
 
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
   // Kept in step with the `max-width: 1180px` query in global.css that
-  // collapses the bar — the row carries seven links plus the CTA and needs
-  // 1048px of the 1152px content box to keep them on one line.
+  // collapses the bar — the frontdoor row is the wider of the two modes and needs
+  // 1048px of the 1152px content box to keep its seven links on one line.
+  // A section rail is five.
   window.addEventListener("resize", () => {
     if (window.innerWidth > 1180) setOpen(false);
   });

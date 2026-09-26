@@ -327,6 +327,50 @@ html {
   margin-left: -4px;
 }
 
+/* Section mode: a breadcrumb where the brand was. It sits outside the collapsible
+   part of the bar, so "back" stays one tap away at every width — including the
+   widths where the rail itself has folded into the sheet. */
+.nav-crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.nav-crumb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.nav-crumb-back:hover {
+  background: var(--surface);
+  border-color: var(--border-2);
+  color: var(--text);
+}
+.nav-crumb-sep {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--border-2);
+}
+.nav-crumb-section {
+  font-weight: 600;
+  color: var(--brand);
+  transition: color 0.2s ease;
+}
+.nav-crumb-section:hover {
+  color: var(--brand-hover);
+}
+
 /* Theme switch. Shows the mode it will switch *to*: a sun in the dark theme,
    a moon on the sage-paper light theme. Sits at the far right of the nav row and
    beside the hamburger under 820px, so it is reachable in both nav layouts. */
