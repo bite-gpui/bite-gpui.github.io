@@ -210,7 +210,7 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
   kicker="Swap · LayoutEngine"
   heading="Bring your own"
   accent="layout solver."
-  lede="The engine turns an element tree into laid-out boxes through a single trait. bite-gp-morphorm is a second implementation of it — install the crate, hand the factory to the application at startup, and every existing div() lays out. The default solver is still there, unchanged."
+  lede="The engine turns an element tree into positioned screen boxes through a single trait. bite-gp-morphorm is a second implementation of it: add the crate, hand its factory to the application at startup, and the div() tree you already have lays out the same. Taffy is still there, untouched — none of this is one-way."
   current="morphorm"
   stats={stats}
 >
@@ -220,10 +220,10 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
       <h2>One trait to implement.</h2>
       <p>
         <span class="mono">LayoutEngine</span> lives in
-        <span class="mono">gpui_engine</span> and has six methods. The crate
-        that defines it has <em>"no dependency on taffy"</em> and refers to a
-        node only through an opaque <span class="mono">LayoutId</span>, and the
-        facade exposes exactly one way to replace what implements it:
+        <span class="mono">gpui_engine</span> and has six methods. That crate
+        has <em>"no dependency on taffy"</em>: it knows a node only as an opaque{" "}
+        <span class="mono">LayoutId</span>. The facade gives you one way to
+        replace what implements it —
         <span class="mono">Application::with_layout_engine</span>.
       </p>
     </div>
@@ -283,10 +283,11 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
     <div class="callout">
       <span class="callout-title">No rename needed</span>
       <p>
-        Cargo exposes a dependency under its <em>library</em> name, and the
-        published package keeps a library target of its own — so
-        <code>bite-gp-morphorm</code> is <code>use gpui_morphorm::…</code>, with
-        no <code>package =</code> key in your manifest.
+        Cargo knows a dependency by its <em>library</em> name, and the published
+        package keeps a library target of its own. So
+        <code>bite-gp-morphorm</code> in your manifest is
+        <code>use gpui_morphorm::…</code> in your code — no
+        <code>package =</code> key, no alias to remember.
       </p>
     </div>
   </section>
@@ -296,11 +297,12 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
       <span class="kicker">Conformance</span>
       <h2>Is it the same layout?</h2>
       <p>
-        That is the question a second engine has to answer before it is a second
-        column rather than a bug, so it is answered first and by measurement.
-        Nothing here is within a tolerance: the budget in the test is half a
-        pixel, so a future change has to cross something visible before it
-        fails.
+        A faster engine is no use if your buttons land four pixels to the left.
+        So this is the first question the crate answers, and it answers it by
+        measurement: every node of every tree below, against the same tree laid
+        out by taffy. Nothing here is within a tolerance — the budget in the
+        test is half a pixel, so a future change has to cross something you
+        could see before it fails.
       </p>
     </div>
 
@@ -338,9 +340,10 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         </table>
       </div>
       <p class="table-note">
-        Integral and fractional scales are both covered, because that is where
-        device-pixel snapping exposes a mismatch if the two engines resolve a
-        length differently on the way in.
+        Fractional scales are in here on purpose, next to the integral ones:
+        that is where two engines that round a length differently start to
+        disagree, and device-pixel snapping is what turns that into a seam you
+        can see.
       </p>
     </div>
 
@@ -351,9 +354,8 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         demo all drive those same builders, so the claim and the timing cannot
         drift apart. They cover flex rows and columns, padding, gaps, explicit
         and percentage sizes, cross-axis stretch, one measured leaf and absolute
-        positioning, and they deliberately leave out what the conversion cannot
-        express, because a difference there would be a documented limitation
-        rather than a defect.
+        positioning, and they leave out what the conversion cannot express on
+        purpose: a difference there would be a limitation, not a defect.
       </p>
     </div>
   </section>
@@ -361,14 +363,14 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
   <section>
     <div class="section-head">
       <span class="kicker">The window</span>
-      <h2>Agreeing node for node is not the same as drawing a window.</h2>
+      <h2>Passing every comparison, and painting nothing at all.</h2>
       <p>
-        The first version of this engine passed every comparison above and
+        The first version of this engine passed every comparison above and then
         painted
         <strong>nothing</strong> — a transparent window. Both statements were
         true, and that is the interesting part: a benchmark builds a tree and
         lays it out against an available space, while a facade builds a window
-        root, stretches it to the window, and reads bounds while painting.
+        root, stretches it to the window, and reads bounds while it paints.
       </p>
     </div>
 
@@ -378,9 +380,10 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         <code>100%</code> in both axes — and morphorm reads a root's extent with
         <code>to_px(0.0, 0.0)</code>, where a percentage resolves against a
         parent the root does not have. Zero by zero, and a zero-size root paints
-        nothing. Taffy lays the root out inside the available space instead, the
-        way CSS resolves a root against the initial containing block. The engine
-        now resolves a root's extent against <code>available_space</code> first.
+        nothing: that was the blank window. Taffy lays the root out inside the
+        available space instead, the way CSS resolves a root against the initial
+        containing block. The engine now resolves a root's extent against{" "}
+        <code>available_space</code> first.
       </p>
     </div>
 
@@ -408,9 +411,10 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
       <p>
         A twelve-node tree finishes in microseconds, so it is too close to the
         floor for a ratio to mean much. The tree worth timing is fifty to a
-        thousand buttons in two columns, each with an icon whose width and a row
-        whose height change every frame — so no frame is a repeat of the last
-        one and neither engine can serve a stale layout.
+        thousand buttons in two columns — the shape of a real list or data grid
+        — each with an icon whose width and a row whose height change every
+        frame, so no frame is a repeat of the last one and neither engine can
+        serve a stale layout.
       </p>
     </div>
 
@@ -485,12 +489,13 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         </table>
       </div>
       <p class="table-note">
-        The ratio holds as the tree grows rather than converging, which is what
-        makes the absolute numbers the interesting ones. At a thousand changing
-        buttons the default engine spends nearly half the frame on layout and
-        this one spends an eighth — and the demo in the repository renders
-        exactly this tree, reporting the pipeline's own layout phase, so the two
-        can be compared on screen rather than in a table.
+        The ratio holds as the tree grows rather than converging, which is why
+        the absolute numbers are the interesting ones. At a thousand changing
+        buttons taffy is still deciding where boxes go for nearly half the
+        frame; this one is done in an eighth of it, and the other 88% is yours.
+        The demo in the repository renders exactly this tree and reports the
+        pipeline's own layout phase, so you can watch the two numbers instead of
+        reading them.
       </p>
     </div>
 
@@ -544,22 +549,22 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
     <div class="prose">
       <ul class="checklist">
         <li>
-          <strong>It is not a general claim.</strong> One host, one laptop, no
-          CPU pinning, and 20–25% run-to-run spread on the timings. The
-          correctness result did not move between runs; only the clocks did.
+          <strong>One host, one laptop.</strong> Every timing here was taken on
+          an Intel i7-8750H with no CPU pinning, and the same binary moves
+          20–25% from run to run. The correctness result did not move between
+          runs; only the clocks did.
         </li>
         <li>
-          <strong>It is not attributable to the algorithm alone.</strong> Each
-          engine's node storage, caching and bookkeeping are inside the
-          measurement, so the ratio is a claim about these two engines as
-          written — not about taffy and morphorm in the abstract.
+          <strong>Both engines as written.</strong> Node storage, caching and
+          bookkeeping are inside the measurement, so the ratio is a claim about
+          these two implementations, not about taffy and morphorm in the
+          abstract.
         </li>
         <li>
-          <strong>
-            The conformance comparison is not a proof of equivalence.
-          </strong>
+          <strong>A comparison, not a proof.</strong>
           It says the conversion is right where it claims to be right, on trees
-          built from that subset. It says nothing about the cases it declines.
+          built from what it can express. It says nothing about the cases it
+          declines.
         </li>
         <li>
           <strong>taffy implements more of CSS.</strong> Block flow, wrapping
@@ -582,7 +587,7 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         <span class="mono">EngineLayoutStyle</span> is a set of copies of
         taffy's style enums; morphorm reads its own, and they are not the same
         shape. So most of the crate is a translation rather than a rename, and
-        every choice it makes is written down — here, and with its reasoning in
+        every choice it makes is written down: here, and with its reasoning in
         the module docs.
       </p>
     </div>
@@ -647,6 +652,8 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
         So the buttons tree uses explicit widths, explicit row heights and a
         column of rows instead of a grid. All three of those are constructs
         morphorm cannot express, and all three are listed rather than measured.
+        If your layout leans on content-driven flex growth, that is the case for
+        staying on taffy.
       </p>
     </div>
   </section>
