@@ -2625,6 +2625,12 @@ footer {
 .data-table .mono {
   font-size: 0.8rem;
 }
+/* The row that carries the table's headline claim. `--brand-dim` rather than the
+   hero's `--wash-sage`: the wash is atmosphere over a single surface, and this is a
+   band of its own that has to read on the dark canvas as well as the sage paper. */
+.data-table tbody tr.is-key td {
+  background: var(--brand-dim);
+}
 .table-note {
   margin-top: 12px;
   max-width: 68ch;
@@ -2782,14 +2788,17 @@ footer {
 .stat {
   flex: 1 1 170px;
   min-width: 0;
-  padding-right: 24px;
+  padding-left: 16px;
   margin-right: 24px;
-  border-right: 1px solid var(--border);
+  /* The tone rail rather than a divider between figures: read left to right, the
+     strip is a column of claims, and the rail is what each of them is standing on. */
+  border-left: 2px solid var(--border-2);
 }
 .stat:last-child {
-  padding-right: 0;
   margin-right: 0;
-  border-right: 0;
+}
+.stat.is-win {
+  border-left-color: var(--brand);
 }
 .stat-value {
   display: block;
@@ -2808,6 +2817,40 @@ footer {
   margin-top: 6px;
   font-size: 0.74rem;
   line-height: 1.45;
+  color: var(--text-3);
+}
+/* A figure with a caption: the claim in bold, the ground it was measured on in the
+   muted line under it, so the number and its scope are not one long sentence. */
+.stat-title {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+}
+.stat-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
+/* The hero's own install line, under the lede: the crate this page is about. */
+.hero-install {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page-hero .install-cmd {
+  margin-top: 22px;
+}
+.hero-install-note {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
   color: var(--text-3);
 }
 
@@ -3331,15 +3374,16 @@ footer {
 /* The stat strip and the seam facts reflow on the narrowest screens. The label
    column of a seam fact is 145px of a 320px card, which leaves the value too
    little to break a type name across, so each label sits above its value. */
+/* Stacked, each figure keeps its rail and gives up the hairline between them —
+   two rules for one break is one too many. */
 @media (max-width: 820px) {
   .stat {
     flex: 1 1 100%;
     padding-right: 0;
     margin-right: 0;
-    border-right: 0;
-    padding-bottom: 14px;
-    margin-bottom: 14px;
-    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    margin-bottom: 16px;
+    border-bottom: 0;
   }
   .stat:last-child {
     padding-bottom: 0;

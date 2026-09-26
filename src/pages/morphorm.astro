@@ -12,31 +12,49 @@ import Terminal from "../components/Terminal.astro";
 const stats = [
   {
     value: "0.00 px",
-    label: "worst node delta against taffy, across 3501 nodes",
+    label: "Max bounds delta",
+    note: "Measured across 3501 nodes against taffy.",
   },
   {
     value: "3.4–3.8×",
-    label: "cheaper per frame, with 50–1000 changing buttons",
+    label: "Faster per frame",
+    note: "Across dynamic trees of 50 to 1000 changing buttons.",
     win: true,
   },
   {
     value: "12%",
-    label: "of a 16.7 ms frame at 1000 buttons, against taffy's 44%",
+    label: "Of a 16.7 ms frame",
+    note: "At 1000 buttons, against taffy's 44%.",
     win: true,
   },
 ];
 
-const agreement = [
+// `key` marks the row each table's headline figure comes from, so the reader's eye
+// lands there first. The trees are ordered by scale, which makes it the last row of
+// each table — but the flag says what it is rather than where it sits.
+const agreement: {
+  tree: string;
+  scale: string;
+  nodes: number;
+  key?: boolean;
+}[] = [
   { tree: "12-node tree", scale: "1.0", nodes: 12 },
   { tree: "12-node tree", scale: "1.5", nodes: 12 },
   { tree: "12-node tree", scale: "2.0", nodes: 12 },
   { tree: "50 buttons, frame 0", scale: "1.0", nodes: 176 },
   { tree: "50 buttons, frame 7", scale: "1.0", nodes: 176 },
   { tree: "200 buttons, frame 3", scale: "1.0", nodes: 701 },
-  { tree: "1000 buttons, frame 3", scale: "1.0", nodes: 3501 },
+  { tree: "1000 buttons, frame 3", scale: "1.0", nodes: 3501, key: true },
 ];
 
-const buttons = [
+const buttons: {
+  count: string;
+  nodes: string;
+  taffy: string;
+  morphorm: string;
+  ratio: string;
+  key?: boolean;
+}[] = [
   {
     count: "50",
     nodes: "176",
@@ -57,13 +75,20 @@ const buttons = [
     taffy: "7.305 ms",
     morphorm: "2.002 ms",
     ratio: "3.7×",
+    key: true,
   },
 ];
 
-const budget = [
+const budget: {
+  count: string;
+  taffy: string;
+  morphorm: string;
+  saved: string;
+  key?: boolean;
+}[] = [
   { count: "50", taffy: "2.0%", morphorm: "0.6%", saved: "1.4" },
   { count: "200", taffy: "7.7%", morphorm: "2.3%", saved: "5.4" },
-  { count: "1000", taffy: "44%", morphorm: "12%", saved: "32" },
+  { count: "1000", taffy: "44%", morphorm: "12%", saved: "32", key: true },
 ];
 
 const frame = [
@@ -212,6 +237,10 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
   accent="layout solver."
   lede="The engine turns an element tree into positioned screen boxes through a single trait. bite-gp-morphorm is a second implementation of it: add the crate, hand its factory to the application at startup, and the div() tree you already have lays out the same. Taffy is still there, untouched — none of this is one-way."
   current="morphorm"
+  install={{
+    command: "cargo add bite-gp-morphorm",
+    note: "1.21.2 on crates.io",
+  }}
   stats={stats}
 >
   <section>
@@ -325,7 +354,7 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
           </thead>
           <tbody>
             {agreement.map((row) => (
-              <tr>
+              <tr class={row.key ? "is-key" : undefined}>
                 <td>
                   <span class="mono">{row.tree}</span>
                 </td>
@@ -438,7 +467,7 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
           </thead>
           <tbody>
             {buttons.map((row) => (
-              <tr>
+              <tr class={row.key ? "is-key" : undefined}>
                 <td class="num">{row.count}</td>
                 <td class="num">{row.nodes}</td>
                 <td class="num">{row.taffy}</td>
@@ -476,7 +505,7 @@ CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench layout_engine`;
           </thead>
           <tbody>
             {budget.map((row) => (
-              <tr>
+              <tr class={row.key ? "is-key" : undefined}>
                 <td class="num">{row.count}</td>
                 <td class="num">{row.taffy}</td>
                 <td class="num">{row.morphorm}</td>

@@ -8,9 +8,24 @@ import Footer from "../components/Footer.astro";
 // they reuse Nav and Footer rather than inventing a second chrome.
 //
 // `stats` is optional and renders as the hairline-divided strip under the lede —
-// the guide's own claim in three figures, before the first section argues it.
-const { title, description, kicker, heading, accent, lede, current, stats } =
-  Astro.props;
+// the guide's own claim in three figures, before the first section argues it. A
+// figure may carry a `caption` (the claim in bold) and a `note` (the scope it was
+// measured in) instead of one long label.
+//
+// `install` is the same idea one step further: the page's own crate and the line
+// that adds it, under the lede. The nav's CTA installs the facade; this installs
+// the thing the reader came here for.
+const {
+  title,
+  description,
+  kicker,
+  heading,
+  accent,
+  lede,
+  current,
+  stats,
+  install,
+} = Astro.props;
 ---
 
 <Layout title={title} description={description}>
@@ -29,15 +44,60 @@ const { title, description, kicker, heading, accent, lede, current, stats } =
           ) : null}
         </h1>
         <p class="lede">{lede}</p>
+        {install ? (
+          <div class="hero-install">
+            <button
+              class="install-cmd"
+              type="button"
+              data-install={install.command}
+              aria-label={`Copy ${install.command}`}
+            >
+              <span class="prompt" aria-hidden="true">
+                $
+              </span>
+              <code>{install.command}</code>
+              <span class="copy-icon" aria-hidden="true">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+                </svg>
+              </span>
+            </button>
+            {install.note ? (
+              <span class="hero-install-note">{install.note}</span>
+            ) : null}
+          </div>
+        ) : null}
         {stats?.length ? (
           <div class="stat-strip">
             {stats.map(
-              (stat: { value: string; label: string; win?: boolean }) => (
-                <div class="stat">
+              (stat: {
+                value: string;
+                label: string;
+                note?: string;
+                win?: boolean;
+              }) => (
+                <div class={`stat${stat.win ? " is-win" : ""}`}>
                   <span class={`stat-value${stat.win ? " is-win" : ""}`}>
                     {stat.value}
                   </span>
-                  <span class="stat-label">{stat.label}</span>
+                  {stat.note ? (
+                    <>
+                      <span class="stat-title">{stat.label}</span>
+                      <span class="stat-note">{stat.note}</span>
+                    </>
+                  ) : (
+                    <span class="stat-label">{stat.label}</span>
+                  )}
                 </div>
               ),
             )}
@@ -51,3 +111,16 @@ const { title, description, kicker, heading, accent, lede, current, stats } =
   </main>
   <Footer />
 </Layout>
+
+<script>
+  // Delegated, so the hero's install line brings its own wiring rather than
+  // borrowing the nav's or a transcript's.
+  document.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-install]",
+    );
+    if (!button) return;
+    const command = button.dataset.install ?? "";
+    window.copyToClipboard(command, `Copied ${command}`);
+  });
+</script>
