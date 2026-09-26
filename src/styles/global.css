@@ -327,11 +327,41 @@ html {
   margin-left: -4px;
 }
 
-/* Where you are: the frontdoor, the section the page sits in, and that section's
-   own pages, with a pipe on each side of the group. It stays outside the
-   collapsible part of the bar, so the way home is one tap away at every width —
-   which is also why the sheet's rail keeps the section's pages rather than
-   leaving them to the trail above it (they are hidden here, reachable there).
+/* The mark and the way back travel together, so a sub-page opens the same way as
+   the frontdoor does: the same three things in the same three places, with the
+   crumb's "← Frontdoor" beside the version chip rather than after a pipe. */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.nav-back:hover {
+  background: var(--surface);
+  border-color: var(--border-2);
+  color: var(--text);
+}
+
+/* The section you are in and its pages, between a pipe on each side. It stays
+   outside the collapsible part of the bar, so the way back is one tap away at
+   every width — which is also why the sheet's rail keeps the section's pages
+   rather than leaving them to the group above it (they are hidden here, reachable
+   there).
 
    The pipes are pseudo-elements rather than flex items. As items, each would cost
    one of the bar's own 32px gaps, and two of those put the section row 1px inside
@@ -351,59 +381,8 @@ html {
   height: 16px;
   background: var(--border-2);
 }
-.nav-crumb {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.82rem;
-}
-.nav-crumb-home {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-weight: 600;
-  color: var(--text-2);
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
-.nav-crumb-home:hover {
-  background: var(--surface);
-  border-color: var(--border-2);
-  color: var(--text);
-}
-.nav-crumb-sep {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--border-2);
-}
-.nav-crumb-section {
-  font-weight: 600;
-  color: var(--brand);
-  transition: color 0.2s ease;
-}
-.nav-crumb-section:hover {
-  color: var(--brand-hover);
-}
-/* The section the page sits in, marked with the same small brand dot the Combo
-   Studio's order badges carry: the trail names a hub rather than the page, so its
-   own marker is a dot, and the pill below is left for the page itself. */
-.nav-crumb-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 7px;
-  border-radius: 50%;
-  vertical-align: middle;
-  background: var(--brand);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
-}
-/* The section's own pages, next to the trail that names it: one level in from the
-   frontdoor, so they take the crumb's size rather than the rail's. */
+/* The hub opens the group: everything after it is one level inside it, so they
+   take the crumb's size rather than the rail's. */
 .nav-trail-links {
   display: flex;
   align-items: center;
@@ -421,26 +400,44 @@ html {
 .nav-trail-links a:hover {
   color: var(--text);
 }
+/* The section itself, leading that group: the bar's interactive accent, and the
+   same small brand dot the Combo Studio's order badges carry — the trail's answer
+   to the rail's pill, for the hub the group is named after rather than for the
+   page the reader is on. On the hub itself the two land on the same link and the
+   dot rides inside the pill. */
+.nav-trail-links .nav-section {
+  color: var(--brand);
+  font-weight: 600;
+}
+.nav-trail-links .nav-section:hover {
+  color: var(--brand-hover);
+}
+.nav-section-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 7px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
+}
 
-/* Below the nav's own 1180px breakpoint the sheet takes the rail, and the trail
-   hands it the section's pages: they are rows down there, and a page named in
-   both places is a page named twice. The pipe that closed the group goes with
-   them, leaving the one that opens the trail to mark where the bar is. */
+/* Below the nav's own 1180px breakpoint the sheet takes the rail, and the section
+   group goes with it: its pages are rows down there, and a page named in both
+   places is a page named twice. The bar is the mark, the way back, the hamburger
+   and the theme switch — the two things that never go, and the two controls. */
 @media (max-width: 1180px) {
-  .nav-trail-links {
-    display: none;
-  }
-  .nav-trail::after {
+  .nav-trail {
     display: none;
   }
 }
 
 /* The bar on a section page, narrowest first. Two things never go: the mark, and
-   the way home — so the wordmark beside the mark, the version chip beside that,
-   and then the section name give way in that order, measured rather than guessed,
-   through a 320px frame. What is left is the mark and "← Frontdoor", which is
-   what a 320px bar has room for once the hamburger and the theme switch are in
-   it. */
+   the way back — so the wordmark beside the mark and the version chip beside that
+   give way in that order, measured rather than guessed, through a 320px frame.
+   What is left is the mark and "← Frontdoor", which is what a 320px bar has room
+   for once the hamburger and the theme switch are in it. */
 @media (max-width: 900px) {
   .nav.is-section .logo-version {
     display: none;
@@ -451,9 +448,12 @@ html {
     display: none;
   }
 }
+/* The frontdoor's row is the wider of the two and keeps its wordmark all the way
+   down — it has no way back to gain. The version chip is what it gives up at the
+   narrowest, where the mark, the wordmark and both controls are 270px of the
+   274px a 320px bar has. */
 @media (max-width: 420px) {
-  .nav.is-section .nav-crumb-sep,
-  .nav.is-section .nav-crumb-section {
+  .nav .logo-version {
     display: none;
   }
 }

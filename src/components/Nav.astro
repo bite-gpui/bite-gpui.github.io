@@ -68,61 +68,62 @@ const topLevel = guides.filter((guide) => !guide.parent);
 <nav class={`nav${here ? " is-section" : ""}`} id="nav">
   <div class="nav-inner">
     {/* The brand never goes away: it is the only mark on the bar and the only
-         thing on it that means "home", so on a sub-page it keeps its place and
-         links back to the frontdoor instead of turning into a breadcrumb. Its
-         wordmark and version chip are the two things that step aside on a narrow
-         section bar, so the mark and the trail both stay. */}
-    <a
-      href={here ? "/#journey" : "#journey"}
-      class="logo"
-      title={here ? "Back to the frontdoor" : undefined}
-    >
-      <Logo />
-      <span class="logo-word">bite-gpui</span>
-      <span class="logo-version">v1.21.0</span>
-    </a>
+         thing on it that means "home". A sub-page keeps the wordmark and the
+         version chip exactly where they are and adds the way back beside them,
+         so the bar opens the same way on every page. The wordmark and the chip are
+         the two things that step aside on a narrow section bar; the mark and the
+         way back are not. */}
+    <div class="nav-brand">
+      <a
+        href={here ? "/#journey" : "#journey"}
+        class="logo"
+        title={here ? "Back to the frontdoor" : undefined}
+      >
+        <Logo />
+        <span class="logo-word">bite-gpui</span>
+        <span class="logo-version">v1.21.0</span>
+      </a>
+      {section ? (
+        <a class="nav-back" href="/#journey">
+          <span aria-hidden="true">←</span>
+          <span>Frontdoor</span>
+        </a>
+      ) : null}
+    </div>
 
     {section ? (
-      /* Where you are, between two pipes: the frontdoor, the section, and the
-           section's own pages. The page itself is not named again — the rail
-           marks it, and naming it twice would put two current markers in one bar.
+      /* The section you are in and its pages, between two pipes. The hub opens
+           the group, because everything after it is one level inside it; the page
+           itself is not named again, because the rail marks it and two current
+           markers in one bar is one too many.
 
            The pipes are this element's own pseudo-elements rather than siblings,
-           which is not a style choice: as siblings each one costs a flex gap of
-           the bar's own 32px, and two of those put the section row 1px inside a
-           1152px content box. */
+           which is not a style choice: as siblings each one costs a flex gap of the
+           bar's own 32px, and two of those put the section row 1px inside a 1152px
+           content box. */
       <div class="nav-trail">
-        <span class="nav-crumb">
-          <a class="nav-crumb-home" href="/#journey">
-            <span aria-hidden="true">←</span>
-            <span>Frontdoor</span>
-          </a>
-          <span class="nav-crumb-sep" aria-hidden="true">
-            /
-          </span>
-          <a
-            class="nav-crumb-section"
-            href={section.href}
-            aria-current={current === section.key ? "page" : undefined}
-          >
-            {section.label}
-            <i class="nav-crumb-dot" aria-hidden="true" />
-          </a>
-        </span>
-        {sectionPages.length ? (
-          <ul class="nav-trail-links">
-            {sectionPages.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  aria-current={current === link.key ? "page" : undefined}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        <ul class="nav-trail-links">
+          <li>
+            <a
+              class="nav-section"
+              href={section.href}
+              aria-current={current === section.key ? "page" : undefined}
+            >
+              <i class="nav-section-dot" aria-hidden="true" />
+              {section.label}
+            </a>
+          </li>
+          {sectionPages.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={current === link.key ? "page" : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     ) : null}
 
