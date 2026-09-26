@@ -328,11 +328,9 @@ html {
 }
 
 /* The mark opens the bar and nothing else sits with it: identity, then a pipe,
-   then where you can go. The way back and the section are the two groups after it,
-   each opening with a pipe — and the section closing with one only when it has
-   pages one level in, to fence those off from the pages that stand beside it:
-   /swaps closes before Demos · Compare, /demos does not, because everything after
-   it is at the same level.
+   then where you can go. The way back is one group and the section it belongs to is
+   the other; on a section page those two are the whole bar, so the pipes around the
+   way back are what delimit it from everything either side.
 
    The pipes are the groups' own pseudo-elements rather than flex items of the bar.
    As items, each would cost one of the bar's own 32px gaps, and two of those put
@@ -347,8 +345,7 @@ html {
   white-space: nowrap;
 }
 .nav-back-group::before,
-.nav-back-group::after,
-.nav-trail.has-nested::after {
+.nav-back-group::after {
   content: "";
   flex: none;
   width: 1px;
@@ -609,10 +606,9 @@ html {
 .nav-links a:hover {
   color: var(--text);
 }
-/* The trail carries what the rail would otherwise repeat. Only on desktop: below
-   the 1180px breakpoint the trail's own links are hidden, so the sheet's rail is
-   the only place they can be reached from and it has to keep them. */
-.nav-links li[data-in-trail] {
+/* The trail carries the whole of the bar on a section page: the hub and the pages
+   inside it. The list beside it is the sheet's, so it is not on the row at all. */
+.nav-links.is-sheet-only {
   display: none;
 }
 /* The current entry is a pill: a solid fill with the canvas read back out of it,
@@ -3447,10 +3443,10 @@ footer {
     gap: 0;
     margin-left: 0;
   }
-  /* The rail is the only way to reach the section's pages down here, so it takes
-     back the entries the desktop row leaves to the trail above it. */
-  .nav-links li[data-in-trail] {
-    display: block;
+  /* The list is the sheet's on a section page, so down here it is the row set the
+     trail gave up and the only way to reach anything beside the section. */
+  .nav-links.is-sheet-only {
+    display: flex;
   }
   .nav-links a {
     display: block;

@@ -49,15 +49,17 @@ const section = here
 const sectionPages = section
   ? guides.filter((guide) => guide.parent === section.key)
   : [];
-// What the trail already says, so the bar does not say it twice. The rail drops
-// these on desktop. It keeps them below the 1180px breakpoint, where the trail's
-// own links are hidden and the sheet is the only way to reach them.
+// What the trail already says. On a section page the bar says nothing else — the
+// reader is inside one section and the guides standing beside it are clutter — so
+// this set is what decides which of the section's own pages belong to it: Parley
+// and Morphorm are pages of Swaps, and /demos and /compare have no business
+// listing them.
 const carried = new Set(
   section ? [section, ...sectionPages].map((guide) => guide.key) : [],
 );
-// The rail. Every container page always, and a nested guide only while it is part
-// of the section the reader is in: Parley and Morphorm are pages of Swaps, so
-// /demos and /compare have no business listing them beside Demos and Compare.
+// The sheet's list on a section page: every guide the section can reach, including
+// the ones the trail above already names, because the sheet is the only place the
+// reader can get to the others from.
 const rail = guides.filter((guide) => !guide.parent || carried.has(guide.key));
 // What the frontdoor shows: the hub and the two standalone guides. The swap
 // guides are one level down, inside the hub, and the frontdoor is not the place
@@ -93,16 +95,12 @@ const topLevel = guides.filter((guide) => !guide.parent);
     ) : null}
 
     {section ? (
-      /* The section you are in and its pages. The hub opens the group, because
-           everything after it is one level inside it; the page itself is not named
-           again, because the group marks it and two current markers in one bar is
-           one too many.
-
-           A pipe closes the group only when it has pages one level in, to fence
-           those off from the pages that stand beside the section: /swaps closes
-           before Demos · Compare, /demos does not, because everything after it is
-           at the same level. */
-      <div class={`nav-trail${sectionPages.length ? " has-nested" : ""}`}>
+      /* The section you are in and its pages, which is the whole of the bar: the hub
+           opens the group, because everything after it is one level inside it, and the
+           page itself is not named again, because the group marks it and two current
+           markers in one bar is one too many. Everything else the site has is behind
+           the breadcrumb, the sheet or the footer. */
+      <div class="nav-trail">
         <ul class="nav-trail-links">
           <li>
             <a
@@ -146,13 +144,14 @@ const topLevel = guides.filter((guide) => !guide.parent);
     </button>
 
     <!-- `display: contents` on desktop, so the links and the CTA join the nav row
-             as they always did; a drop-down sheet below the 1180px breakpoint,
-             where it also carries the section pages the trail gave up. -->
+             as they always did; a drop-down sheet below the 1180px breakpoint. On a
+             section page the list inside it is the sheet's alone: the bar carries the
+             reader's own breadcrumb and nothing that stands beside it. -->
     <div class="nav-menu" id="navMenu">
-      <ul class="nav-links">
+      <ul class={`nav-links${section ? " is-sheet-only" : ""}`}>
         {section ? (
           rail.map((link) => (
-            <li data-in-trail={carried.has(link.key) ? "true" : undefined}>
+            <li>
               <a
                 href={link.href}
                 aria-current={current === link.key ? "page" : undefined}
