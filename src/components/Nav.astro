@@ -61,6 +61,13 @@ const carried = new Set(
 // the ones the trail above already names, because the sheet is the only place the
 // reader can get to the others from.
 const rail = guides.filter((guide) => !guide.parent || carried.has(guide.key));
+// The section's own rail, which is the whole of the bar beside the crumb: the hub
+// under the name a reader arrives with — Overview — and then the pages one level
+// inside it. The crumb already names the section, so repeating that name here would
+// be the same word twice in one bar.
+const sectionRail = section
+  ? [{ ...section, label: "Overview" }, ...sectionPages]
+  : [];
 // What the frontdoor shows: the hub and the two standalone guides. The swap
 // guides are one level down, inside the hub, and the frontdoor is not the place
 // to flatten that.
@@ -83,36 +90,36 @@ const topLevel = guides.filter((guide) => !guide.parent);
     </a>
 
     {section ? (
-      /* The way back, in its own pipe-delimited group: it is not the brand and not
-           the section, it is the step up. It stays outside the collapsible part of
-           the bar, so it is one tap away at every width. */
+      /* The crumb, between two pipes: the step up, and the section the page sits in.
+           The section's name is a label rather than a second link to the hub — the rail
+           beside it opens with that, under the name a reader gets there by — and its dot
+           is the bar's answer to "which section am I in", where the pill in the rail
+           answers for the page. It stays outside the collapsible part of the bar, so the
+           way back is one tap away at every width. */
       <div class="nav-back-group">
         <a class="nav-back" href="/#journey">
           <span aria-hidden="true">←</span>
           <span>Frontdoor</span>
         </a>
+        <span class="nav-crumb-sep" aria-hidden="true">
+          /
+        </span>
+        <span class="nav-crumb-section">
+          {section.label}
+          <i class="nav-section-dot" aria-hidden="true" />
+        </span>
       </div>
     ) : null}
 
     {section ? (
-      /* The section you are in and its pages, which is the whole of the bar: the hub
-           opens the group, because everything after it is one level inside it, and the
-           page itself is not named again, because the group marks it and two current
-           markers in one bar is one too many. Everything else the site has is behind
-           the breadcrumb, the sheet or the footer. */
+      /* The section's pages, and nothing else the site has beside them: the reader is
+           inside one section, and the guides that stand beside it are rows in the sheet.
+           The hub opens the group because everything after it is one level inside it,
+           and the page itself is not named again, because the group marks it and two
+           current markers in one bar is one too many. */
       <div class="nav-trail">
         <ul class="nav-trail-links">
-          <li>
-            <a
-              class="nav-section"
-              href={section.href}
-              aria-current={current === section.key ? "page" : undefined}
-            >
-              <i class="nav-section-dot" aria-hidden="true" />
-              {section.label}
-            </a>
-          </li>
-          {sectionPages.map((link) => (
+          {sectionRail.map((link) => (
             <li>
               <a
                 href={link.href}
