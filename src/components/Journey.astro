@@ -6,7 +6,7 @@
     <div class="journey-sticky" id="sticky">
         <div class="hero-copy">
             <span class="eyebrow">
-                <span class="dot"></span> v0.1 · Modular GPUI
+                <span class="dot"></span> v1.21.0 · Modular GPUI
             </span>
             <h1>
                 GPUI.
@@ -24,10 +24,10 @@
             <button
                 class="install-cmd"
                 id="heroInstall"
-                data-copy="cargo add bite-gpui --features parley"
+                data-copy="cargo add bite-gpui"
             >
                 <span class="prompt">$</span>
-                <code>cargo add bite-gpui --features parley</code>
+                <code>cargo add bite-gpui</code>
                 <span class="copy-icon" aria-hidden="true">
                     <svg
                         width="15"
@@ -190,7 +190,9 @@
                             <span class="cap-role">OS SPI</span>
                         </div>
                         <span class="cap-desc">
-                            Acyclic root. Links zero OS drivers.
+                            The Platform trait. macos, linux, windows and web
+                            each implement it; the facade picks one by
+                            cfg(target_os).
                         </span>
                     </div>
                 </div>
@@ -423,7 +425,7 @@
                             <span class="cap-role">Leaf</span>
                         </div>
                         <span class="cap-desc">
-                            Pixels, Bounds, Rgba, Point. Zero deps.
+                            Pixels, Bounds, Rgba, Point. No gpui deps.
                         </span>
                     </div>
                 </div>
@@ -775,7 +777,7 @@
                             <span class="cap-role">Harness</span>
                         </div>
                         <span class="cap-desc">
-                            Application, event loop, FramePipeline.
+                            Application, event loop, FramePipeline decorators.
                         </span>
                     </div>
                 </div>
@@ -783,15 +785,14 @@
 
             <aside class="recipe-book">
                 <div class="rb-head">
-                    <span class="rb-title">crates/gpui</span>
+                    <span class="rb-title">bite-gpui</span>
                     <span class="rb-badge">The Menu</span>
                 </div>
                 <p>
-                    The umbrella facade re-exports the authoring, runtime, and
-                    engine layers under a single crate.
+                    The umbrella facade re-exports the authoring and runtime
+                    layers under a single crate.
                 </p>
                 <pre><code>pub use gpui_authoring::*;
-pub use gpui_engine::*;
 pub use gpui_runtime::*;
 
 // use gpui::*; compiles unchanged!</code></pre>
@@ -962,47 +963,57 @@ pub use gpui_runtime::*;
             platform: {
                 path: "crates/gpui_platform",
                 name: "gpui_platform",
+                package: "bite-gp-platform",
                 role: "OS SPI",
                 accent: "var(--platform)",
-                tag: "Acyclic root",
-                desc: "Trait-only contracts for displays, input, and the native event source. This crate links no OS drivers of its own, so backends are injected from downstream rather than compiled in.",
-                depends: [],
+                tag: "Platform contract",
+                desc: "The Platform trait and the platform-level contracts: displays, input, clipboard, menus and screen capture. Each OS backend implements it, and the facade selects one by cfg(target_os).",
+                depends: ["gpui_engine", "gpui_types"],
             },
             engine: {
                 path: "crates/gpui_engine",
                 name: "gpui_engine",
+                package: "bite-gp-engine",
                 role: "Render",
                 accent: "var(--engine)",
                 tag: "Scene IR",
                 desc: "Owns the retained scene graph, the layout pass, and the renderer that flattens styled nodes into quads. It knows how to draw, not how to describe a UI.",
-                depends: ["gpui_types", "gpui_platform"],
+                depends: ["gpui_types"],
             },
             types: {
                 path: "crates/gpui_types",
                 name: "gpui_types",
+                package: "bite-gp-types",
                 role: "Leaf",
                 accent: "var(--types)",
-                tag: "Zero dependencies",
-                desc: "Pixels, Bounds, Point, Size, and Rgba: the shared vocabulary every other tier speaks. Deliberately dependency-free so it can sit at the bottom of any stack.",
+                tag: "No gpui deps",
+                desc: "Pixels, Bounds, Point, Size, and Rgba: the shared vocabulary every other tier speaks. It names no other gpui crate, so it sits at the bottom of the stack; its own dependencies are third-party (taffy, serde, refineable).",
                 depends: [],
             },
             authoring: {
                 path: "crates/gpui_authoring",
                 name: "gpui_authoring",
+                package: "bite-gp-authoring",
                 role: "DSL",
                 accent: "var(--authoring)",
                 tag: "Reactive DSL",
                 desc: "The ergonomic surface: a reactive entity store, the div and stack builders, and a Window split into render and event halves. It lowers onto the engine's scene graph.",
-                depends: ["gpui_types", "gpui_engine"],
+                depends: [
+                    "gpui_types",
+                    "gpui_engine",
+                    "gpui_engine_default",
+                    "gpui_platform",
+                ],
             },
             runtime: {
                 path: "crates/gpui_runtime",
                 name: "gpui_runtime",
+                package: "bite-gp-runtime",
                 role: "Harness",
                 accent: "var(--runtime)",
-                tag: "FramePipeline",
-                desc: "Drives the process: the application builder, the platform event loop, and the pluggable FramePipeline that owns pacing, instrumentation, and frame scheduling.",
-                depends: ["gpui_authoring", "gpui_engine", "gpui_platform"],
+                tag: "Application + decorators",
+                desc: "Drives the process: the Application builder, run and run_embedded, and the ThrottledPipeline and InstrumentedPipeline decorators that cap a frame rate or time the root passes of the pipeline they wrap.",
+                depends: ["gpui_authoring"],
             },
         };
 
@@ -1049,7 +1060,7 @@ pub use gpui_runtime::*;
                         }
                     </div>
                 </div>
-                <code class="li-cmd">cargo add ${data.name}</code>
+                <code class="li-cmd">cargo add ${data.package}</code>
             `;
             panel.classList.add("is-visible");
 

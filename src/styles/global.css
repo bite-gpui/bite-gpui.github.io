@@ -1209,7 +1209,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
   white-space: nowrap;
   overflow: hidden;
 }
-.bar-fill.is-in { width: var(--w-target, 100%); }
+.bar-fill.is-in { width: var(--w-target, 100%); min-width: 3px; }
 .bar-fill.before {
   background: linear-gradient(90deg, rgba(194, 104, 79, .4), rgba(194, 104, 79, .85));
   color: #E0A79C;
@@ -1219,6 +1219,20 @@ html { scrollbar-width: thin; scrollbar-color: var(--border-2) var(--bg); }
   background: linear-gradient(90deg, rgba(143, 168, 155, .5), rgba(143, 168, 155, .95));
   color: #A9C3B4;
 }
+
+/* The measured value sits in `.metric-sub`, not inside the fill, because these
+   ratios run from 1.2% down to 0.9%: a label right-aligned inside a fill that
+   narrow is clipped by the fill's own `overflow: hidden`. `.bar-fill.is-in`
+   carries a 3px floor for the same reason — below that the 5px border-radius
+   leaves nothing to see. */
+.metric-note {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: .7rem;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+.metric-note .cmd { color: var(--text-2); }
 
 .receipt {
   background: #F7F3ED;

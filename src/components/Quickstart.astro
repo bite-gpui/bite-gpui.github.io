@@ -7,7 +7,10 @@ const panes = [
 cargo add bite-gpui
 
 <span class="c"># …or cherry-pick individual tiers</span>
-cargo add gpui_platform gpui_engine gpui_types`,
+cargo add bite-gp-platform bite-gp-engine bite-gp-types
+
+<span class="c"># …then swap a seam for a published alternative</span>
+cargo add bite-gp-parley`,
     },
     {
         id: "window",
@@ -25,32 +28,44 @@ cargo add gpui_platform gpui_engine gpui_types`,
     {
         id: "parley",
         label: "With Parley",
-        html: `<span class="k">use</span> gpui::<span class="m">*</span>;
+        html: `<span class="k">use</span> std::cell::<span class="t">RefCell</span>;
+<span class="k">use</span> std::rc::<span class="t">Rc</span>;
+<span class="k">use</span> std::sync::<span class="t">Arc</span>;
+<span class="k">use</span> gpui::<span class="m">*</span>;
 <span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;
 
 <span class="k">fn</span> <span class="f">main</span>() {
+    <span class="k">let</span> metrics = <span class="t">Rc</span>::<span class="f">new</span>(<span class="t">RefCell</span>::<span class="f">new</span>(<span class="t">PhaseMetrics</span>::<span class="f">default</span>()));
+
     <span class="f">application</span>()
         .<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()))
-        .<span class="f">with_frame_pipeline</span>(
-            <span class="t">StandardImmediatePipeline</span>
-                .<span class="f">max_fps</span>(<span class="s">60</span>)
-                .<span class="f">instrumented</span>(<span class="f">metrics</span>())
-        )
+        .<span class="f">with_frame_pipeline</span>({
+            <span class="k">let</span> metrics = metrics.<span class="f">clone</span>();
+            <span class="k">move</span> |_window_id| {
+                <span class="t">Box</span>::<span class="f">new</span>(
+                    <span class="t">StandardImmediatePipeline</span>
+                        .<span class="f">max_fps</span>(<span class="s">60</span>)
+                        .<span class="f">instrumented</span>(metrics.<span class="f">clone</span>())
+                )
+            }
+        })
         .<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| { <span class="c">/* … */</span> });
 }`,
     },
     {
         id: "headless",
         label: "Headless test",
-        html: `<span class="c">#[test]</span>
-<span class="k">fn</span> <span class="f">renders_without_a_display</span>() {
-    <span class="k">let mut</span> app = <span class="f">headless</span>();
-    <span class="k">let</span> window = app.<span class="f">open_test_window</span>(|<span class="m">cx</span>| {
-        cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
+        html: `<span class="c">#[gpui::test]</span>
+<span class="k">fn</span> <span class="f">renders_without_a_display</span>(cx: <span class="m">&amp;mut</span> <span class="t">TestAppContext</span>) {
+    <span class="k">let</span> window = cx.<span class="f">update</span>(|<span class="m">cx</span>| {
+        cx.<span class="f">open_window</span>(<span class="t">Default</span>::<span class="f">default</span>(), |_, <span class="m">cx</span>| cx.<span class="f">new</span>(|_| <span class="t">MyView</span>))
+            .<span class="f">unwrap</span>()
     });
+    <span class="k">let mut</span> cx = <span class="t">VisualTestContext</span>::<span class="f">from_window</span>(window.<span class="f">into</span>(), cx);
 
-    window.<span class="f">draw</span>();
-    <span class="f">assert_eq!</span>(window.<span class="f">scene</span>().<span class="f">quads</span>.<span class="f">len</span>(), <span class="s">12</span>);
+    <span class="c">// The window is drawn in-process: no display server, no GPU.</span>
+    <span class="k">let</span> bounds = cx.<span class="f">debug_bounds</span>(<span class="s">"submit"</span>).<span class="f">unwrap</span>();
+    <span class="f">assert_eq!</span>(bounds.size.height, <span class="f">px</span>(<span class="s">32.</span>));
 }`,
     },
 ];

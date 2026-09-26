@@ -13,8 +13,9 @@
                 <h2>Anything Else?</h2>
                 <p>
                     Everything on this menu is decoupled. Attach text-layout and
-                    frame-pacing sides (Step 1), then select your target
-                    beverage driver (Step 2). Application views never recompile.
+                    frame-pacing sides (Step 1), then see which backend
+                    cfg(target_os) compiles in (Step 2). Application views never
+                    recompile.
                 </p>
             </div>
 
@@ -227,13 +228,13 @@
                 <div class="order-status">
                     <div class="order-status-metrics">
                         <span class="order-status-item">
-                            Shaping: <strong id="mGlyph">835 ms</strong>
+                            Raster: <strong id="mGlyph">41.1 µs/frame</strong>
                         </span>
                         <span class="order-status-sep" aria-hidden="true">
                             │
                         </span>
                         <span class="order-status-item">
-                            Layout: <strong id="mLayout">28.5 ms</strong>
+                            Layout: <strong id="mLayout">133 µs/line</strong>
                         </span>
                         <span class="order-status-sep" aria-hidden="true">
                             │
@@ -281,13 +282,13 @@
                 key: "parley",
                 type: "condiment",
                 name: "Parley Text Engine",
-                crate: "gpui_parley",
+                crate: "bite-gp-parley",
                 pill: "🥫 PARLEY",
                 sub: "🌶️ Sriracha · BiDi layout, complex scripts & fallback",
                 kicker: "Linebender Typography",
                 desc: "Unicode BiDi layout, complex-script shaping and system font fallback from Linebender Parley, rasterised through Skrifa and tiny-skia.",
                 specTrait: "Arc<dyn TextSystem>",
-                specImpact: "835 ms ➔ 2.1 ms glyph paint",
+                specImpact: "3.3 ms ➔ 41.1 µs a frame rasterized",
                 color: "#C77158",
                 colorLight: "#9E4027",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 20 L38 20 L36 48 Q28 52 20 48 Z" fill="#7F1D1D"/><path d="M18 20 L38 20 L37 26 L19 26 Z" fill="#B91C1C"/><ellipse cx="28" cy="20" rx="10" ry="2.5" fill="#DC2626"/><rect x="24" y="6" width="8" height="12" rx="1.5" fill="#450A0A"/><path d="M26 6 L30 6 L30 2 L26 2 Z" fill="#FCA5A5"/></svg>',
@@ -296,13 +297,13 @@
                 key: "pacing",
                 type: "condiment",
                 name: "Frame Governor",
-                crate: "gpui_pacing",
+                crate: "bite-gp-runtime",
                 pill: "🍯 MUSTARD",
-                sub: "🍯 Dijon Mustard · 60 FPS vsync lock & GPU runaway stop",
-                kicker: "Pacing Controller",
-                desc: "Locks the frame loop to a deterministic cadence and stops GPU runaway on idle frames, absorbing display-refresh jitter.",
-                specTrait: "FramePipelineDecorator",
-                specImpact: "Deterministic 60 FPS cadence",
+                sub: "🍯 Dijon Mustard · 60 FPS cap & deferred frames",
+                kicker: "Pacing Decorator",
+                desc: "Caps a frame rate by deferring frames that arrive sooner than the target. A deferred frame is not dropped: the window stays dirty and the next frame draws it.",
+                specTrait: "ThrottledPipeline",
+                specImpact: "Caps the frame rate",
                 color: "#C9B486",
                 colorLight: "#74591A",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="13" ry="3.5" fill="#000" opacity=".35"/><path d="M20 22 L36 22 L34 48 Q28 51 22 48 Z" fill="#854D0E"/><path d="M20 22 L36 22 L35 28 L21 28 Z" fill="#CA8A04"/><ellipse cx="28" cy="22" rx="8" ry="2.2" fill="#FACC15"/><rect x="25" y="10" width="6" height="12" rx="1.2" fill="#422006"/></svg>',
@@ -310,14 +311,14 @@
             surface: {
                 key: "surface",
                 type: "condiment",
-                name: "WGPU Surface Pass",
-                crate: "gpui_wgpu_surface",
+                name: "WGPU Renderer",
+                crate: "bite-gp-wgpu",
                 pill: "🌮 NACHOS",
                 sub: "🌮 Loaded Nachos · Raw 3D render-pass blit & custom shaders",
-                kicker: "Surface Escape Hatch",
-                desc: "Blit raw wgpu render passes, embedded 3D viewports or video decoders straight into GPUI's draw-quad list, without forking the engine.",
-                specTrait: "Style::custom",
-                specImpact: "Zero engine forks",
+                kicker: "Renderer Seam",
+                desc: "The wgpu renderer that implements SceneRenderer and turns the engine's Scene into GPU work. It is the shipped renderer; implementing SceneRenderer yourself is the seam that replaces it.",
+                specTrait: "SceneRenderer",
+                specImpact: "The shipped renderer",
                 color: "#D9A55F",
                 colorLight: "#7A5414",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="16" ry="3.5" fill="#000" opacity=".35"/><path d="M10 40 Q10 24 28 24 Q46 24 46 40 Q28 46 10 40 Z" fill="#7C2D12"/><path d="M12 38 Q14 28 28 28 Q42 28 44 38 Q28 42 12 38 Z" fill="#B45309"/><path d="M20 30 L26 26 L32 30 Z" fill="#FBBF24"/><path d="M30 32 L36 28 L42 32 Z" fill="#FBBF24"/></svg>',
@@ -326,13 +327,13 @@
                 key: "profiler",
                 type: "condiment",
                 name: "Layout Profiler",
-                crate: "gpui_telemetry",
+                crate: "bite-gp-runtime",
                 pill: "🥒 RELISH",
-                sub: "🥒 Sweet Relish · Microsecond trace spans for shaping & layout",
-                kicker: "Telemetry Middleware",
-                desc: "Sub-millisecond trace spans for text shaping, layout and scene compilation, with no logging noise injected into your views.",
+                sub: "🥒 Sweet Relish · Per-pass timings for evaluate, layout & paint",
+                kicker: "Instrumented Pipeline",
+                desc: "Times the root passes of the pipeline it wraps — evaluate_roots, layout_roots, paint_roots — recording into PhaseMetrics without touching the views it draws.",
                 specTrait: "InstrumentedPipeline",
-                specImpact: "Per-pass profiler traces",
+                specImpact: "Per-pass timings",
                 color: "#8FA89B",
                 colorLight: "#2F5A3D",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="48" rx="15" ry="3.5" fill="#000" opacity=".35"/><path d="M16 22 L40 22 L42 46 Q28 50 14 46 Z" fill="#14532D"/><path d="M16 22 L40 22 L40.5 26 L15.5 26 Z" fill="#166534"/><ellipse cx="28" cy="22" rx="12" ry="3" fill="#15803D"/><ellipse cx="28" cy="16" rx="12" ry="5" fill="#22C55E"/></svg>',
@@ -349,14 +350,14 @@
                 beverage: "Crisp Apple Fizz",
                 tag: "METAL",
                 kicker: "Platform Driver · macOS",
-                crate: "gpui_platform_macos",
-                sub: "🍏 Crisp Apple Fizz · Cocoa CFRunLoop + CAMetalLayer",
-                cargoTarget: `target.'cfg(target_os = "macos")'.dependencies`,
+                crate: "bite-gp-macos",
+                sub: "🍏 Crisp Apple Fizz · Cocoa / AppKit",
+                target: 'cfg(target_os = "macos")',
                 color: "#9FC0BC",
                 colorLight: "#366A66",
-                desc: "Native Cocoa CFRunLoop paired with a CAMetalLayer surface swapchain.",
-                specTrait: "CAMetalLayer + Cocoa Loop",
-                specImpact: "0 lines changed in main.rs",
+                desc: "Cocoa/AppKit event loop with a Metal renderer. cfg(target_os = \"macos\") compiles this backend in; no Cargo.toml line selects it.",
+                specTrait: "MacPlatform",
+                specImpact: "0 lines changed",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#0369A1"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#0284C7"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#38BDF8"/><path d="M28 6 Q30 12 34 14" stroke="#F43F5E" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="28" cy="32" r="4.5" fill="#E0F2FE" opacity=".8"/></svg>',
             },
             linux: {
@@ -367,14 +368,14 @@
                 beverage: "Open-Source Cola",
                 tag: "VULKAN",
                 kicker: "Platform Driver · Linux",
-                crate: "gpui_platform_linux",
-                sub: "🥤 Open-Source Cola · Wayland & X11 with an ash Vulkan swapchain",
-                cargoTarget: `target.'cfg(target_os = "linux")'.dependencies`,
+                crate: "bite-gp-linux",
+                sub: "🥤 Open-Source Cola · Wayland & X11",
+                target: 'cfg(any(target_os = "linux", target_os = "freebsd"))',
                 color: "#D9A55F",
                 colorLight: "#7A5414",
-                desc: "Wayland and X11 event dispatcher with an ash Vulkan surface swapchain.",
-                specTrait: "Wayland/X11 + Vulkan",
-                specImpact: "0 lines changed in main.rs",
+                desc: "Wayland and X11 event loops with a Vulkan renderer (through wgpu). cfg(target_os) compiles this backend in.",
+                specTrait: "Wayland / X11",
+                specImpact: "0 lines changed",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M18 18 L38 18 L35 48 Q28 51 21 48 Z" fill="#78350F"/><path d="M18 18 L38 18 L37 24 L19 24 Z" fill="#B45309"/><ellipse cx="28" cy="18" rx="10" ry="2.5" fill="#F59E0B"/><path d="M25 10 L31 10 L30 18 L26 18 Z" fill="#D97706"/><circle cx="28" cy="33" r="4.5" fill="#FEF3C7" opacity=".8"/></svg>',
             },
             windows: {
@@ -385,14 +386,14 @@
                 beverage: "Direct3D Punch",
                 tag: "DX12",
                 kicker: "Platform Driver · Windows",
-                crate: "gpui_platform_windows",
-                sub: "🧊 Direct3D Punch · Win32 event queue + DX12 swapchain blit",
-                cargoTarget: `target.'cfg(target_os = "windows")'.dependencies`,
+                crate: "bite-gp-windows",
+                sub: "🧊 Direct3D Punch · Win32 event queue",
+                target: 'cfg(target_os = "windows")',
                 color: "#9BA3C0",
                 colorLight: "#4A5480",
-                desc: "Win32 event queue paired with a Direct3D 12 swapchain blit, selected purely by cfg(target_os).",
-                specTrait: "Win32 Dispatch + D3D12",
-                specImpact: "0 lines changed in main.rs",
+                desc: "Win32 event queue with a Direct3D 12 renderer (through wgpu's DX12 backend). cfg(target_os = \"windows\") compiles it in.",
+                specTrait: "Win32 + Direct3D 12",
+                specImpact: "0 lines changed",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#1E3A8A"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#2563EB"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#60A5FA"/><rect x="23" y="10" width="10" height="4" rx="1" fill="#93C5FD"/><circle cx="28" cy="32" r="4.5" fill="#DBEAFE" opacity=".8"/></svg>',
             },
             headless: {
@@ -403,14 +404,14 @@
                 beverage: "In-Memory Soda",
                 tag: "NULL",
                 kicker: "Platform Driver · Headless CI",
-                crate: "gpui_platform_null",
-                sub: "🧪 In-Memory Soda · Software framebuffers for zero-GPU CI",
-                cargoTarget: `target.'cfg(target_os = "none")'.dependencies`,
+                crate: "bite-gpui (no default features)",
+                sub: "🧪 In-Memory Soda · no display server, no GPU",
+                target: "default-features = false",
                 color: "#8E8781",
                 colorLight: "#5E5852",
-                desc: "Pure in-memory software framebuffers, so the whole integration suite runs in CI with no display server and zero Xvfb flakiness.",
-                specTrait: "Software Framebuffer",
-                specImpact: "0 MB CI display footprint",
+                desc: "Headless is not a backend crate: it is the facade with its platform bundle dropped (default-features = false), plus gpui::headless() and the TestPlatform the #[gpui::test] harness runs on. No display server, no GPU.",
+                specTrait: "headless() / TestPlatform",
+                specImpact: "no platform deps",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.2" fill="#000" opacity=".35"/><path d="M16 18 L40 18 L36 48 Q28 51 20 48 Z" fill="#334155"/><path d="M16 18 L40 18 L38 24 L18 24 Z" fill="#475569"/><ellipse cx="28" cy="18" rx="12" ry="2.8" fill="#64748B"/><rect x="20" y="12" width="16" height="4" rx="1.2" fill="#1E293B"/></svg>',
             },
             wasm: {
@@ -421,14 +422,14 @@
                 beverage: "Web Seltzer",
                 tag: "WASM",
                 kicker: "Platform Driver · wasm32",
-                crate: "gpui_platform_web",
+                crate: "bite-gp-web",
                 sub: "🧃 Web Seltzer · wasm32 canvas + JS event loop",
-                cargoTarget: `target.'cfg(target_arch = "wasm32")'.dependencies`,
+                target: 'cfg(target_family = "wasm")',
                 color: "#A79BC0",
                 colorLight: "#5F5480",
-                desc: "The same view code compiled to wasm32 for the browser or an embedded canvas. It is the one driver that changes the entry point: embedded() rather than application(), behind a #[wasm_bindgen(start)] that returns the run handle to the JS host.",
-                specTrait: "embedded() + wasm-bindgen",
-                specImpact: "embedded() · handle returned to JS",
+                desc: "The same view code compiled to wasm32 for the browser or an embedded canvas, selected by cfg(target_family = \"wasm\"). It is the one backend that changes the entry point: web_init() before run, behind a #[wasm_bindgen(start)].",
+                specTrait: "WebPlatform + wasm-bindgen",
+                specImpact: "web_init() · run()",
                 svg: '<svg viewBox="0 0 56 56"><ellipse cx="28" cy="50" rx="14" ry="3.5" fill="#000" opacity=".35"/><path d="M17 18 L39 18 L36 48 Q28 51 20 48 Z" fill="#4E4577"/><path d="M17 18 L39 18 L38 24 L18 24 Z" fill="#6E62A0"/><ellipse cx="28" cy="18" rx="11" ry="2.6" fill="#A79BC0"/><circle cx="28" cy="33" r="5.2" fill="none" stroke="#E7E1F5" stroke-width="1.3"/><path d="M22.8 33h10.4M28 27.8v10.4" stroke="#E7E1F5" stroke-width="1.1"/></svg>',
             },
         };
@@ -519,7 +520,7 @@
                 : "Target Beverage Driver (Pick One)";
             dockShelfSub.textContent = isCondiments
                 ? "Attach as many crate-level sides as you like; they compose into the frame pipeline."
-                : "A build targets exactly one platform driver at a time, resolved from Cargo.toml.";
+                : "Exactly one backend compiles, chosen by cfg(target_os) — not by Cargo.toml.";
 
             const items = isCondiments
                 ? Object.values(CONDIMENT_DATA)
@@ -581,15 +582,20 @@
             const bev = BEVERAGE_DATA[activeBeverage];
 
             if (currentActiveFile === "cargo") {
+                const isHeadless = activeBeverage === "headless";
                 const lines = [
                     {
-                        code: '<span class="c"># Cargo.toml — leaf platform-driver resolution</span>',
-                        raw: "# Cargo.toml — leaf platform-driver resolution",
+                        code: '<span class="c"># Cargo.toml — the facade, plus any attached sides</span>',
+                        raw: "# Cargo.toml — the facade, plus any attached sides",
                     },
                     { code: "[dependencies]", raw: "[dependencies]" },
                     {
-                        code: `bite-gpui = { version = <span class="s">"0.1"</span>, default-features = <span class="k">false</span> }`,
-                        raw: 'bite-gpui = { version = "0.1", default-features = false }',
+                        code: isHeadless
+                            ? `bite-gpui = { version = <span class="s">"1.21"</span>, default-features = <span class="k">false</span> }`
+                            : `bite-gpui = { version = <span class="s">"1.21"</span> }`,
+                        raw: isHeadless
+                            ? 'bite-gpui = { version = "1.21", default-features = false }'
+                            : 'bite-gpui = { version = "1.21" }',
                     },
                     { code: "", raw: "" },
                 ];
@@ -598,8 +604,8 @@
                 Object.values(CONDIMENT_DATA).forEach((side) => {
                     if (!condimentsState[side.key]) return;
                     lines.push({
-                        code: `${side.crate} = { version = <span class="s">"0.1"</span> }`,
-                        raw: `${side.crate} = { version = "0.1" }`,
+                        code: `${side.crate} = { version = <span class="s">"1.21"</span> }`,
+                        raw: `${side.crate} = { version = "1.21" }`,
                         condiment: side.key,
                         tag: side.pill,
                     });
@@ -607,25 +613,18 @@
 
                 lines.push({ code: "", raw: "" });
                 lines.push({
-                    code: `<span class="c"># Beverage Driver: ${bev.beverage} (${bev.name})</span>`,
-                    raw: `# Beverage Driver: ${bev.beverage} (${bev.name})`,
-                });
-                lines.push({
-                    code: `<span class="t">[${bev.cargoTarget}]</span>`,
-                    raw: `[${bev.cargoTarget}]`,
+                    code: `<span class="c"># Backend: ${bev.name} — ${bev.crate}</span>`,
+                    raw: `# Backend: ${bev.name} — ${bev.crate}`,
                     condiment: bev.key,
                     tag: bev.tag,
                 });
                 lines.push({
-                    code: `${bev.crate} = { version = <span class="s">"0.1"</span> }`,
-                    raw: `${bev.crate} = { version = "0.1" }`,
-                    condiment: bev.key,
-                });
-
-                lines.push({ code: "", raw: "" });
-                lines.push({
-                    code: '<span class="c"># Modifying UI views invalidates 0 platform driver crates.</span>',
-                    raw: "# Modifying UI views invalidates 0 platform driver crates.",
+                    code: isHeadless
+                        ? '<span class="c"># The platform bundle is off; headless() runs with no native backend.</span>'
+                        : `<span class="c"># Selected by ${bev.target}; this file does not change per OS.</span>`,
+                    raw: isHeadless
+                        ? "# The platform bundle is off; headless() runs with no native backend."
+                        : `# Selected by ${bev.target}; this file does not change per OS.`,
                 });
 
                 return lines;
@@ -639,6 +638,7 @@
         // owns the entry point.
         function mainRsLines(bev) {
             const isWasm = activeBeverage === "wasm";
+            const isHeadless = activeBeverage === "headless";
             const lines = [];
             lines.push({
                 code: '<span class="k">use</span> gpui::<span class="m">*</span>;',
@@ -657,19 +657,27 @@
 
             if (condimentsState.parley) {
                 lines.push({
-                    code: '<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;',
-                    raw: "use gpui_parley::ParleyTextSystem;",
+                    code: '<span class="k">use</span> std::sync::<span class="t">Arc</span>;',
+                    raw: "use std::sync::Arc;",
                     condiment: "parley",
                     tag: CONDIMENT_DATA.parley.pill,
                 });
+                lines.push({
+                    code: '<span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;',
+                    raw: "use gpui_parley::ParleyTextSystem;",
+                });
             }
 
-            if (condimentsState.surface) {
+            if (condimentsState.profiler) {
                 lines.push({
-                    code: '<span class="k">use</span> gpui_wgpu_surface::<span class="t">WgpuSurface</span>;',
-                    raw: "use gpui_wgpu_surface::WgpuSurface;",
-                    condiment: "surface",
-                    tag: CONDIMENT_DATA.surface.pill,
+                    code: '<span class="k">use</span> std::cell::<span class="t">RefCell</span>;',
+                    raw: "use std::cell::RefCell;",
+                    condiment: "profiler",
+                    tag: CONDIMENT_DATA.profiler.pill,
+                });
+                lines.push({
+                    code: '<span class="k">use</span> std::rc::<span class="t">Rc</span>;',
+                    raw: "use std::rc::Rc;",
                 });
             }
 
@@ -685,52 +693,65 @@
                 code: isWasm
                     ? '<span class="k">pub fn</span> <span class="f">main</span>() -&gt; <span class="t">Result</span>&lt;(), <span class="t">JsValue</span>&gt; {'
                     : '<span class="k">fn</span> <span class="f">main</span>() {',
-                raw: isWasm
-                    ? "pub fn main() -> Result<(), JsValue> {"
-                    : "fn main() {",
+                raw: isWasm ? "pub fn start() {" : "fn main() {",
             });
+
+            if (isWasm) {
+                lines.push({
+                    code: '    <span class="f">web_init</span>(); <span class="c">// installs the panic hook and logging</span>',
+                    raw: "    web_init(); // installs the panic hook and logging",
+                });
+            }
+
             lines.push({
-                code: isWasm
-                    ? '    <span class="k">let</span> app = <span class="f">embedded</span>(); <span class="c">// wasm32: the JS host owns the frame clock</span>'
-                    : '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// Platform SPI resolved from Cargo.toml</span>',
-                raw: isWasm
-                    ? "    let app = embedded(); // wasm32: the JS host owns the frame clock"
-                    : "    let mut app = application(); // Platform SPI resolved from Cargo.toml",
+                code: isHeadless
+                    ? '    <span class="k">let mut</span> app = <span class="f">headless</span>(); <span class="c">// no display server, no GPU</span>'
+                    : isWasm
+                      ? '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// the JS host owns the frame clock</span>'
+                      : '    <span class="k">let mut</span> app = <span class="f">application</span>(); <span class="c">// backend chosen by cfg(target_os)</span>',
+                raw: isHeadless
+                    ? "    let mut app = headless(); // no display server, no GPU"
+                    : isWasm
+                      ? "    let mut app = application(); // the JS host owns the frame clock"
+                      : "    let mut app = application(); // backend chosen by cfg(target_os)",
             });
+
+            if (condimentsState.profiler) {
+                lines.push({
+                    code: '    <span class="k">let</span> metrics = <span class="t">Rc</span>::<span class="f">new</span>(<span class="t">RefCell</span>::<span class="f">new</span>(<span class="t">PhaseMetrics</span>::<span class="f">default</span>()));',
+                    raw: "    let metrics = Rc::new(RefCell::new(PhaseMetrics::default()));",
+                });
+            }
 
             if (condimentsState.parley) {
                 lines.push({
-                    code: '    app.<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()));',
-                    raw: "    app.with_text_system(Arc::new(ParleyTextSystem::new()));",
+                    code: '    <span class="k">let</span> app = app.<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()));',
+                    raw: "    let app = app.with_text_system(Arc::new(ParleyTextSystem::new()));",
                     condiment: "parley",
                     tag: CONDIMENT_DATA.parley.pill,
                 });
             }
 
-            if (condimentsState.pacing) {
+            if (condimentsState.pacing || condimentsState.profiler) {
+                let pipeline = "StandardImmediatePipeline";
+                if (condimentsState.pacing) pipeline += ".max_fps(60)";
+                if (condimentsState.profiler) pipeline += ".instrumented(metrics.clone())";
                 lines.push({
-                    code: '    app.<span class="f">with_frame_pipeline</span>(<span class="t">ImmediatePipeline</span>::<span class="f">max_fps</span>(<span class="s">60</span>));',
-                    raw: "    app.with_frame_pipeline(ImmediatePipeline::max_fps(60));",
-                    condiment: "pacing",
-                    tag: CONDIMENT_DATA.pacing.pill,
+                    code: `    <span class="k">let</span> app = app.<span class="f">with_frame_pipeline</span>(|_| <span class="t">Box</span>::<span class="f">new</span>(${pipeline}));`,
+                    raw: `    let app = app.with_frame_pipeline(|_| Box::new(${pipeline}));`,
+                    condiment: condimentsState.pacing ? "pacing" : "profiler",
+                    tag: condimentsState.pacing
+                        ? CONDIMENT_DATA.pacing.pill
+                        : CONDIMENT_DATA.profiler.pill,
                 });
             }
 
             if (condimentsState.surface) {
                 lines.push({
-                    code: '    app.<span class="f">with_surface_pipeline</span>(<span class="t">WgpuSurface</span>::<span class="f">new</span>(device, queue));',
-                    raw: "    app.with_surface_pipeline(WgpuSurface::new(device, queue));",
+                    code: '    <span class="c">// Renderer: gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.</span>',
+                    raw: "    // Renderer: gpui_wgpu::WgpuRenderer implements SceneRenderer; swap it by implementing your own.",
                     condiment: "surface",
                     tag: CONDIMENT_DATA.surface.pill,
-                });
-            }
-
-            if (condimentsState.profiler) {
-                lines.push({
-                    code: '    app.<span class="f">with_telemetry</span>(<span class="t">TelemetryLayer</span>::<span class="f">realtime</span>());',
-                    raw: "    app.with_telemetry(TelemetryLayer::realtime());",
-                    condiment: "profiler",
-                    tag: CONDIMENT_DATA.profiler.pill,
                 });
             }
 
@@ -746,9 +767,7 @@
                 code: isWasm
                     ? '    }) <span class="c">// hand the run handle back to the wasm binding</span>'
                     : "    });",
-                raw: isWasm
-                    ? "    }) // hand the run handle back to the wasm binding"
-                    : "    });",
+                raw: "    });",
             });
             lines.push({ code: "}", raw: "}" });
 
@@ -847,14 +866,19 @@
                 el.textContent = value;
                 el.classList.toggle("is-off", !attached);
             };
+            // Only the installed side has a number. These are this crate's own
+            // measurements of its own frame — a lattice that stops the atlas
+            // missing, and what a line costs to lay out — and the reading for a
+            // condiment that is not installed is an em dash rather than a figure
+            // for some other engine, which this site has not measured.
             reading(
                 mGlyph,
-                condimentsState.parley ? "2.1 ms" : "835 ms",
+                condimentsState.parley ? "41.1 µs/frame" : "—",
                 condimentsState.parley,
             );
             reading(
                 mLayout,
-                condimentsState.parley ? "4.8 ms" : "28.5 ms",
+                condimentsState.parley ? "133 µs/line" : "—",
                 condimentsState.parley,
             );
             reading(
