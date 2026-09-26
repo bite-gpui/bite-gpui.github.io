@@ -1,0 +1,232 @@
+---
+import Page from "../layouts/Page.astro";
+
+// Grounded in `.uses/README.md` and the two projects' own benchmark records.
+// "Shipped" means it exists and builds today; "planned" entries are named as
+// planned and are not presented with results, because there are none yet.
+const shipped = [
+  {
+    name: "parley-demo",
+    badge: "Category 1",
+    role: "A second TextSystem",
+    href: "https://github.com/bite-gpui/gpui_parley",
+    hrefLabel: "bite-gpui/gpui_parley",
+    body: "A text system written outside the tree, selected at startup and drawing real text. It was extracted from the example that still ships in gpui_parley, and now depends on the published bite-gp-parley — library gpui_parley — from crates.io rather than on a vendored copy.",
+    facts: [
+      "Runs the shipped Linux default against ParleyTextSystem, both behind &dyn TextSystem",
+      "Every number on the Using gpui_parley page comes from its text_system bench",
+    ],
+  },
+  {
+    name: "scroll-demo",
+    badge: "Category 1 + 4",
+    role: "Paint modes over one document",
+    href: "https://github.com/bite-gpui/bite_gpui_scroll_demo",
+    hrefLabel: "bite-gpui/bite_gpui_scroll_demo",
+    body: "An app that renders one document in several paint modes with motion effects, and reports the frame cost of each. It was repointed off a fork checkout and onto the published crates: no logic changed, and the TextSystem it had written against the fork injects into the published facade and draws with it.",
+    facts: [
+      "cargo check --all-targets finishes warning-free",
+      "13 tests pass, and 28 with the test-support feature (1 ignored)",
+      "All three cost examples build and run against the published crates",
+    ],
+  },
+];
+
+const categories = [
+  {
+    n: "1",
+    name: "New flavour of a swappable",
+    what: "A second implementation of an SPI that already exists.",
+    knobs: "TextSystem, LayoutEngine, SceneRenderer, FramePipeline, Platform",
+  },
+  {
+    n: "2",
+    name: "Decorating a swappable",
+    what: "Wraps an existing implementation, adding a capability.",
+    knobs: "A FramePipeline or Platform wrapper — pacing, tracing",
+  },
+  {
+    n: "3",
+    name: "New authoring surface",
+    what: "Adds to the DSL rather than to a backend.",
+    knobs: "A new element or builder above div",
+  },
+  {
+    n: "4",
+    name: "Combined",
+    what: "More than one of the above in one project.",
+    knobs: "—",
+  },
+];
+
+const planned = [
+  {
+    name: "pipeline-decorator",
+    category: "2",
+    proves:
+      "An out-of-tree FramePipeline wrapper, and what its per-frame overhead is.",
+  },
+  {
+    name: "layout-engine",
+    category: "1",
+    proves:
+      "A second LayoutEngine with the same views on both, so layout cost is comparable.",
+    note: "Gates a benchmark: taffy is the only implementation of that trait in the published set, so the layout swap has no second column until this exists.",
+  },
+  {
+    name: "headless-platform",
+    category: "1",
+    proves: "A Platform that needs no display, so a CI job can render.",
+  },
+  {
+    name: "scene-renderer",
+    category: "1",
+    proves:
+      "A SceneRenderer out of tree, which is what a raw render-pass blit would have to be.",
+  },
+  {
+    name: "authoring-widget",
+    category: "3",
+    proves: "A new element built on the public authoring surface alone.",
+  },
+];
+---
+
+<Page
+  title="Demos — bite-gpui"
+  description="Projects built on the published bite-gpui crates, each exercising one swappable boundary from outside the tree."
+  kicker="Demos · From crates.io"
+  heading="Proof, not"
+  accent="promises."
+  lede="Each project here depends on the published crates by version — not a path into a checkout, not a git revision — and exercises one swappable boundary from outside the tree. A boundary that only works from inside is not a boundary."
+  current="demos"
+>
+  <section>
+    <div class="section-head">
+      <h2>Shipped</h2>
+      <p>
+        Both build today against published crates, by version, resolved from
+        crates.io.
+      </p>
+    </div>
+
+    <div class="card-grid two">
+      {shipped.map((project) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{project.name}</h3>
+            <span class="card-badge">{project.badge}</span>
+          </div>
+          <p class="card-role">{project.role}</p>
+          <p>{project.body}</p>
+          <ul class="card-facts">
+            {project.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          <a
+            class="card-link"
+            href={project.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {project.hrefLabel}
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-title">The one API gap the repoint found</span>
+      <p>
+        The published <code>bite-gp-engine 1.21.0</code> carries
+        <code>PathVertex::content_mask</code>, which a later fork commit dropped
+        — a real difference between the published artefact and the fork a
+        consumer may have vendored. It is inert: the published renderer clips by
+        <code>Path::clipped_bounds()</code> and never reads the field, so a
+        consumer fills it with <code>Default::default()</code>. It is written
+        down here rather than smoothed over because that is what
+        <em>installing</em> instead of vendoring is supposed to surface.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Four kinds of project</h2>
+      <p>
+        A project here is not a showcase. It is the proof of a claim, or a bug
+        report against one — so each is filed by which boundary it tests.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>category</th>
+            <th>what it does</th>
+            <th>the knobs</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((row) => (
+            <tr>
+              <td class="num mono">{row.n}</td>
+              <td>
+                <strong>{row.name}</strong>
+              </td>
+              <td>{row.what}</td>
+              <td class="mono dim">{row.knobs}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Planned</h2>
+      <p>
+        Named so the gaps are visible, not so they can be counted. None of these
+        has results yet, and none is listed with any.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      {planned.map((project) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{project.name}</h3>
+            <span class="card-badge planned">Cat {project.category}</span>
+          </div>
+          <p>{project.proves}</p>
+          {project.note ? <p class="card-note">{project.note}</p> : null}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What makes a number here trustworthy</h2>
+    </div>
+    <div class="prose">
+      <p>
+        A benchmark has two columns, or it says why it does not: two
+        implementations of one trait, the same inputs through each, and the
+        difference is the finding. One implementation measured alone is a
+        property of that library; only two, run through the same boundary, is a
+        property of the architecture.
+      </p>
+      <p>
+        Anything measured is measured by a committed benchmark, and the run is
+        recorded with the exact command, the toolchain and the machine next to
+        the project it belongs to. A number without a record is a claim, and the
+        site cites the record rather than the number.
+      </p>
+    </div>
+  </section>
+</Page>

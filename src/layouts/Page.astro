@@ -1,0 +1,36 @@
+---
+import Layout from "./Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+// The shell every sub-page shares. The one-page marketing story stays where it
+// is; these pages are the long-form material a reader lands on afterwards, so
+// they reuse Nav and Footer rather than inventing a second chrome.
+const { title, description, kicker, heading, accent, lede, current } =
+  Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <Nav current={current} />
+  <main class="page">
+    <header class="page-hero">
+      <div class="container">
+        <span class="kicker">{kicker}</span>
+        <h1>
+          {heading}
+          {accent ? (
+            <>
+              {" "}
+              <em>{accent}</em>
+            </>
+          ) : null}
+        </h1>
+        <p class="lede">{lede}</p>
+      </div>
+    </header>
+    <div class="container page-body">
+      <slot />
+    </div>
+  </main>
+  <Footer />
+</Layout>

@@ -1,5 +1,23 @@
 ---
 import Logo from "./Logo.astro";
+
+// `current` marks the active page for screen readers and the active-link style.
+// The four anchors are written absolute (`/#…`) rather than bare (`#…`) so the
+// same link works from a sub-page as from the one-pager.
+const { current = "" } = Astro.props;
+
+const anchors = [
+  { href: "/#journey", label: "The Layers", key: "journey" },
+  { href: "/#capabilities", label: "Combos", key: "capabilities" },
+  { href: "/#benchmarks", label: "The Receipt", key: "benchmarks" },
+  { href: "/#quickstart", label: "Express Lane", key: "quickstart" },
+];
+
+const pages = [
+  { href: "/parley", label: "Parley", key: "parley" },
+  { href: "/demos", label: "Demos", key: "demos" },
+  { href: "/compare", label: "Compare", key: "compare" },
+];
 ---
 
 <nav class="nav" id="nav">
@@ -31,18 +49,29 @@ import Logo from "./Logo.astro";
              nav row as they always did; a drop-down sheet at ≤820px. -->
     <div class="nav-menu" id="navMenu">
       <ul class="nav-links">
-        <li>
-          <a href="#journey">The Layers</a>
-        </li>
-        <li>
-          <a href="#capabilities">Combos</a>
-        </li>
-        <li>
-          <a href="#benchmarks">The Receipt</a>
-        </li>
-        <li>
-          <a href="#quickstart">Express Lane</a>
-        </li>
+        {anchors.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={current === link.key ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+        <!-- Splits the page's own anchors from the sub-pages. Purely visual, so
+             it is hidden from the accessibility tree and again on the sheet. -->
+        <li class="nav-divider" aria-hidden="true"></li>
+        {pages.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={current === link.key ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
       </ul>
       <button
         class="btn btn-primary nav-cta"
@@ -131,8 +160,8 @@ import Logo from "./Logo.astro";
 
   toggle?.addEventListener("click", () => setOpen(!isOpen()));
 
-  // Any link tap closes the sheet, whether or not it navigates (all four are
-  // same-page anchors, so the scroll happens underneath it).
+  // Any link tap closes the sheet, whether it scrolls to an anchor underneath
+  // the sheet or navigates to a sub-page.
   menu
     ?.querySelectorAll("a")
     .forEach((link) => link.addEventListener("click", () => setOpen(false)));
@@ -150,8 +179,11 @@ import Logo from "./Logo.astro";
   });
 
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
+  // Kept in step with the `max-width: 1180px` query in global.css that
+  // collapses the bar — the row carries seven links plus the CTA now, which is
+  // a wider bar than the hero's own 820px breakpoint.
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 820) setOpen(false);
+    if (window.innerWidth > 1180) setOpen(false);
   });
 
   // The nav CTA copies the install line rather than jumping: the sheet already

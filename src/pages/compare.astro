@@ -1,0 +1,315 @@
+---
+import Page from "../layouts/Page.astro";
+
+// Two comparisons that are actually comparable, plus an explicit list of what
+// this project cannot back up. Nothing here names a competitor benchmark: the
+// columns are always two things we can build and run.
+const dependency = [
+  {
+    aspect: "How you add it",
+    branch: 'gpui = { git = "…", rev = "…" }',
+    published: 'bite-gpui = "1.21"',
+  },
+  {
+    aspect: "What the pin means",
+    branch: "A commit — a point in time",
+    published: "A version derived from the upstream release it retargets",
+  },
+  {
+    aspect: "Resolution",
+    branch: "A revision; the graph cannot express a range",
+    published: "Ordinary SemVer, so ranges and lockfiles work",
+  },
+  {
+    aspect: "Updating",
+    branch: "Re-pin the revision and rebuild",
+    published: "Change the version",
+  },
+  {
+    aspect: "Provenance",
+    branch: "Whatever the branch happened to be",
+    published:
+      "[package.metadata.bite] records branch, commit and upstream release",
+  },
+  {
+    aspect: "What your source says",
+    branch: "use gpui::…",
+    published: "use gpui::… — unchanged",
+  },
+];
+
+const seams = [
+  {
+    seam: "TextSystem",
+    owns: "Shaping, line layout and glyph rasterization.",
+    swap: "Application::with_text_system(Arc<dyn TextSystem>)",
+    live: "gpui_parley",
+  },
+  {
+    seam: "LayoutEngine",
+    owns: "Turning the element tree into laid-out boxes.",
+    swap: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
+    live: null,
+  },
+  {
+    seam: "FramePipeline",
+    owns: "Pacing, presentation order and per-frame instrumentation.",
+    swap: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
+    live: null,
+  },
+  {
+    seam: "Platform",
+    owns: "The OS event loop, displays and input.",
+    swap: "Application::with_platform(Rc<dyn Platform>)",
+    live: null,
+  },
+  {
+    seam: "SceneRenderer",
+    owns: "The scene IR becoming pixels.",
+    swap: "No Application setter — the trait is the boundary",
+    live: null,
+  },
+];
+
+const vectors = [
+  {
+    route: "Raster",
+    perFrame: "26.7 ms",
+    detail: "Rasterize a screenful of text every frame.",
+    cost: "CPU",
+  },
+  {
+    route: "Vector",
+    perFrame: "48 µs",
+    detail:
+      "Stream 218,322 pre-tessellated vertices for a screenful, 42.6 MB of traffic.",
+    cost: "Bus bandwidth",
+  },
+];
+---
+
+<Page
+  title="Compare — bite-gpui"
+  description="Two comparisons that can be run: vendoring a branch against a published version, and raster text against vector text."
+  kicker="Compare · Both columns runnable"
+  heading="Forking, or"
+  accent="depending."
+  lede="Every comparison here is between two things we can build and run — a fork checkout against a published crate, raster text against vector text. Where something is not comparable yet, this page says so rather than reaching for a number."
+  current="compare"
+>
+  <section>
+    <div class="section-head">
+      <h2>A branch is not a dependency.</h2>
+      <p>
+        The thing the rearchitecture changes for a consumer is not the API. It
+        is what sits in <span class="mono">Cargo.toml</span>.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>A branch dependency</th>
+            <th>A published version</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dependency.map((row) => (
+            <tr>
+              <td class="dim">{row.aspect}</td>
+              <td>
+                <span class="mono">{row.branch}</span>
+              </td>
+              <td class="win">
+                <span class="mono">{row.published}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p>
+        The rename is the whole trick, and it is deliberately split in two: the
+        package name moves into the <span class="mono">bite-*</span> namespace,
+        while the library target name does not. So
+        <span class="mono">bite-gpui</span> still exports a crate called
+        <span class="mono">gpui</span>, and an existing project changes one line
+        — the dependency — with no view code touched. That is what makes it a
+        drop-in rather than a porting exercise.
+      </p>
+      <p>
+        The prefix is not decoration either. The name being reimplemented is
+        already taken: <span class="mono">gpui</span> on crates.io is owned by
+        the upstream project it comes from.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Five seams, and where each one is swapped.</h2>
+      <p>
+        The architecture is only a claim until a boundary has an outside: each
+        of these is a trait a second implementation can satisfy without touching
+        the tree.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>seam</th>
+            <th>what it owns</th>
+            <th>how you swap it</th>
+            <th>second implementation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {seams.map((row) => (
+            <tr>
+              <td>
+                <strong class="mono">{row.seam}</strong>
+              </td>
+              <td>{row.owns}</td>
+              <td class="mono dim">{row.swap}</td>
+              <td>
+                {row.live ? (
+                  <span class="win mono">{row.live}</span>
+                ) : (
+                  <span class="mono dim">none published yet</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p>
+        Only the first row has a second implementation published today, and that
+        is worth saying plainly: <a href="/demos">the demo projects</a> are the
+        work of giving the other four a user. Until a seam has one, it is a
+        boundary in the type system and not yet a boundary in practice.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Raster or vector: it is a trade about bus traffic.</h2>
+      <p>
+        One cost example draws a screenful of dense text on every frame. The
+        other tessellates the glyph outlines once and then streams triangles.
+        Neither is free, and the two failures are different kinds.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>route</th>
+            <th class="num">per frame</th>
+            <th>what it does</th>
+            <th>what it spends</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vectors.map((row) => (
+            <tr>
+              <td>
+                <strong>{row.route}</strong>
+              </td>
+              <td class="num">{row.perFrame}</td>
+              <td>{row.detail}</td>
+              <td class="win">{row.cost}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p>
+        The vector route pays once — outlines tessellated in
+        <strong>639 µs</strong> — and then <strong>3.8 µs</strong> to look the
+        result up each frame. Rasterizing the same content every frame is
+        <strong>26.7 ms</strong>, so the vector route lands a screenful in
+        <strong>0.69 ms</strong>: <strong>39×</strong> less CPU, bought with
+        <strong>42.6 MB</strong> of vertex traffic a frame. On a frame budget of
+        16.7 ms that is roughly <strong>3.8 ms</strong> against
+        <strong>16.7 ms</strong>.
+      </p>
+      <p>
+        Two smaller effects ride along, and both are the same idea — stop doing
+        per-instance work in the frame:
+      </p>
+      <ul>
+        <li>
+          Rounding raster sizes to a deterministic lattice drops atlas cache
+          misses from <strong>154 a frame</strong> to zero, shrinking the atlas
+          from 32,508 entries to 644.
+        </li>
+        <li>
+          Keying the hinting cache to <span class="mono">(face, size)</span>{" "}
+          builds <strong>30</strong> bytecode instances a frame where an
+          uncached run would execute <strong>3,480</strong> —{" "}
+          <strong>116×</strong> fewer.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What we won't claim.</h2>
+      <p>
+        A comparison is only worth reading if you know which column would
+        survive scrutiny.
+      </p>
+    </div>
+
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>The bars are cost examples, not benchmarks.</strong> They are{" "}
+          <span class="mono">cargo run --release --example</span> binaries
+          timing <span class="mono">Instant</span> deltas. There is no criterion
+          target in the published layer crates, so there is no statistical
+          treatment and no run-to-run spread. Every count in them reproduces
+          exactly; the absolute milliseconds are one machine's.
+        </li>
+        <li>
+          <strong>
+            One measurement has a second column and real statistics.
+          </strong>{" "}
+          The vanilla-against-Parley table on{" "}
+          <a href="/parley">Using gpui_parley</a> is criterion, 100 samples per
+          operation, two implementations behind the same trait. Its host is a
+          laptop, not a controlled benchmarking host — which is stated on that
+          page rather than buried.
+        </li>
+        <li>
+          <strong>Layout has one column, so it is not compared.</strong>{" "}
+          <span class="mono">taffy</span> is the only published implementation
+          of
+          <span class="mono">LayoutEngine</span>. Measuring it alone would say
+          what taffy costs, not what choosing a layout engine costs, so no
+          layout numbers appear anywhere on this site.
+        </li>
+        <li>
+          <strong>No competitor numbers.</strong> Nothing here is measured
+          against another UI framework. The comparisons are between two things
+          in this project, run on the same host, on the same day, through the
+          same boundary.
+        </li>
+      </ul>
+    </div>
+  </section>
+</Page>

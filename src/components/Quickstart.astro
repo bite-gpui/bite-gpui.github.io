@@ -19,7 +19,7 @@ cargo add bite-gp-parley`,
 
 <span class="k">fn</span> <span class="f">main</span>() {
     <span class="f">application</span>().<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| {
-        cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">cx</span>| {
+        cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">_</span>, <span class="m">cx</span>| {
             cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
         }).<span class="f">unwrap</span>();
     });
@@ -30,7 +30,6 @@ cargo add bite-gp-parley`,
     label: "With Parley",
     html: `<span class="k">use</span> std::cell::<span class="t">RefCell</span>;
 <span class="k">use</span> std::rc::<span class="t">Rc</span>;
-<span class="k">use</span> std::sync::<span class="t">Arc</span>;
 <span class="k">use</span> gpui::<span class="m">*</span>;
 <span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;
 
@@ -38,7 +37,7 @@ cargo add bite-gp-parley`,
     <span class="k">let</span> metrics = <span class="t">Rc</span>::<span class="f">new</span>(<span class="t">RefCell</span>::<span class="f">new</span>(<span class="t">PhaseMetrics</span>::<span class="f">default</span>()));
 
     <span class="f">application</span>()
-        .<span class="f">with_text_system</span>(<span class="t">Arc</span>::<span class="f">new</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>()))
+        .<span class="f">with_text_system</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>())
         .<span class="f">with_frame_pipeline</span>({
             <span class="k">let</span> metrics = metrics.<span class="f">clone</span>();
             <span class="k">move</span> |_window_id| {
