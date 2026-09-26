@@ -49,7 +49,7 @@ const seams = [
     seam: "LayoutEngine",
     owns: "Turning the element tree into laid-out boxes.",
     swap: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
-    live: null,
+    live: "morphorm",
   },
   {
     seam: "FramePipeline",
@@ -192,10 +192,14 @@ const vectors = [
 
     <div class="prose">
       <p>
-        Only the first row has a second implementation published today, and that
-        is worth saying plainly: <a href="/demos">the demo projects</a> are the
-        work of giving the other four a user. Until a seam has one, it is a
-        boundary in the type system and not yet a boundary in practice.
+        Two of the five have a second implementation today —
+        <span class="mono">TextSystem</span> and
+        <span class="mono">LayoutEngine</span> — and only the first is
+        published: the layout engine lives in the project's usage suite, so it
+        is a second column for measuring with rather than something to install.
+        The other three are the work of
+        <a href="/demos">giving them a user</a>, because until a seam has one it
+        is a boundary in the type system and not yet a boundary in practice.
       </p>
     </div>
   </section>
@@ -296,12 +300,19 @@ const vectors = [
           page rather than buried.
         </li>
         <li>
-          <strong>Layout has one column, so it is not compared.</strong>{" "}
-          <span class="mono">taffy</span> is the only published implementation
-          of
-          <span class="mono">LayoutEngine</span>. Measuring it alone would say
-          what taffy costs, not what choosing a layout engine costs, so no
-          layout numbers appear anywhere on this site.
+          <strong>
+            The layout comparison is one tree, not a suite of them.
+          </strong>{" "}
+          A second <span class="mono">LayoutEngine</span> exists now, and it
+          puts the same twelve nodes in the same places as taffy —{" "}
+          <strong>0.00 px</strong> apart at scale 1.0, 1.5 and 2.0 — while
+          costing roughly <strong>3–4×</strong> less per frame and{" "}
+          <strong>1.3–1.4×</strong>
+          less for bounds, across two runs. And it is one tree, on one laptop,
+          built from the constructs the conversion claims to handle. It says the
+          mapping is right where it says it is right; it does not say the two
+          engines are equivalent in general, and the constructs morphorm cannot
+          express are listed with the numbers rather than left out.
         </li>
         <li>
           <strong>No competitor numbers.</strong> Nothing here is measured

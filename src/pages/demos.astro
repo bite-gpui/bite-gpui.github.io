@@ -32,6 +32,19 @@ const shipped = [
     ],
     note: "The copy that builds on the published crates is the usage suite's. That repository is the app's upstream and still points at a fork checkout.",
   },
+  {
+    name: "layout-engine",
+    badge: "Category 1",
+    role: "A second LayoutEngine",
+    href: null,
+    hrefLabel: null,
+    body: "A layout solver written outside the tree: morphorm, behind the same six-method trait the default engine implements. Two engines that disagree are not two columns, so the bounds are compared before anything is timed — and where morphorm's vocabulary does not reach, the conversion says so instead of approximating quietly.",
+    facts: [
+      "0.00 px from the default engine on 12 nodes, at scale 1.0, 1.5 and 2.0",
+      "Roughly 3–4× cheaper per frame and 1.3–1.4× for bounds, over two runs",
+    ],
+    note: "Lives in the usage suite, which is not published yet, so there is no repository to link.",
+  },
 ];
 
 const categories = [
@@ -69,13 +82,6 @@ const planned = [
       "An out-of-tree FramePipeline wrapper, and what its per-frame overhead is.",
   },
   {
-    name: "layout-engine",
-    category: "1",
-    proves:
-      "A second LayoutEngine with the same views on both, so layout cost is comparable.",
-    note: "Gates a benchmark: taffy is the only implementation of that trait in the published set, so the layout swap has no second column until this exists.",
-  },
-  {
     name: "headless-platform",
     category: "1",
     proves: "A Platform that needs no display, so a CI job can render.",
@@ -107,11 +113,10 @@ const planned = [
     <div class="section-head">
       <h2>Shipped</h2>
       <p>
-        Both build today against published crates, by version, resolved from
-        crates.io. They live in the project's own usage suite, which is not
+        All three build today against published crates, by version, resolved
+        from crates.io. They live in the project's own usage suite, which is not
         published yet, so the links below point at what <em>is</em> public —
-        each card says which part of it is upstream and which part is this
-        project's.
+        each card says which part is upstream and which part is this project's.
       </p>
     </div>
 
@@ -130,14 +135,16 @@ const planned = [
             ))}
           </ul>
           {project.note ? <p class="card-note">{project.note}</p> : null}
-          <a
-            class="card-link"
-            href={project.href}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {project.hrefLabel}
-          </a>
+          {project.href ? (
+            <a
+              class="card-link"
+              href={project.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {project.hrefLabel}
+            </a>
+          ) : null}
         </article>
       ))}
     </div>
