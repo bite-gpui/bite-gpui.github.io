@@ -381,18 +381,29 @@ html {
   color: var(--text);
 }
 
-/** The section the page sits in, after the way back: a label rather than a link.
-   The rail beside it opens with the hub, under the name a reader gets there by, so
-   the bar names the section once and the pill answers for the page. */
+/** The section the page sits in, after the way back: the hub, under the name a reader
+   gets there by — the same name and the same url the rail's first entry uses, so it
+   is a step in the crumb rather than a label. It carries the brand, where the way
+   back before it carries `--text-2`, so the trail names where you are rather than
+   only where you came from. */
 .nav-crumb-sep {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--border-2);
 }
 .nav-crumb-section {
+  padding: 4px 8px;
+  border-radius: 8px;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--brand);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+.nav-crumb-section:hover {
+  background: var(--surface);
+  color: var(--text);
 }
 .nav-trail-links {
   display: flex;
@@ -825,13 +836,13 @@ html {
 }
 .hero-copy .lede {
   margin-top: 8px;
-  /* The lede is the page's editorial voice, and this is the one paragraph set in
-     the reading serif, in italic. Newsreader rather than a display serif because a
-     guide's lede runs three or four sentences at 1.05rem: that is a reading job,
-     not a title. `pretty` so the paragraph cannot end on a single word, which an
-     italic serif makes conspicuous. */
+  /* The lede is the page's editorial voice, so it is the one paragraph set in the
+     reading serif. Upright, not italic: a guide's lede runs three or four lines,
+     and that much slanted text reads as a quotation or a disclaimer rather than as
+     the page's own statement. The slant is spent on the headline's own <em>
+     instead. Newsreader rather than a display serif because a lede is a reading
+     job, not a title. `pretty` so it cannot end on a single word. */
   font-family: var(--serif);
-  font-style: italic;
   text-wrap: pretty;
   font-size: 1.05rem;
   color: var(--text-2);
@@ -839,10 +850,6 @@ html {
 }
 .hero-copy .lede code {
   font-size: 0.92em;
-  /* The chip keeps the upright mono it has everywhere else on the page: a run of
-     inline code inside an italic paragraph is the one place the slant reads as a
-     mistake rather than as voice. */
-  font-style: normal;
   color: var(--text);
 }
 
@@ -2446,9 +2453,8 @@ footer {
   margin-top: 18px;
   max-width: 68ch;
   /* Set the way the one-pager's lede is, and for the same reason — see
-     .hero-copy .lede for why the serif, the italic and `pretty` are here. */
+     .hero-copy .lede for why the serif is here and the italic is not. */
   font-family: var(--serif);
-  font-style: italic;
   text-wrap: pretty;
   font-size: 1.05rem;
   line-height: 1.65;

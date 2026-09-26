@@ -91,10 +91,12 @@ const topLevel = guides.filter((guide) => !guide.parent);
 
     {section ? (
       /* The crumb, between two pipes: the step up, and the section the page sits in.
-           The section's name is a label rather than a second link to the hub — the rail
-           beside it opens with that, under the name a reader gets there by — so the bar
-           names the section once and the pill answers for the page. It stays outside the
-           collapsible part of the bar, so the way back is one tap away at every width. */
+           Both halves are steps on the same path rather than one link and one label — the
+           section's name goes to the hub under the name a reader gets there by, which is
+           also the rail's first entry. They are the same word for the same url, so this
+           costs no second current marker, and a crumb whose every step is tappable is
+           what a reader tries to do with it anyway. It stays outside the collapsible part
+           of the bar, so the way back is one tap away at every width. */
       <div class="nav-back-group">
         <a class="nav-back" href="/#journey">
           <span aria-hidden="true">←</span>
@@ -103,7 +105,9 @@ const topLevel = guides.filter((guide) => !guide.parent);
         <span class="nav-crumb-sep" aria-hidden="true">
           /
         </span>
-        <span class="nav-crumb-section">{section.label}</span>
+        <a class="nav-crumb-section" href={section.href}>
+          {section.label}
+        </a>
       </div>
     ) : null}
 

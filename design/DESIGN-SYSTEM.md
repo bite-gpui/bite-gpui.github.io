@@ -541,7 +541,7 @@ states.
 | --------------- | ---------------- | ----------------------- | --------- |
 | Interface       | `Inter`          | 400, 500, 600, 700, 800 | `--ui`    |
 | Code / terminal | `JetBrains Mono` | 400, 500, 600, 700      | `--mono`  |
-| Lede            | `Newsreader`     | 400 italic              | `--serif` |
+| Lede            | `Newsreader`     | 400                     | `--serif` |
 
 ```css
 --ui: "Inter", system-ui, -apple-system, sans-serif;
@@ -560,12 +560,14 @@ pre,
 }
 ```
 
-The lede is the one thing set in the serif, and only in italic: it is the page's
-editorial voice, where everything under it is the technical one. Newsreader rather
-than a display face, because a guide's lede runs three or four sentences at
-`1.05rem` — a reading job, not a title. Inline `code` inside it resets to the
-upright mono, so a chip is never slanted. The lede also carries `text-wrap:
-pretty`, so an italic paragraph cannot end on a single word.
+The lede is the one thing set in the serif — and upright, not italic: it is the
+page's editorial voice, where everything under it is the technical one. A lede
+runs three or four lines, and slanted text at that length reads as a quotation
+or a disclaimer rather than as the page's own statement; the italic is spent on
+the headline's own `<em>` instead. Newsreader rather than a display face,
+because a lede is a reading job and not a title. Inline `code` inside it stays
+the upright mono it is everywhere else, and the lede carries `text-wrap: pretty`
+so it cannot end on a single word.
 
 All three are self-hosted-free, loaded from Google Fonts with `preconnect` in
 `src/layouts/Layout.astro`, and declared `display=swap`. Only the italic 400 is
@@ -581,6 +583,12 @@ Display type uses tight tracking: `h1` is `-.045em`, the generic heading rule is
 **Radii** — `--r: 12px` for major cards. The working scale is `4 / 6 / 8 / 10 /
 12` px, with `99px` reserved for pills and `50%` for dots. Use the smallest
 radius that reads as intentional; large radii are for containers only.
+
+**The lede is upright.** It is the one paragraph set in `--serif`, and it is not
+italic: a lede runs three or four lines, and that much slanted text reads as a
+quotation or a disclaimer rather than as the page's own statement. The slant is
+spent on the headline's own `<em>`, which is one phrase. Inline `code` inside a
+lede is upright mono, as it is everywhere else.
 
 **Elevation** — shadows are named tokens mixed from a single `--shade` triplet, so
 the same geometry reads as deep on the dark canvas and soft on sage paper (the
