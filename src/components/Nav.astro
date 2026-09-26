@@ -293,7 +293,12 @@ const topLevel = guides.filter((guide) => !guide.parent);
   // chapter the reader is already standing in.
   const markChapter = () => {
     if (!chapters.length) return;
-    const line = (nav?.offsetHeight ?? 64) + 16;
+    // The reading position, not the bar. Measured against an 813px frame, a line
+    // at the bar itself left every chapter marked ~326px into the next one: the
+    // pill went on naming the chapter above the one on screen. The middle of what
+    // the fixed bar leaves visible flips the moment a chapter becomes the thing
+    // being looked at, which is what the mark is for.
+    const line = Math.round(window.innerHeight / 2);
     let inView = null;
     for (const { link, section } of chapters) {
       if (section && section.getBoundingClientRect().top <= line) inView = link;
@@ -344,6 +349,9 @@ const topLevel = guides.filter((guide) => !guide.parent);
   // the 1152px content box to keep its seven links on one line.
   window.addEventListener("resize", () => {
     if (window.innerWidth > 1180) setOpen(false);
+    // The marker line is a fraction of the viewport, so a viewport change moves
+    // it — and a resize fires no scroll event.
+    markChapter();
   });
 
   // The nav CTA copies the install line rather than jumping: the sheet already
