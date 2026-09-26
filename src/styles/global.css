@@ -3322,6 +3322,55 @@ footer {
 .seam-wire.is-none code {
   color: var(--text-3);
 }
+
+/* The line a reader came for: the call itself, in the crate's own idiom, ready
+   to copy. The trait and its hook above are what a spec sheet carries; this is
+   the one thing on the card that can be pasted and run. */
+.seam-call {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--inset);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+.seam-call:hover {
+  background: var(--surface-2);
+  border-color: var(--border-hover);
+}
+.seam-call:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.seam-call code {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-3);
+  overflow-wrap: anywhere;
+}
+/* The method is the part that names the seam, so it carries the ink; `app.` and
+   the parens stay dim the way a shell prompt does. */
+.seam-call .seam-call-method {
+  font-weight: 700;
+  color: var(--code-text);
+}
+.seam-call-copy {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-3);
+  transition: color 0.2s ease;
+}
+.seam-call:hover .seam-call-copy {
+  color: var(--text);
+}
 .seam-facts {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

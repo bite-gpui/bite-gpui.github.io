@@ -45,8 +45,9 @@ const stats = [
 const seams = [
   {
     trait: "TextSystem",
-    owns: "Text shaping, line layout, and glyph rasterization.",
+    owns: "Shaping, line layout, font fallback, and glyph rasterization.",
     hook: "Application::with_text_system(Arc<dyn TextSystem>)",
+    call: "ParleyTextSystem::new()",
     defined: "gpui_engine",
     default: "DefaultTextSystem",
     defaultNote: "over the host's own text backend",
@@ -60,8 +61,9 @@ const seams = [
   },
   {
     trait: "LayoutEngine",
-    owns: "Translating the reactive element tree into positioned layout boxes.",
+    owns: "Turning the element tree into laid-out boxes.",
     hook: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
+    call: "|| Box::new(MorphormLayoutEngine::new())",
     defined: "gpui_engine",
     default: "TaffyLayoutEngine",
     defaultNote: "the engine the facade bundles",
@@ -77,6 +79,10 @@ const seams = [
     trait: "FramePipeline",
     owns: "Frame pacing, presentation cadence, and render-pass instrumentation.",
     hook: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
+    // Not stock: the shipped default carries `.max_fps(n)` and `.instrumented(metrics)`
+    // as decorators, and the one-pager's governor is that default configured.
+    staticCall: true,
+    call: "StandardImmediatePipeline.max_fps(60)",
     defined: "gpui_authoring",
     default: "StandardImmediatePipeline",
     defaultNote:
@@ -215,6 +221,45 @@ const artifacts = [
             <span class="seam-wire-label">hook at the facade</span>
             <code>{seam.hook ?? "none — the trait is the boundary"}</code>
           </div>
+
+          {seam.call ? (
+            <button
+              class="seam-call"
+              type="button"
+              data-copy={seam.call}
+              aria-label={`Copy ${seam.call}`}
+            >
+              <code>
+                {/* `staticCall` is the one that is not a stock call: it is the
+                       shipped default with a decorator applied, which is what the
+                       note under the card explains. */}
+                {seam.staticCall ? "app." : "app."}
+                <span class="seam-call-method">
+                  {seam.trait === "TextSystem"
+                    ? "with_text_system"
+                    : seam.trait === "LayoutEngine"
+                      ? "with_layout_engine"
+                      : "with_frame_pipeline"}
+                </span>
+                ( {seam.call}){seam.staticCall ? ";" : ";"}
+              </code>
+              <span class="seam-call-copy" aria-hidden="true">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+                </svg>
+              </span>
+            </button>
+          ) : null}
 
           <dl class="seam-facts">
             <dt>defined in</dt>

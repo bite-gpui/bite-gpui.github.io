@@ -114,13 +114,15 @@ const {
 
 <script>
   // Delegated, so the hero's install line brings its own wiring rather than
-  // borrowing the nav's or a transcript's.
+  // borrowing the nav's or a transcript's. `[data-copy]` is the same idea for a
+  // page's own snippets — the nav's CTA and a seam card's call both use it.
   document.addEventListener("click", (event) => {
     const button = (event.target as HTMLElement).closest<HTMLElement>(
-      "[data-install]",
+      "[data-install], [data-copy]",
     );
     if (!button) return;
-    const command = button.dataset.install ?? "";
+    const command = button.dataset.install ?? button.dataset.copy ?? "";
+    if (!command) return;
     window.copyToClipboard(command, `Copied ${command}`);
   });
 </script>
