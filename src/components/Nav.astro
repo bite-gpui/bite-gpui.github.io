@@ -7,7 +7,11 @@ import Logo from "./Logo.astro";
 const { current = "" } = Astro.props;
 
 const anchors = [
-  { href: "/#journey", label: "The Layers", key: "journey" },
+  // `id` is only set on the one link the journey has to intercept; see
+  // Journey.astro's scrollToLayers. Its hash matches no element on purpose —
+  // the journey already starts at the document top, so that is the fallback,
+  // and the script refines it to the unstacked end of the track.
+  { id: "navLayers", href: "/#layers", label: "The Layers", key: "journey" },
   { href: "/#capabilities", label: "Combos", key: "capabilities" },
   { href: "/#benchmarks", label: "The Receipt", key: "benchmarks" },
   { href: "/#quickstart", label: "Express Lane", key: "quickstart" },
@@ -52,6 +56,7 @@ const pages = [
         {anchors.map((link) => (
           <li>
             <a
+              id={link.id}
               href={link.href}
               aria-current={current === link.key ? "page" : undefined}
             >

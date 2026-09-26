@@ -81,6 +81,15 @@ content only. Their prose/table/card primitives are the `SUB-PAGES` block in
 that sets `aria-current` on the active link. Its four anchors are written
 absolute (`/#journey`) so the same markup works from a sub-page.
 
+The one link that is not a plain anchor is **The Layers**, which points at
+`/#layers`. Its job is to land on the _unstacked_ stack rather than on the
+assembled hero the journey starts at, and that offset is a function of the
+locked viewport height — the journey is 280svh on desktop and 200svh below
+820px — so it cannot be expressed in CSS. `Journey.astro` owns both halves: it
+intercepts the click when a journey is on the page, and it refines the position
+on load when the hash is `#layers`. The hash matches no element on purpose; the
+journey already begins at the document top, so that is the no-JS fallback.
+
 ## Design system
 
 Theme: **Variant 2C — Smoked Malt & Smoked Olive Sage**.
