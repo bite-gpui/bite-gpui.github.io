@@ -327,22 +327,41 @@ html {
   margin-left: -4px;
 }
 
-/* Section mode: a breadcrumb where the brand was. It sits outside the collapsible
-   part of the bar, so "back" stays one tap away at every width — including the
-   widths where the rail itself has folded into the sheet. */
+/* Where you are: the frontdoor, the section the page sits in, and that section's
+   own pages, with a pipe on each side of the group. It stays outside the
+   collapsible part of the bar, so the way home is one tap away at every width —
+   which is also why the sheet's rail keeps the section's pages rather than
+   leaving them to the trail above it (they are hidden here, reachable there).
+
+   The pipes are pseudo-elements rather than flex items. As items, each would cost
+   one of the bar's own 32px gaps, and two of those put the section row 1px inside
+   a 1152px content box. */
+.nav-trail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.nav-trail::before,
+.nav-trail::after {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 16px;
+  background: var(--border-2);
+}
 .nav-crumb {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  gap: 7px;
   font-size: 0.82rem;
-  white-space: nowrap;
 }
-.nav-crumb-back {
+.nav-crumb-home {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 9px;
+  padding: 4px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 600;
@@ -352,7 +371,7 @@ html {
     border-color 0.2s ease,
     color 0.2s ease;
 }
-.nav-crumb-back:hover {
+.nav-crumb-home:hover {
   background: var(--surface);
   border-color: var(--border-2);
   color: var(--text);
@@ -369,6 +388,74 @@ html {
 }
 .nav-crumb-section:hover {
   color: var(--brand-hover);
+}
+/* The section the page sits in, marked with the same small brand dot the Combo
+   Studio's order badges carry: the trail names a hub rather than the page, so its
+   own marker is a dot, and the pill below is left for the page itself. */
+.nav-crumb-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 7px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+/* The section's own pages, next to the trail that names it: one level in from the
+   frontdoor, so they take the crumb's size rather than the rail's. */
+.nav-trail-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+.nav-trail-links a {
+  color: var(--text-2);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.nav-trail-links a:hover {
+  color: var(--text);
+}
+
+/* Below the nav's own 1180px breakpoint the sheet takes the rail, and the trail
+   hands it the section's pages: they are rows down there, and a page named in
+   both places is a page named twice. The pipe that closed the group goes with
+   them, leaving the one that opens the trail to mark where the bar is. */
+@media (max-width: 1180px) {
+  .nav-trail-links {
+    display: none;
+  }
+  .nav-trail::after {
+    display: none;
+  }
+}
+
+/* The bar on a section page, narrowest first. Two things never go: the mark, and
+   the way home — so the wordmark beside the mark, the version chip beside that,
+   and then the section name give way in that order, measured rather than guessed,
+   through a 320px frame. What is left is the mark and "← Frontdoor", which is
+   what a 320px bar has room for once the hamburger and the theme switch are in
+   it. */
+@media (max-width: 900px) {
+  .nav.is-section .logo-version {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .nav.is-section .logo-word {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .nav.is-section .nav-crumb-sep,
+  .nav.is-section .nav-crumb-section {
+    display: none;
+  }
 }
 
 /* Theme switch. Shows the mode it will switch *to*: a sun in the dark theme,
@@ -519,17 +606,38 @@ html {
 .nav-links a:hover {
   color: var(--text);
 }
-/* The active page. Colour alone would be a weak signal on a bar this quiet, so
-   the weight moves too. */
-.nav-links a[aria-current="page"] {
-  color: var(--text);
-  font-weight: 600;
+/* The trail carries what the rail would otherwise repeat. Only on desktop: below
+   the 1180px breakpoint the trail's own links are hidden, so the sheet's rail is
+   the only place they can be reached from and it has to keep them. */
+.nav-links li[data-in-trail] {
+  display: none;
 }
-/* Hairline between the one-page anchors and the four guide pages. Purely
-   visual, so it is `aria-hidden` in the markup and dropped on the sheet. */
+/* The current entry is a pill: a fill with a hairline ring around it. On a rail of
+   five same-weight links, colour alone was the quietest possible signal — and on
+   the one-pager it moves, marking the chapter the reader has scrolled into
+   (`aria-current="location"`, set by the script in Nav.astro).
+
+   Painted with box-shadow rather than padding and a border, because a padded pill
+   grows the box it marks: the link shoves its neighbours along the row every time
+   the marker moves, and on the one-pager that is on every scroll. A spread shadow
+   is paint only, so the row is the same width in every state and the marked link
+   never moves. */
+.nav a[aria-current="page"],
+.nav a[aria-current="location"] {
+  color: var(--text);
+  border-radius: 99px;
+  box-shadow:
+    0 0 0 5px var(--surface),
+    0 0 0 6px var(--border-2);
+}
+/* Hairline between the one-page chapters and the four guide pages. Purely visual,
+   so it is `aria-hidden` in the markup and dropped on the sheet. Sized and centred
+   to match the trail's own pipes, which are 16px rather than the row's full
+   height. */
 .nav-divider {
   width: 1px;
-  margin-block: 3px;
+  height: 16px;
+  align-self: center;
   background: var(--border-2);
 }
 
@@ -3165,6 +3273,9 @@ footer {
   font-size: 0.74rem;
   line-height: 1.5;
   color: var(--text-2);
+  /* A type name like `StandardImmediatePipeline` is one 177px token at this size,
+     and the value column is narrower than that on a phone. */
+  overflow-wrap: anywhere;
 }
 .seam-facts dd strong {
   font-weight: 700;
@@ -3202,6 +3313,12 @@ footer {
   .seam-grid > .seam:last-child:nth-child(odd) {
     grid-column: auto;
   }
+}
+
+/* The stat strip and the seam facts reflow on the narrowest screens. The label
+   column of a seam fact is 145px of a 320px card, which leaves the value too
+   little to break a type name across, so each label sits above its value. */
+@media (max-width: 820px) {
   .stat {
     flex: 1 1 100%;
     padding-right: 0;
@@ -3218,14 +3335,28 @@ footer {
   }
 }
 
+@media (max-width: 480px) {
+  .seam-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px 0;
+  }
+  .seam-facts dt {
+    margin-top: 7px;
+  }
+  .seam-facts dt:first-of-type {
+    margin-top: 0;
+  }
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-/* The nav row now carries seven links plus the install CTA, which needs a wider
-   bar than the four anchors did. It collapses to a hamburger with a drop-down
-   sheet below this, independently of the 820px layout breakpoint the rest of the
-   page shares — the sheet is a separate layer, so a page that is still in
-   desktop layout underneath it is not a problem.
+/* The frontdoor row carries seven links plus the install CTA, which needs a wider
+   bar than the four anchors did, and it is the wider of the nav's two modes (a
+   section row is two links and the trail). It collapses to a hamburger with a
+   drop-down sheet below this, independently of the 820px layout breakpoint the
+   rest of the page shares — the sheet is a separate layer, so a page that is
+   still in desktop layout underneath it is not a problem.
 
    Kept in step with the `1180` in Nav.astro's resize handler. */
 @media (max-width: 1180px) {
@@ -3259,11 +3390,28 @@ footer {
     gap: 0;
     margin-left: 0;
   }
+  /* The rail is the only way to reach the section's pages down here, so it takes
+     back the entries the desktop row leaves to the trail above it. */
+  .nav-links li[data-in-trail] {
+    display: block;
+  }
   .nav-links a {
     display: block;
     padding: 13px 2px;
     font-size: 0.95rem;
     border-bottom: 1px solid var(--border);
+  }
+  /* A column, so the current row is a band rather than the pill the desktop row
+     paints: a spread shadow around a full-width row would be a box the width of
+     the sheet. The weight the pill could not afford to carry is available here,
+     where nothing sits beside the row to be shoved. */
+  .nav-links a[aria-current="page"],
+  .nav-links a[aria-current="location"] {
+    padding-inline: 10px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-weight: 600;
+    box-shadow: none;
   }
   .nav-links li:last-child a {
     border-bottom: 0;

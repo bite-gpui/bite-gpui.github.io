@@ -4,29 +4,30 @@ import Logo from "./Logo.astro";
 // Two modes, both derived from `current` rather than switched at runtime. A
 // static site already knows which page it is rendering, so nothing here is
 // simulated: the one-pager gets the frontdoor bar, and every sub-page gets a
-// breadcrumb in place of the brand and its own rail.
+// trail of where it sits.
 //
-// On a sub-page the four chapter anchors are not rendered at all, and that is the
-// point: they are links into the one-pager's chapters, and a reader who is
-// already inside a guide is not helped by four of them competing with the one
-// they came for. The footer still carries all four on every page, and the crumb's
-// `Frontdoor` is the way back to them.
+// The bar reads left to right as one sentence: the mark and its version, then
+// where you are and what sits under it, then what else there is, then the install
+// line. Pipes separate those groups, and only the middle group changes between
+// pages.
 const { current = "" } = Astro.props;
 
 const anchors = [
   // `id` is only set on the one link the journey has to intercept; see
   // Journey.astro's scrollToLayers. Its hash matches no element on purpose —
   // the journey already starts at the document top, so that is the fallback,
-  // and the script refines it to the unstacked end of the track.
+  // and the script refines it to the unstacked end of the track. `key` is also
+  // the id of the section the link points at, which is what the scroll spy below
+  // reads.
   { id: "navLayers", href: "/#layers", label: "The Layers", key: "journey" },
   { href: "/#capabilities", label: "Combos", key: "capabilities" },
   { href: "/#benchmarks", label: "The Receipt", key: "benchmarks" },
   { href: "/#quickstart", label: "Express Lane", key: "quickstart" },
 ];
 
-// Every sub-page, and the page that contains it. `parent` is the one the
-// breadcrumb names: the two swap guides live under the hub, so their crumb stops
-// at Swaps rather than at the frontdoor.
+// Every sub-page, and the page that contains it. `parent` is what the trail names
+// after the frontdoor: the two swap guides live under the hub, so their trail
+// stops at Swaps rather than at the frontdoor.
 const guides = [
   { href: "/swaps", label: "Swaps", key: "swaps" },
   { href: "/parley", label: "Parley", key: "parley", parent: "swaps" },
@@ -36,50 +37,94 @@ const guides = [
 ];
 
 const here = guides.find((guide) => guide.key === current);
-// What the frontdoor shows: the hub and the two standalone guides. The swap guides
-// are one level down, inside the hub, and the frontdoor is not the place to flatten
-// that.
-const topLevel = guides.filter((guide) => !guide.parent);
-// The trail names only what the reader came through. The page they are on is
-// marked in the rail, and naming it here as well would put two current markers in
-// one bar.
-const parent = here?.parent
-  ? guides.find((guide) => guide.key === here.parent)
+// The section the page sits in: the hub a swap guide belongs to, or the page
+// itself when nothing contains it. It is what the trail names after the
+// frontdoor, and its own pages are what the trail then carries — Parley and
+// Morphorm are two pages of one section, not two more entries beside it.
+const section = here
+  ? (guides.find((guide) => guide.key === here.parent) ?? here)
   : undefined;
+// The section's pages, the hub itself excluded: the trail names that. Empty for
+// /demos and /compare, whose trail is then just the crumb.
+const sectionPages = section
+  ? guides.filter((guide) => guide.parent === section.key)
+  : [];
+// What the trail already says, so the bar does not say it twice. The rail drops
+// these on desktop. It keeps them below the 1180px breakpoint, where the trail's
+// own links are hidden and the sheet is the only way to reach them.
+const carried = new Set(
+  section ? [section, ...sectionPages].map((guide) => guide.key) : [],
+);
+// The rail. Every container page always, and a nested guide only while it is part
+// of the section the reader is in: Parley and Morphorm are pages of Swaps, so
+// /demos and /compare have no business listing them beside Demos and Compare.
+const rail = guides.filter((guide) => !guide.parent || carried.has(guide.key));
+// What the frontdoor shows: the hub and the two standalone guides. The swap
+// guides are one level down, inside the hub, and the frontdoor is not the place
+// to flatten that.
+const topLevel = guides.filter((guide) => !guide.parent);
 ---
 
-<nav class="nav" id="nav">
+<nav class={`nav${here ? " is-section" : ""}`} id="nav">
   <div class="nav-inner">
-    {here ? (
-      // `/#journey` rather than a bare `#journey`: the one-pager's own brand link
-      // can be a bare hash because it only ever renders there.
-      <span class="nav-crumb">
-        <a
-          class="nav-crumb-back"
-          href="/#journey"
-          title="Back to the frontdoor"
-        >
-          <span aria-hidden="true">←</span>
-          <span>Frontdoor</span>
-        </a>
-        {parent ? (
-          <>
-            <span class="nav-crumb-sep" aria-hidden="true">
-              /
-            </span>
-            <a class="nav-crumb-section" href={parent.href}>
-              {parent.label}
-            </a>
-          </>
+    {/* The brand never goes away: it is the only mark on the bar and the only
+         thing on it that means "home", so on a sub-page it keeps its place and
+         links back to the frontdoor instead of turning into a breadcrumb. Its
+         wordmark and version chip are the two things that step aside on a narrow
+         section bar, so the mark and the trail both stay. */}
+    <a
+      href={here ? "/#journey" : "#journey"}
+      class="logo"
+      title={here ? "Back to the frontdoor" : undefined}
+    >
+      <Logo />
+      <span class="logo-word">bite-gpui</span>
+      <span class="logo-version">v1.21.0</span>
+    </a>
+
+    {section ? (
+      /* Where you are, between two pipes: the frontdoor, the section, and the
+           section's own pages. The page itself is not named again — the rail
+           marks it, and naming it twice would put two current markers in one bar.
+
+           The pipes are this element's own pseudo-elements rather than siblings,
+           which is not a style choice: as siblings each one costs a flex gap of
+           the bar's own 32px, and two of those put the section row 1px inside a
+           1152px content box. */
+      <div class="nav-trail">
+        <span class="nav-crumb">
+          <a class="nav-crumb-home" href="/#journey">
+            <span aria-hidden="true">←</span>
+            <span>Frontdoor</span>
+          </a>
+          <span class="nav-crumb-sep" aria-hidden="true">
+            /
+          </span>
+          <a
+            class="nav-crumb-section"
+            href={section.href}
+            aria-current={current === section.key ? "page" : undefined}
+          >
+            {section.label}
+            <i class="nav-crumb-dot" aria-hidden="true" />
+          </a>
+        </span>
+        {sectionPages.length ? (
+          <ul class="nav-trail-links">
+            {sectionPages.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  aria-current={current === link.key ? "page" : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         ) : null}
-      </span>
-    ) : (
-      <a href="#journey" class="logo">
-        <Logo />
-        <span>bite-gpui</span>
-        <span class="logo-version">v1.21.0</span>
-      </a>
-    )}
+      </div>
+    ) : null}
 
     <!-- Mobile only. The full row needs 1048px of content box and the sheet has
              to take over well before the hero's own 820px breakpoint. -->
@@ -98,13 +143,14 @@ const parent = here?.parent
       </span>
     </button>
 
-    <!-- `display: contents` on desktop, so the links and the CTA join the
-             nav row as they always did; a drop-down sheet at ≤820px. -->
+    <!-- `display: contents` on desktop, so the links and the CTA join the nav row
+             as they always did; a drop-down sheet below the 1180px breakpoint,
+             where it also carries the section pages the trail gave up. -->
     <div class="nav-menu" id="navMenu">
       <ul class="nav-links">
-        {here ? (
-          guides.map((link) => (
-            <li>
+        {section ? (
+          rail.map((link) => (
+            <li data-in-trail={carried.has(link.key) ? "true" : undefined}>
               <a
                 href={link.href}
                 aria-current={current === link.key ? "page" : undefined}
@@ -120,13 +166,14 @@ const parent = here?.parent
                 <a
                   id={link.id}
                   href={link.href}
+                  data-section={link.key}
                   aria-current={current === link.key ? "page" : undefined}
                 >
                   {link.label}
                 </a>
               </li>
             ))}
-            {/* Splits the page's own anchors from the sub-pages. Purely visual,
+            {/* Splits the page's own chapters from the sub-pages. Purely visual,
                   so it is hidden from the accessibility tree and again on the
                   sheet. */}
             <li class="nav-divider" aria-hidden="true" />
@@ -216,8 +263,43 @@ const parent = here?.parent
   const toggle = document.getElementById("navToggle");
   const menu = document.getElementById("navMenu");
 
-  const onScroll = () =>
+  // The frontdoor's four links point into this page's chapters, and a one-pager
+  // cannot say "you are here" at build time — so the bar marks the chapter the
+  // reader has scrolled into, the same way a sub-page's rail marks its own entry
+  // at build time. `location` rather than `page`: the reader is inside one part of
+  // a page, not on one page of a set. Empty on a sub-page, where there is nothing
+  // left to watch.
+  const chapters = [
+    ...document.querySelectorAll("#navMenu a[data-section]"),
+  ].map((link) => ({
+    link,
+    section: document.getElementById(link.dataset.section ?? ""),
+  }));
+
+  let marked = null;
+
+  // The chapter in view is the last one whose top has passed under the bar. The
+  // bar is fixed, so the line to measure against is its own height. The journey
+  // is the whole first screen, so its link is the marked one from the top of the
+  // page until Combos — which is what that link is for: it is the way into the
+  // chapter the reader is already standing in.
+  const markChapter = () => {
+    if (!chapters.length) return;
+    const line = (nav?.offsetHeight ?? 64) + 16;
+    let inView = null;
+    for (const { link, section } of chapters) {
+      if (section && section.getBoundingClientRect().top <= line) inView = link;
+    }
+    if (inView === marked) return;
+    marked?.removeAttribute("aria-current");
+    inView?.setAttribute("aria-current", "location");
+    marked = inView;
+  };
+
+  const onScroll = () => {
     nav?.classList.toggle("is-scrolled", window.scrollY > 12);
+    markChapter();
+  };
 
   const setOpen = (open) => {
     nav?.classList.toggle("is-open", open);
@@ -249,10 +331,9 @@ const parent = here?.parent
   });
 
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
-  // Kept in step with the `max-width: 1180px` query in global.css that
-  // collapses the bar — the frontdoor row is the wider of the two modes and needs
-  // 1048px of the 1152px content box to keep its seven links on one line.
-  // A section rail is five.
+  // Kept in step with the `max-width: 1180px` query in global.css that collapses
+  // the bar — the frontdoor row is the wider of the two modes and needs 1048px of
+  // the 1152px content box to keep its seven links on one line.
   window.addEventListener("resize", () => {
     if (window.innerWidth > 1180) setOpen(false);
   });
@@ -272,6 +353,10 @@ const parent = here?.parent
 
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
+
+  // The chapters shift as fonts land and the hero re-measures, and neither fires
+  // a scroll — so re-mark once the page has settled.
+  window.addEventListener("load", markChapter);
 
   // Colour scheme switch. The attribute is already set pre-paint; this only
   // wires the button, keeps its label honest, and syncs the browser-chrome
