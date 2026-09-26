@@ -2583,6 +2583,477 @@ footer {
 }
 
 /* ============================================================
+   GUIDE WIDGETS — what a sub-page needs and the one-pager does not
+   ------------------------------------------------------------
+   The one-pager sells; a guide has to explain a seam, so it needs four things
+   those sections never did: a contract diagram, a transcript card with a copy
+   affordance, an editorial verdict panel, and compact artifact links. The
+   tabbed code showcase is deliberately absent — that is the Quickstart shell's
+   own classes, reused through `CodeTabs.astro`.
+
+   Two rules hold for everything below. It is token-only, so the light theme
+   stays the single override block. And a figure that is a *result* wears a
+   `.pill` rather than coloured text, because a bare coloured number in a table
+   reads as decoration. The pill hues are the two the palette already uses for
+   before/after: `--brand` for the win, and `--authoring` — the rust of the
+   "before" benchmark bar — for the loss. `--toasted` cannot be the caution
+   colour: 3.75:1 on `--surface` in the dark scheme.
+   ============================================================ */
+
+/* Key figures, immediately under a guide's lede. One continuous line divided by
+   hairlines rather than a row of boxed tiles — the shape `.order-status` uses
+   for the same reason: tiles along the top of an article read as dashboard
+   chrome, and these numbers are the article's own claim. */
+.stat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.stat {
+  flex: 1 1 170px;
+  min-width: 0;
+  padding-right: 24px;
+  margin-right: 24px;
+  border-right: 1px solid var(--border);
+}
+.stat:last-child {
+  padding-right: 0;
+  margin-right: 0;
+  border-right: 0;
+}
+.stat-value {
+  display: block;
+  font-family: var(--mono);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.stat-value.is-win {
+  color: var(--brand);
+}
+.stat-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--text-3);
+}
+
+/* The interface contract, drawn. A seam is easier to believe as a picture than
+   as a sentence: the host calls exactly one method, and the method returns one
+   of two things. The active implementation is lifted out of the column —
+   `--surface-2` fill, a `--brand` rail — which is the same "this edge faces the
+   seam" convention the layer panels use. */
+.contract {
+  margin-top: 24px;
+  padding: 18px 20px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.contract-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.contract-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+.contract-trait {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-3);
+}
+/* Three columns, and the middle one is sized rather than `auto`: at `auto` the
+   method pill is the whole column and the hairlines either side of it collapse
+   to nothing, which loses the arrow. */
+.contract-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+.contract-node {
+  padding: 13px 15px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.contract-role {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.contract-name {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.contract-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.contract-bridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.contract-method {
+  padding: 5px 12px;
+  background: var(--brand-dim);
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, transparent);
+  border-radius: 99px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--brand);
+  white-space: nowrap;
+}
+.contract-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.contract-flow::before,
+.contract-flow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-2);
+}
+.contract-caption {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--text-3);
+}
+.contract-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.contract-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.contract-target.is-active {
+  background: var(--surface-2);
+  border-color: color-mix(in srgb, var(--brand) 42%, transparent);
+  border-left: 3px solid var(--brand);
+}
+.contract-target.is-default {
+  opacity: 0.66;
+}
+.contract-target-name {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.contract-target.is-default .contract-target-name {
+  font-weight: 500;
+  color: var(--text-2);
+}
+.contract-target-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  color: var(--text-3);
+}
+.card-badge.is-quiet {
+  color: var(--text-3);
+}
+
+/* The result pill. A ratio is the finding, so it gets a shape rather than a
+   tint: `.win` and `.loss` are the before/after hues, `.flat` is a result that
+   is honestly neither.
+
+   The fill stays `--inset`; only the border and the text take the hue. The
+   theme's own rule for a small control is no accent wash (§4, the dock row), and
+   here that is also measured: a 13% `--authoring` fill drops the dark scheme's
+   rust to 4.03:1 against the card, under the 4.5 this type size needs. On the
+   plain fill the pairs are brand 6.01:1 and rust 5.34:1 in the dark scheme, brand
+   4.86:1 and rust 4.88:1 in the light one. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--border-2);
+  background: var(--inset);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pill.win {
+  color: var(--brand);
+  border-color: color-mix(in srgb, var(--brand) 42%, transparent);
+}
+.pill.loss {
+  color: var(--authoring);
+  border-color: color-mix(in srgb, var(--authoring) 40%, transparent);
+}
+.pill.flat {
+  color: var(--text-3);
+}
+
+/* A table with a strip above it. `.table-scroll` alone cannot carry a heading —
+   it *is* the horizontal scroller, so anything inside it slides away sideways
+   with the columns. The card is the scroller's parent instead, and the strip
+   names what the numbers are and on what. */
+.table-card {
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.table-card .table-scroll {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+}
+.table-card > .table-note {
+  padding: 0 16px 14px;
+  max-width: none;
+}
+.table-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+  padding: 11px 16px;
+  background: var(--inset);
+  border-bottom: 1px solid var(--border);
+}
+.table-head-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.table-head-note {
+  font-size: 0.7rem;
+  color: var(--text-3);
+}
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-2);
+}
+.legend-dot.win {
+  background: var(--brand);
+}
+.legend-dot.loss {
+  background: var(--authoring);
+}
+
+/* A command and what it printed, on `--inset`, with the copy affordance the
+   `.code-block` does not have. The dots are the Combo Studio editor's, retinted
+   from the crate hues exactly as they are there. */
+.terminal {
+  margin-top: 20px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.terminal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.terminal-cmd {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--code-text);
+}
+.terminal-prompt {
+  margin-right: 6px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.terminal-body {
+  padding: 14px 16px;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.75;
+  color: var(--code-text);
+}
+.terminal-body .dim {
+  color: var(--code-dim);
+}
+.terminal-body .ok {
+  color: var(--mint);
+}
+
+/* The callout's louder sibling: same rail geometry, but it carries a verdict
+   rather than an aside, so the heading is display-sized and the closing line is
+   set apart. Used where a page has one thing to conclude. */
+.verdict {
+  margin-top: 24px;
+  padding: 22px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brand);
+  border-radius: 4px var(--r) var(--r) 4px;
+}
+.verdict.caution {
+  border-left-color: var(--authoring);
+}
+.verdict h3 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.verdict p {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  line-height: 1.68;
+  color: var(--text-2);
+}
+.verdict-close {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Where a crate actually is. Two of these close every guide, because a reader
+   who believed the numbers wants the artefact and the source, not a link list. */
+.artifact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+.artifact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+.artifact:hover {
+  background: var(--surface-2);
+  border-color: var(--border-hover);
+}
+.artifact-name {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  transition: color 0.2s ease;
+}
+.artifact:hover .artifact-name {
+  color: var(--brand);
+}
+.artifact-desc {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-3);
+}
+.artifact-go {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  color: var(--text-3);
+  transition: color 0.2s ease;
+}
+.artifact:hover .artifact-go {
+  color: var(--brand);
+}
+
+/* Stacked, the contract reads top to bottom: host, method, implementations. The
+   bridge keeps its hairline flow, which turns into a rule across the column. */
+@media (max-width: 820px) {
+  .contract-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .contract-bridge {
+    min-width: 0;
+  }
+  .artifact-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stat {
+    flex: 1 1 100%;
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 /* The nav row now carries eight links plus the install CTA, which needs a wider

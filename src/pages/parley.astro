@@ -1,14 +1,35 @@
 ---
 import Page from "../layouts/Page.astro";
+import CodeTabs from "../components/CodeTabs.astro";
+import Terminal from "../components/Terminal.astro";
 
-// Every number on this page comes from
+// Every number on this page comes from the swap record in the usage suite,
 // `.uses/parley-demo/benchmarks/2026-09-26-text-system-swap.md`, whose two
-// columns are two implementations of the one trait below. The trade is stated
-// as it was measured: parley wins wrapping and metrics, and loses rasterization
-// and a one-off startup cost.
+// columns are two implementations of the one trait below. The trade is stated as
+// it was measured: parley wins wrapping and metrics, and loses rasterization and
+// a one-off startup cost.
+
+const stats = [
+  {
+    value: "2.4×",
+    label: "faster wrapping the same paragraph at the same width",
+    win: true,
+  },
+  {
+    value: "11.5×",
+    label: "faster line metrics — ascent, descent, baseline",
+    win: true,
+  },
+  {
+    value: "5.1×",
+    label: "slower to rasterize one 16 px glyph. That is the trade",
+  },
+];
+
 const comparison = [
   {
-    op: "new — cold, registers one face",
+    op: "new",
+    detail: "cold, registers one face",
     vanilla: "5.75 µs",
     parley: "44.24 ms",
     note: "7,700× slower",
@@ -16,6 +37,7 @@ const comparison = [
   },
   {
     op: "resolve_font",
+    detail: null,
     vanilla: "67.9 ns",
     parley: "99.5 ns",
     note: "1.5× slower",
@@ -23,27 +45,31 @@ const comparison = [
   },
   {
     op: "bounding_box",
+    detail: null,
     vanilla: "18.1 ns",
     parley: "4.8 ns",
     note: "3.8× faster",
     dir: "win",
   },
   {
-    op: "line_metrics (ascent + descent + baseline)",
+    op: "line_metrics",
+    detail: "ascent + descent + baseline",
     vanilla: "68.0 ns",
     parley: "5.9 ns",
     note: "11.5× faster",
     dir: "win",
   },
   {
-    op: "layout_line (a 3-line paragraph)",
+    op: "layout_line",
+    detail: "a 3-line paragraph",
     vanilla: "131.30 µs",
     parley: "83.31 µs",
     note: "1.58× faster",
     dir: "win",
   },
   {
-    op: "wrap_line (same paragraph, 420 px)",
+    op: "wrap_line",
+    detail: "the same paragraph, 420 px",
     vanilla: "79.07 µs",
     parley: "33.27 µs",
     note: "2.4× faster",
@@ -51,6 +77,7 @@ const comparison = [
   },
   {
     op: "raster_bounds, cached",
+    detail: null,
     vanilla: "22.3 ns",
     parley: "62.5 ns",
     note: "2.8× slower",
@@ -58,6 +85,7 @@ const comparison = [
   },
   {
     op: "raster_bounds, uncached",
+    detail: null,
     vanilla: "3.36 µs",
     parley: "7.79 µs",
     note: "2.3× slower",
@@ -65,6 +93,7 @@ const comparison = [
   },
   {
     op: "rasterize_glyph",
+    detail: null,
     vanilla: "3.06 µs",
     parley: "15.48 µs",
     note: "5.1× slower",
@@ -121,35 +150,38 @@ const delta = [
     op: "new",
     from: "33.88 µs",
     to: "44.24 ms",
-    note: "host font enumeration",
-    dir: "loss",
+    note: "host fonts",
+    dir: "flat",
   },
 ];
 
-const install = `<span class="c"># Cargo.toml</span>
-[dependencies]
+const cargo = `<span class="c"># Cargo.toml</span>
+[<span class="t">dependencies</span>]
 bite-gpui = <span class="s">"1.21"</span>
 bite-gp-parley = <span class="s">"1.21"</span>`;
 
-const swap = `<span class="k">use</span> gpui::<span class="m">*</span>;
+const main = `<span class="k">use</span> gpui::*;
 <span class="k">use</span> gpui_parley::<span class="t">ParleyTextSystem</span>;
 
 <span class="k">fn</span> <span class="f">main</span>() {
     <span class="f">application</span>()
-        <span class="c">// ParleyTextSystem::new() already returns an Arc<Self></span>
+        <span class="c">// new() already returns an Arc, which is what this wants</span>
         .<span class="f">with_text_system</span>(<span class="t">ParleyTextSystem</span>::<span class="f">new</span>())
-        .<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| {
-            cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">_</span>, <span class="m">cx</span>| {
+        .<span class="f">run</span>(|cx: &amp;<span class="k">mut</span> <span class="t">App</span>| {
+            cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="k">_</span>, cx| {
                 cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
             })
             .<span class="f">unwrap</span>();
         });
 }`;
 
-const verify = `<span class="c"># the harness the table above came from, in the usage suite</span>
-cd parley-demo
+const bench = `<span class="c"># the harness the table above came from, in the usage suite</span>
+<span class="ok">cd</span> parley-demo
 <span class="t">CARGO_PROFILE_DEV_DEBUG</span>=0 <span class="t">CARGO_PROFILE_TEST_DEBUG</span>=0 \\
-<span class="t">CARGO_PROFILE_BENCH_DEBUG</span>=0 cargo bench --bench text_system`;
+<span class="t">CARGO_PROFILE_BENCH_DEBUG</span>=0 <span class="ok">cargo bench</span> --bench text_system`;
+
+const benchCommand = `cd parley-demo
+CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_PROFILE_BENCH_DEBUG=0 cargo bench --bench text_system`;
 ---
 
 <Page
@@ -160,10 +192,12 @@ cd parley-demo
   accent="text engine."
   lede="The engine draws text through a single trait. bite-gp-parley is a second implementation of it — install the crate, hand it to the application at startup, and every existing div() keeps rendering. Nothing else in the tree changes."
   current="parley"
+  stats={stats}
 >
   <section>
     <div class="section-head">
-      <h2>The seam is one trait.</h2>
+      <span class="kicker">The seam</span>
+      <h2>One trait to implement.</h2>
       <p>
         <span class="mono">TextSystem</span> lives in
         <span class="mono">gpui_engine</span> and covers shaping, layout and
@@ -174,13 +208,57 @@ cd parley-demo
       </p>
     </div>
 
-    <div class="code-block">
-      <pre><code set:html={install}></code></pre>
+    <div class="contract">
+      <div class="contract-head">
+        <span class="contract-title">The interface contract</span>
+        <span class="contract-trait">gpui_engine::TextSystem</span>
+      </div>
+      <div class="contract-grid">
+        <div class="contract-node">
+          <span class="contract-role">Host binary</span>
+          <span class="contract-name">Application::run()</span>
+          <span class="contract-desc">
+            Draws text through the installed system and never asks which one it
+            is. One trait, called per run, per line, per glyph.
+          </span>
+        </div>
+
+        <div class="contract-bridge">
+          <div class="contract-flow">
+            <span class="contract-method">with_text_system(…)</span>
+          </div>
+          <span class="contract-caption">one choice per process</span>
+        </div>
+
+        <div class="contract-targets">
+          <div class="contract-target is-active">
+            <span>
+              <span class="contract-target-name">bite-gp-parley</span>
+              <span class="contract-target-note">
+                this page · Linebender shaping, host fonts
+              </span>
+            </span>
+            <span class="card-badge">Active</span>
+          </div>
+          <div class="contract-target is-default">
+            <span>
+              <span class="contract-target-name">bite-gp-engine-default</span>
+              <span class="contract-target-note">
+                DefaultTextSystem over CosmicTextSystem
+              </span>
+            </span>
+            <span class="card-badge is-quiet">Stock</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="code-block">
-      <pre><code set:html={swap}></code></pre>
-    </div>
+    <CodeTabs
+      panes={[
+        { label: "Cargo.toml", html: cargo },
+        { label: "src/main.rs", html: main },
+      ]}
+    />
 
     <div class="callout">
       <span class="callout-title">No rename needed</span>
@@ -195,71 +273,81 @@ cd parley-demo
 
   <section>
     <div class="section-head">
-      <h2>What it changes, measured.</h2>
+      <span class="kicker">Measured</span>
+      <h2>What it changes.</h2>
       <p>
         Both columns below are the same operations on the same font and the same
-        16 px text, called through <span class="mono">&amp;dyn TextSystem</span>
+        16 px text, called through <span class="mono">&amp;dyn TextSystem</span>{" "}
         so the implementation is the only variable. The
         <span class="mono">vanilla</span> column is what a Linux user gets
-        without asking for anything —<span class="mono">DefaultTextSystem</span>{" "}
-        over
+        without asking for anything —{" "}
+        <span class="mono">DefaultTextSystem</span> over
         <span class="mono">CosmicTextSystem</span>. The
         <span class="mono">parley</span> column is
         <span class="mono">bite-gp-parley 1.21.1</span>.
       </p>
     </div>
 
-    <div class="table-scroll">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>operation</th>
-            <th class="num">vanilla</th>
-            <th class="num">parley</th>
-            <th>result</th>
-          </tr>
-        </thead>
-        <tbody>
-          {comparison.map((row) => (
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">Criterion microbenchmarks, 16 px</span>
+        <span class="table-head-note">
+          <span class="legend">
+            <span class="legend-dot win"></span> faster
+            <span class="legend-dot loss"></span> slower
+          </span>
+        </span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
             <tr>
-              <td>
-                <span class="mono">{row.op}</span>
-              </td>
-              <td class="num">{row.vanilla}</td>
-              <td class="num">{row.parley}</td>
-              <td class={row.dir}>{row.note}</td>
+              <th>operation</th>
+              <th class="num">vanilla</th>
+              <th class="num">parley</th>
+              <th>result</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {comparison.map((row) => (
+              <tr>
+                <td>
+                  <span class="mono">{row.op}</span>
+                  {row.detail ? <span class="dim"> — {row.detail}</span> : null}
+                </td>
+                <td class="num">{row.vanilla}</td>
+                <td class="num">{row.parley}</td>
+                <td>
+                  <span class={`pill ${row.dir}`}>{row.note}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        Mean estimates from criterion, 100 measurements per benchmark. Host:
+        Intel i7-8750H, linux x86_64 — a laptop, not a controlled benchmarking
+        host.
+      </p>
     </div>
 
-    <p class="table-note">
-      Mean estimates from criterion, 100 measurements per benchmark. Host: Intel
-      i7-8750H, linux x86_64 — a laptop, not a controlled benchmarking host.
-    </p>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <h2>It is a trade, not a win.</h2>
-    </div>
-    <div class="prose">
+    <div class="verdict">
+      <h3>It is a trade, not a win.</h3>
       <p>
         Parley is faster where the engine drives text in bulk: wrapping the same
         paragraph is <strong>2.4×</strong> faster, a three-line layout
         <strong>1.58×</strong>, and the per-font metrics — the numbers a
-        rearchitected engine reads constantly — <strong>3.8×</strong> and
+        rearchitected engine reads constantly — <strong>3.8×</strong> and{" "}
         <strong>11.5×</strong>. It is slower at putting one glyph on screen:
-        <strong>15.48 µs</strong> to rasterize a 16 px glyph against vanilla's
+        <strong>15.48 µs</strong> to rasterize a 16 px glyph against vanilla's{" "}
         <strong>3.06 µs</strong>.
       </p>
-      <p>
-        Neither number is a defect on its own. A project that swaps the text
-        system is buying shaping — complex-script support, font fallback, family
-        stacks — and paying for it in rasterization. The point of publishing
-        both columns is that this is now visible before you install it rather
-        than after.
+      <p class="verdict-close">
+        A project that swaps the text system is buying shaping — complex
+        scripts, font fallback, family stacks — and paying for it in
+        rasterization. The point of publishing both columns is that this is
+        visible before you install it rather than after.
       </p>
     </div>
 
@@ -268,60 +356,69 @@ cd parley-demo
       <p>
         <span class="mono">ParleyTextSystem::new</span> is 7,700× vanilla's, and
         that is the host's fonts, not a regression in the same work: it builds a
-        fontique collection with
-        <span class="mono">system_fonts: true</span>, enumerating every font on
-        the machine. The previous release, which did not, constructed in
-        <strong>33.88 µs</strong>. It is paid once per process, and it is what
-        buys the host-font fallback the crate exists for — worth knowing before
-        installing it in something that starts often.
+        fontique collection with <span class="mono">system_fonts: true</span>,
+        enumerating every font on the machine. The previous release, which did
+        not, constructed in <strong>33.88 µs</strong>. It is paid once per
+        process, and it is what buys the host-font fallback the crate exists for
+        — worth knowing before installing it in something that starts often.
       </p>
     </div>
   </section>
 
   <section>
     <div class="section-head">
+      <span class="kicker">The cache</span>
       <h2>The cache both systems share.</h2>
       <p>
         Memoizing glyph raster bounds is the mechanism behind the dramatic ratio
         on the marketing page, so the honest measurement is cached against
-        uncached <em>within</em> one implementation:
+        uncached
+        <em>within</em> one implementation:
       </p>
     </div>
 
-    <div class="table-scroll">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>implementation</th>
-            <th class="num">uncached</th>
-            <th class="num">cached</th>
-            <th>the cache buys</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cache.map((row) => (
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">raster_bounds, cached against not</span>
+        <span class="table-head-note">one implementation at a time</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
             <tr>
-              <td>
-                <span class="mono">{row.impl}</span>
-              </td>
-              <td class="num">{row.uncached}</td>
-              <td class="num">{row.cached}</td>
-              <td class="win">{row.buys}</td>
+              <th>implementation</th>
+              <th class="num">uncached</th>
+              <th class="num">cached</th>
+              <th>the cache buys</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cache.map((row) => (
+              <tr>
+                <td>
+                  <span class="mono">{row.impl}</span>
+                </td>
+                <td class="num">{row.uncached}</td>
+                <td class="num">{row.cached}</td>
+                <td>
+                  <span class="pill win">{row.buys}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        The two parley rows differ only in the uncached path: 36.30 µs down to
+        7.79 µs, with the cached path unchanged at roughly 62 ns.
+      </p>
     </div>
-
-    <p class="table-note">
-      The two parley rows differ only in the uncached path: 36.30 µs down to
-      7.79 µs, with the cached path unchanged at roughly 62 ns.
-    </p>
   </section>
 
   <section>
     <div class="section-head">
-      <h2>What the 1.21.1 release changed.</h2>
+      <span class="kicker">1.21.1</span>
+      <h2>What the release changed.</h2>
       <p>
         The rasterization cost above was not always 15.48 µs. The hinting
         instance is now cached per face and size instead of rebuilt once per
@@ -330,42 +427,50 @@ cd parley-demo
       </p>
     </div>
 
-    <div class="table-scroll">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>operation</th>
-            <th class="num">1.21.0</th>
-            <th class="num">1.21.1</th>
-            <th>result</th>
-          </tr>
-        </thead>
-        <tbody>
-          {delta.map((row) => (
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">The first amendment, side by side</span>
+        <span class="table-head-note">same host, within an hour</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
             <tr>
-              <td>
-                <span class="mono">{row.op}</span>
-              </td>
-              <td class="num">{row.from}</td>
-              <td class="num">{row.to}</td>
-              <td class={row.dir}>{row.note}</td>
+              <th>operation</th>
+              <th class="num">1.21.0</th>
+              <th class="num">1.21.1</th>
+              <th>result</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {delta.map((row) => (
+              <tr>
+                <td>
+                  <span class="mono">{row.op}</span>
+                </td>
+                <td class="num">{row.from}</td>
+                <td class="num">{row.to}</td>
+                <td>
+                  <span class={`pill ${row.dir}`}>{row.note}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        The <span class="mono">wrap_line</span> loss and the metric costs in the
+        first table are the same host-font-database change as the 44 ms: each
+        lookup now consults the shaper's own database rather than a table held
+        by the crate.
+      </p>
     </div>
-
-    <p class="table-note">
-      The <span class="mono">wrap_line</span> loss and the metric costs in the
-      first table are the same host-font-database change as the 44 ms: each
-      lookup now consults the shaper's own database rather than a table held by
-      the crate.
-    </p>
   </section>
 
   <section>
     <div class="section-head">
-      <h2>Reproduce it.</h2>
+      <span class="kicker">Reproduce</span>
+      <h2>Run it yourself.</h2>
       <p>
         The harness is one file, and its two columns are two implementations
         behind the same trait — one implementation measured alone would say what
@@ -373,43 +478,52 @@ cd parley-demo
       </p>
     </div>
 
-    <div class="code-block">
-      <pre><code set:html={verify}></code></pre>
-    </div>
+    <Terminal
+      prompt="#"
+      head="the harness the table above came from"
+      body={bench}
+      copy={benchCommand}
+    />
 
-    <div class="prose">
-      <p>
-        That harness is part of the project's own usage suite, which is not
-        published yet — so the table above is backed by a recorded run, with its
-        command, toolchain, host and every sample, rather than by a repository
-        you can clone today. What you <em>can</em> run right now is the crate's
-        cost examples, which is where the frame-budget figures on the one-pager
-        come from:
-      </p>
-      <ul>
-        <li>
-          <a
-            href="https://github.com/bite-gpui/gpui_parley"
-            target="_blank"
-            rel="noreferrer"
-          >
-            bite-gpui/gpui_parley
-          </a>
-          — the crate, its tests and its <span class="mono">raster_cost</span>,
-          <span class="mono">vector_cost</span> and
-          <span class="mono">frame_cost</span> examples.
-        </li>
-        <li>
-          <a
-            href="https://crates.io/crates/bite-gp-parley"
-            target="_blank"
-            rel="noreferrer"
-          >
-            bite-gp-parley on crates.io
-          </a>
-          — the published artefact every number here was taken against.
-        </li>
-      </ul>
+    <p class="table-note">
+      That harness is part of the project's own usage suite, which is not
+      published yet — so the table above is backed by a recorded run, with its
+      command, toolchain, host and every sample, rather than by a repository you
+      can clone today. What you <em>can</em> run right now is the crate's own
+      cost examples.
+    </p>
+
+    <div class="artifact-grid">
+      <a
+        class="artifact"
+        href="https://github.com/bite-gpui/gpui_parley"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <span>
+          <span class="artifact-name">bite-gpui/gpui_parley</span>
+          <span class="artifact-desc">
+            The crate, its tests, and its raster_cost, vector_cost and
+            frame_cost examples.
+          </span>
+        </span>
+        <span class="artifact-go">→</span>
+      </a>
+      <a
+        class="artifact"
+        href="https://crates.io/crates/bite-gp-parley"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <span>
+          <span class="artifact-name">bite-gp-parley</span>
+          <span class="artifact-desc">
+            The published artefact every number here was taken against —
+            <span class="mono">1.21.1</span>.
+          </span>
+        </span>
+        <span class="artifact-go">→</span>
+      </a>
     </div>
   </section>
 </Page>

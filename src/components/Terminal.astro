@@ -1,0 +1,67 @@
+---
+// A command and what it printed, on --inset, with the one thing `.code-block`
+// does not offer: a copy button. The shell is the Combo Studio editor's — the
+// same three dots in the same crate hues — so a transcript reads the same here
+// as on the one-pager.
+//
+// `copy` is what the button hands to the clipboard, which is not always what is
+// on screen: the reproduce card shows three commands with their comments and
+// copies the three commands without them.
+//
+// The transcript arrives as `body`, not as a slot, and that is load-bearing.
+// `.terminal-body` is `white-space: pre`, so the indentation of a slot's own
+// markup would be printed: a `<Fragment>` on its own indented line puts six
+// spaces at the head of the first output line. A prop cannot carry that.
+interface Props {
+  head: string;
+  body: string;
+  copy: string;
+  prompt?: string;
+  label?: string;
+  message?: string;
+}
+
+const {
+  head,
+  body,
+  copy,
+  prompt = "$",
+  label = "Copy",
+  message = "Copied to clipboard",
+} = Astro.props;
+---
+
+<div class="terminal">
+  <div class="terminal-head">
+    <span class="terminal-dots" aria-hidden="true">
+      <span class="terminal-dot close"></span>
+      <span class="terminal-dot min"></span>
+      <span class="terminal-dot zoom"></span>
+    </span>
+    <span class="terminal-cmd">
+      <span class="terminal-prompt">{prompt}</span>
+      {head}
+    </span>
+    <button
+      class="copy-code"
+      type="button"
+      data-copy-text={copy}
+      data-copy-message={message}
+    >
+      {label}
+    </button>
+  </div>
+  <div class="terminal-body" set:html={body} />
+</div>
+
+<script>
+  // Delegated, so one listener wires every transcript on the page and a guide
+  // ships no handler of its own.
+  document.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-copy-text]",
+    );
+    if (!button) return;
+    window.copyToClipboard(button.dataset.copyText, button.dataset.copyMessage);
+  });
+</script>

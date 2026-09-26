@@ -1,0 +1,97 @@
+---
+// The Quickstart code shell, as a reusable widget.
+//
+// Same markup and the same look — `.tabs`, `.tab-indicator`, `.code-shell`,
+// `.code-pane`, `.copy-btn` are the classes the one-pager's shell already uses,
+// so this adds no second code aesthetic. What it does not reuse is that shell's
+// script, which binds to page-level ids (`#tabs`, `#tabInd`, `#copyCodeBtn`)
+// that only exist on the one-pager. This one keeps its state inside its own
+// root, so a guide can drop it in without touching ids or global state.
+//
+// `panes` are `{ label, html }`, where `html` is already-highlighted source, so
+// a page stays content-only and the copy lives with the copy that quotes it.
+interface Pane {
+  label: string;
+  html: string;
+}
+
+const { panes, label = "Copy snippet" } = Astro.props as {
+  panes: Pane[];
+  label?: string;
+};
+---
+
+<div class="code-tabs" data-code-tabs>
+  <div class="tabs" role="tablist">
+    {panes.map((pane, index) => (
+      <button
+        class={`tab${index === 0 ? " active" : ""}`}
+        type="button"
+        role="tab"
+        aria-selected={index === 0 ? "true" : "false"}
+        data-tab-index={index}
+      >
+        {pane.label}
+      </button>
+    ))}
+    <div class="tab-indicator" data-tab-indicator></div>
+  </div>
+
+  <div class="code-shell">
+    <button class="copy-btn" type="button" data-tab-copy>
+      {label}
+    </button>
+    {panes.map((pane, index) => (
+      <div
+        class={`code-pane${index === 0 ? " active" : ""}`}
+        data-pane-index={index}
+      >
+        <pre><code set:html={pane.html} /></pre>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  // The indicator is positioned from the active tab's measured box, so it has to
+  // be re-placed whenever that box changes: on click, on resize, and once the
+  // webfont has swapped in and settled the tab widths.
+  const place = (root: HTMLElement) => {
+    const active = root.querySelector<HTMLElement>(".tab.active");
+    const indicator = root.querySelector<HTMLElement>("[data-tab-indicator]");
+    if (!active || !indicator) return;
+    indicator.style.width = `${active.offsetWidth}px`;
+    indicator.style.transform = `translateX(${active.offsetLeft}px)`;
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-code-tabs]").forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLElement>(".tab")];
+    const panes = [...root.querySelectorAll<HTMLElement>("[data-pane-index]")];
+
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => {
+        for (const other of tabs) {
+          const isActive = other === tab;
+          other.classList.toggle("active", isActive);
+          other.setAttribute("aria-selected", String(isActive));
+        }
+        for (const pane of panes) {
+          pane.classList.toggle(
+            "active",
+            pane.dataset.paneIndex === tab.dataset.tabIndex,
+          );
+        }
+        place(root);
+      });
+    }
+
+    root.querySelector("[data-tab-copy]")?.addEventListener("click", () => {
+      const code = root.querySelector<HTMLElement>(".code-pane.active code");
+      if (code) window.copyToClipboard(code.innerText, "Copied snippet");
+    });
+
+    place(root);
+    document.fonts?.ready.then(() => place(root));
+    window.addEventListener("resize", () => place(root));
+  });
+</script>
