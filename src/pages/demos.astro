@@ -10,25 +10,27 @@ const shipped = [
     badge: "Category 1",
     role: "A second TextSystem",
     href: "https://github.com/bite-gpui/gpui_parley",
-    hrefLabel: "bite-gpui/gpui_parley",
+    hrefLabel: "Example source · bite-gpui/gpui_parley",
     body: "A text system written outside the tree, selected at startup and drawing real text. It was extracted from the example that still ships in gpui_parley, and now depends on the published bite-gp-parley — library gpui_parley — from crates.io rather than on a vendored copy.",
     facts: [
       "Runs the shipped Linux default against ParleyTextSystem, both behind &dyn TextSystem",
       "Every number on the Using gpui_parley page comes from its text_system bench",
     ],
+    note: null,
   },
   {
     name: "scroll-demo",
     badge: "Category 1 + 4",
     role: "Paint modes over one document",
     href: "https://github.com/bite-gpui/bite_gpui_scroll_demo",
-    hrefLabel: "bite-gpui/bite_gpui_scroll_demo",
+    hrefLabel: "Upstream · bite-gpui/bite_gpui_scroll_demo",
     body: "An app that renders one document in several paint modes with motion effects, and reports the frame cost of each. It was repointed off a fork checkout and onto the published crates: no logic changed, and the TextSystem it had written against the fork injects into the published facade and draws with it.",
     facts: [
       "cargo check --all-targets finishes warning-free",
       "13 tests pass, and 28 with the test-support feature (1 ignored)",
       "All three cost examples build and run against the published crates",
     ],
+    note: "The copy that builds on the published crates is the usage suite's. That repository is the app's upstream and still points at a fork checkout.",
   },
 ];
 
@@ -106,7 +108,10 @@ const planned = [
       <h2>Shipped</h2>
       <p>
         Both build today against published crates, by version, resolved from
-        crates.io.
+        crates.io. They live in the project's own usage suite, which is not
+        published yet, so the links below point at what <em>is</em> public —
+        each card says which part of it is upstream and which part is this
+        project's.
       </p>
     </div>
 
@@ -124,6 +129,7 @@ const planned = [
               <li>{fact}</li>
             ))}
           </ul>
+          {project.note ? <p class="card-note">{project.note}</p> : null}
           <a
             class="card-link"
             href={project.href}
