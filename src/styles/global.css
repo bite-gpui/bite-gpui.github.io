@@ -380,9 +380,9 @@ html {
   color: var(--text);
 }
 
-/** The section the page sits in, after the way back: a label rather than a link —
-   the rail beside it opens with the hub under the name a reader gets there by —
-   and the dot is what tells them which section they are inside. */
+/** The section the page sits in, after the way back: a label rather than a link.
+   The rail beside it opens with the hub, under the name a reader gets there by, so
+   the bar names the section once and the pill answers for the page. */
 .nav-crumb-sep {
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -392,16 +392,6 @@ html {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--brand);
-}
-.nav-section-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 7px;
-  border-radius: 50%;
-  vertical-align: middle;
-  background: var(--brand);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
 }
 .nav-trail-links {
   display: flex;
@@ -642,12 +632,6 @@ html {
   background: var(--text);
   padding: 4px 9px;
   margin: -4px -9px;
-}
-/* The section's dot rides inside that pill when the pill lands on the hub it
-   marks, so it reads back out of the fill the way the label does. */
-.nav a[aria-current] .nav-section-dot {
-  background: var(--bg);
-  box-shadow: none;
 }
 /* Hairline between the one-page chapters and the four guide pages. Purely visual,
    so it is `aria-hidden` in the markup and dropped on the sheet. Sized and centred
@@ -3477,9 +3461,6 @@ footer {
     color: var(--bg);
     font-weight: 600;
     box-shadow: none;
-  }
-  .nav-links a[aria-current] .nav-section-dot {
-    background: var(--bg);
   }
   .nav-links li:last-child a {
     border-bottom: 0;
