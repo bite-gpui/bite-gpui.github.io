@@ -49,7 +49,7 @@ const seams = [
     seam: "LayoutEngine",
     owns: "Turning the element tree into laid-out boxes.",
     swap: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
-    live: "morphorm",
+    live: "gpui_morphorm",
   },
   {
     seam: "FramePipeline",
@@ -192,12 +192,12 @@ const vectors = [
 
     <div class="prose">
       <p>
-        Two of the five have a second implementation today —
-        <span class="mono">TextSystem</span> and
-        <span class="mono">LayoutEngine</span> — and only the first is
-        published: the layout engine lives in the project's usage suite, so it
-        is a second column for measuring with rather than something to install.
-        The other three are the work of
+        Two of the five have a second implementation today, and both are
+        published: <span class="mono">TextSystem</span> is
+        <span class="mono">gpui_parley</span> and
+        <span class="mono">LayoutEngine</span> is
+        <span class="mono">gpui_morphorm</span> —<a href="/parley">one guide</a>{" "}
+        and <a href="/morphorm">another</a>. The other three are the work of{" "}
         <a href="/demos">giving them a user</a>, because until a seam has one it
         is a boundary in the type system and not yet a boundary in practice.
       </p>
@@ -291,29 +291,32 @@ const vectors = [
         </li>
         <li>
           <strong>
-            One measurement has a second column and real statistics.
+            Two measurements have a second column and real statistics.
           </strong>{" "}
           The vanilla-against-Parley table on{" "}
           <a href="/parley">Using gpui_parley</a> is criterion, 100 samples per
-          operation, two implementations behind the same trait. Its host is a
-          laptop, not a controlled benchmarking host — which is stated on that
-          page rather than buried.
+          operation, two implementations behind the same trait; the
+          taffy-against-morphorm tables on{" "}
+          <a href="/morphorm">Using gpui_morphorm</a> are the same shape. Both
+          hosts are laptops, not controlled benchmarking hosts — which is stated
+          on those pages rather than buried.
         </li>
         <li>
           <strong>
-            The layout comparison is one tree, not a suite of them.
+            The layout comparison is two trees, not a suite of them.
           </strong>{" "}
           A second <span class="mono">LayoutEngine</span> exists now, and it
           puts the same nodes in the same places as taffy —{" "}
           <strong>0.00 px</strong> apart on a 12-node tree and on 176–3501 nodes
-          of changing buttons — while costing <strong>3.3–3.7×</strong> less for
-          50 to 1000 buttons. At a thousand, that is <strong>47%</strong> of a
-          16.7 ms frame against <strong>13%</strong>. It is still one tree, on
+          of changing buttons — while costing <strong>3.4–3.8×</strong> less for
+          50 to 1000 buttons. At a thousand, that is <strong>44%</strong> of a
+          16.7 ms frame against <strong>12%</strong>. It is still two trees, on
           one laptop, built from the constructs the conversion claims to handle:
           it does not say the two engines are equivalent in general, and the
           constructs morphorm cannot express —{" "}
           <span class="mono">flex_grow</span> among them — are listed with the
-          numbers rather than left out.
+          numbers rather than left out. The run is recorded in the crate's own
+          repository, with its command, toolchain and host.
         </li>
         <li>
           <strong>No competitor numbers.</strong> Nothing here is measured

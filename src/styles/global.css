@@ -455,10 +455,10 @@ html {
 }
 .nav-links {
   display: flex;
-  /* Seven links plus the CTA have to clear a 1152px content box (--maxw minus
-     padding) before the 1180px query collapses the bar, so the gap is tighter
+  /* Eight links plus the CTA have to clear a 1152px content box (--maxw minus
+     padding) before the breakpoint collapses the bar, so the gap is tighter
      than the four-anchor row could afford to be. */
-  gap: 20px;
+  gap: 14px;
   margin-left: auto;
   list-style: none;
   padding: 0;
@@ -479,7 +479,7 @@ html {
   color: var(--text);
   font-weight: 600;
 }
-/* Hairline between the one-page anchors and the three guide pages. Purely
+/* Hairline between the one-page anchors and the four guide pages. Purely
    visual, so it is `aria-hidden` in the markup and dropped on the sheet. */
 .nav-divider {
   width: 1px;
@@ -2226,7 +2226,7 @@ footer {
 }
 
 /* ============================================================
-   SUB-PAGES: PARLEY · DEMOS · COMPARE
+   SUB-PAGES: PARLEY · MORPHORM · DEMOS · COMPARE
    ------------------------------------------------------------
    The one-page marketing narrative stays on `/`; these pages are the long-form
    material a reader lands on afterwards. They share one shell (Page.astro) and
@@ -2585,14 +2585,14 @@ footer {
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-/* The nav row now carries seven links plus the install CTA, which needs a wider
+/* The nav row now carries eight links plus the install CTA, which needs a wider
    bar than the four anchors did. It collapses to a hamburger with a drop-down
    sheet below this, independently of the 820px layout breakpoint the rest of the
    page shares — the sheet is a separate layer, so a page that is still in
    desktop layout underneath it is not a problem.
 
-   Kept in step with the `1180` in Nav.astro's resize handler. */
-@media (max-width: 1180px) {
+   Kept in step with the `1280` in Nav.astro's resize handler. */
+@media (max-width: 1280px) {
   .nav-inner {
     gap: 16px;
     padding: 10px 18px;
@@ -2681,7 +2681,7 @@ footer {
   }
 }
 @media (max-width: 820px) {
-  /* The nav's own collapse is at 1180px, above this; what is left here is the
+  /* The nav's own collapse is at 1280px, above this; what is left here is the
      page's layout. */
 
   /* The pinned journey gives back most of its length: 4.2 screens of scrolling to

@@ -1,0 +1,549 @@
+---
+import Page from "../layouts/Page.astro";
+
+// Every number on this page comes from the crate's own record,
+// `gpui_morphorm/benchmarks/2026-09-26-layout-engine-swap.md`, whose two columns
+// are two implementations of the one trait below, driven through the same
+// boundary on the same trees. The run is this repository's: toolchain 1.98.1,
+// Intel i7-8750H — a laptop, not a controlled benchmarking host.
+const agreement = [
+  { tree: "12-node tree", scale: "1.0", nodes: 12, delta: "0.00 px" },
+  { tree: "12-node tree", scale: "1.5", nodes: 12, delta: "0.00 px" },
+  { tree: "12-node tree", scale: "2.0", nodes: 12, delta: "0.00 px" },
+  { tree: "50 buttons, frame 0", scale: "1.0", nodes: 176, delta: "0.00 px" },
+  { tree: "50 buttons, frame 7", scale: "1.0", nodes: 176, delta: "0.00 px" },
+  { tree: "200 buttons, frame 3", scale: "1.0", nodes: 701, delta: "0.00 px" },
+  {
+    tree: "1000 buttons, frame 3",
+    scale: "1.0",
+    nodes: 3501,
+    delta: "0.00 px",
+  },
+];
+
+const buttons = [
+  {
+    count: "50",
+    nodes: "176",
+    taffy: "329.5 µs",
+    morphorm: "96.7 µs",
+    ratio: "3.4×",
+  },
+  {
+    count: "200",
+    nodes: "701",
+    taffy: "1.281 ms",
+    morphorm: "379.6 µs",
+    ratio: "3.4×",
+  },
+  {
+    count: "1000",
+    nodes: "3501",
+    taffy: "7.305 ms",
+    morphorm: "2.002 ms",
+    ratio: "3.7×",
+  },
+];
+
+const budget = [
+  { count: "50", taffy: "2.0%", morphorm: "0.6%" },
+  { count: "200", taffy: "7.7%", morphorm: "2.3%" },
+  { count: "1000", taffy: "44%", morphorm: "12%" },
+];
+
+const frame = [
+  {
+    op: "frame — clear, build the tree, compute_layout",
+    taffy: "21.7 µs",
+    morphorm: "6.2 µs",
+    note: "3.5× faster",
+    dir: "win",
+  },
+  {
+    op: "bounds — layout_bounds for all 12 nodes",
+    taffy: "2.29 µs",
+    morphorm: "2.22 µs",
+    note: "~1.0–1.2×, not stable",
+    dir: "dim",
+  },
+];
+
+const mapping = [
+  {
+    construct: "flex_grow",
+    what: "Units::Stretch(factor), and not equivalent",
+  },
+  { construct: "flex_shrink", what: "dropped — morphorm has no shrink factor" },
+  {
+    construct: "align_items: Stretch",
+    what: "Units::Stretch(1.0), only where the parent's cross extent is definite",
+  },
+  {
+    construct: "justify_content + align_items",
+    what: "collapse into one nine-way Alignment",
+  },
+  {
+    construct: "SpaceBetween/Evenly/Around, Baseline, align_self",
+    what: "no equivalent; the start of the axis",
+  },
+  {
+    construct: "margin on an in-flow child",
+    what: "dropped — morphorm reads spacing only for absolute children",
+  },
+  { construct: "border_widths, scrollbar gutter", what: "folded into padding" },
+  {
+    construct: "ColumnReverse, WrapReverse",
+    what: "no equivalent; laid out forward",
+  },
+  {
+    construct: "position: relative + inset",
+    what: "dropped, as CSS ignores it at layout time",
+  },
+  {
+    construct: "grid track MinContent/MaxContent",
+    what: "Auto; GridTemplateMinSize::Zero becomes Stretch(1.0)",
+  },
+  {
+    construct: "grid item placement",
+    what: "not generated — every item lands in the first cell",
+  },
+  {
+    construct: "the tree root",
+    what: "its extent is resolved against available_space",
+  },
+];
+
+const install = `<span class="c"># Cargo.toml</span>
+[dependencies]
+bite-gpui = <span class="s">"1.21"</span>
+bite-gp-morphorm = <span class="s">"1.21"</span>`;
+
+const swap = `<span class="k">use</span> gpui::<span class="m">*</span>;
+<span class="k">use</span> gpui_morphorm::<span class="t">MorphormLayoutEngine</span>;
+
+<span class="k">fn</span> <span class="f">main</span>() {
+    <span class="f">application</span>()
+        <span class="c">// the factory is called once per window, before any exist</span>
+        .<span class="f">with_layout_engine</span>(|| <span class="t">Box</span>::<span class="f">new</span>(<span class="t">MorphormLayoutEngine</span>::<span class="f">new</span>()))
+        .<span class="f">run</span>(|<span class="m">cx</span>: <span class="m">&amp;mut</span> <span class="t">App</span>| {
+            cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |<span class="m">_</span>, <span class="m">cx</span>| {
+                cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
+            })
+            .<span class="f">unwrap</span>();
+        });
+}`;
+
+const verify = `<span class="c"># the crate's own harness, in its repository</span>
+cargo test --test layout_engine -- --nocapture
+<span class="c"># the frame a facade actually draws, which is a different question</span>
+cargo test --features test-support --test facade -- --nocapture
+<span class="c"># both columns, both trees</span>
+<span class="t">CARGO_PROFILE_BENCH_DEBUG</span>=0 cargo bench --bench layout_engine`;
+---
+
+<Page
+  title="Using gpui_morphorm — bite-gpui"
+  description="Swap GPUI's layout solver for morphorm through one trait, and the measured cost of doing it."
+  kicker="Swap · LayoutEngine"
+  heading="Bring your own"
+  accent="layout solver."
+  lede="The engine turns an element tree into laid-out boxes through a single trait. bite-gp-morphorm is a second implementation of it — install the crate, hand the factory to the application at startup, and every existing div() lays out. The default solver is still there, unchanged."
+  current="morphorm"
+>
+  <section>
+    <div class="section-head">
+      <h2>The seam is one trait.</h2>
+      <p>
+        <span class="mono">LayoutEngine</span> lives in
+        <span class="mono">gpui_engine</span> and has six methods. The crate
+        that defines it has <em>"no dependency on taffy"</em> and refers to a
+        node only through an opaque <span class="mono">LayoutId</span>, and the
+        facade exposes exactly one way to replace what implements it:
+        <span class="mono">Application::with_layout_engine</span>. A solver
+        written outside the repository plugs in through that method, which is
+        what makes this an install rather than a patch.
+      </p>
+    </div>
+
+    <div class="code-block">
+      <pre><code set:html={install}></code></pre>
+    </div>
+
+    <div class="code-block">
+      <pre><code set:html={swap}></code></pre>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">No rename needed</span>
+      <p>
+        Cargo exposes a dependency under its <em>library</em> name, and the
+        published package keeps a library target of its own — so
+        <code>bite-gp-morphorm</code> is <code>use gpui_morphorm::…</code>, with
+        no <code>package =</code> key in your manifest.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Is it the same layout?</h2>
+      <p>
+        That is the question a second engine has to answer before it is a second
+        column rather than a bug, so it is answered first and by measurement:
+        both engines lay the same tree out and every node's bounds are compared.
+        A node that differs is a failure. Nothing here is within a tolerance —
+        the budget in the test is a half pixel so that a future change has to
+        cross something visible before it fails.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>tree</th>
+            <th class="num">scale</th>
+            <th class="num">nodes</th>
+            <th>worst delta</th>
+          </tr>
+        </thead>
+        <tbody>
+          {agreement.map((row) => (
+            <tr>
+              <td>
+                <span class="mono">{row.tree}</span>
+              </td>
+              <td class="num">{row.scale}</td>
+              <td class="num">{row.nodes}</td>
+              <td>
+                <strong>{row.delta}</strong> · 0 nodes differ
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-note">
+      Integral and fractional scales are both covered, because that is where
+      device-pixel snapping exposes a mismatch if the two engines resolve a
+      length differently on the way in.
+    </p>
+
+    <div class="prose">
+      <p>
+        The trees are files in the crate — <code>src/sample.rs</code> and
+        <code>src/buttons.rs</code> — and the comparison, the benchmark and the
+        demo all drive those same builders, so the claim and the timing cannot
+        drift apart. They cover flex rows and columns, padding, gaps, explicit
+        and percentage sizes, cross-axis stretch, one measured leaf and absolute
+        positioning, and they deliberately leave out what the conversion cannot
+        express, because a difference there would be a documented limitation
+        rather than a defect.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Agreeing node for node is not the same as drawing a window.</h2>
+      <p>
+        The first version of this engine passed every comparison above and
+        painted
+        <strong>nothing</strong> — a transparent window. Both statements were
+        true, and that is the interesting part: a benchmark builds a tree and
+        lays it out against an available space, while a facade builds a window
+        root, stretches it to the window, and reads bounds while painting.
+      </p>
+    </div>
+
+    <div class="prose">
+      <p>
+        The window root was the reason. gpui's root is
+        <code>size_full</code> — <code>100%</code> in both axes — and morphorm
+        reads a root's extent with <code>to_px(0.0, 0.0)</code>, where a
+        percentage resolves against a parent the root does not have. Zero by
+        zero, and a zero-size root paints nothing. Taffy lays the root out
+        inside the available space instead, the way CSS resolves a root against
+        the initial containing block.
+      </p>
+      <p>
+        The engine now resolves a root's extent against
+        <code>available_space</code> first. What caught it was a test that draws
+        an actual frame through the facade, twice — once with the default engine
+        and once with this one — and compares the geometry. That calibration
+        matters: it is what says the harness is right when the swapped engine
+        fails.
+      </p>
+    </div>
+
+    <div class="code-block">
+      <pre><code>{`$ cargo test --features test-support --test facade -- --nocapture
+root  0,0  1600x1200
+row   16,16  1568x40
+row   16,64  1568x40`}</code></pre>
+    </div>
+
+    <p class="table-note">
+      The test platform runs at a scale factor of 2, which is why the numbers
+      are twice the 800×600 the test resizes to.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What it costs, on a tree that costs something.</h2>
+      <p>
+        A twelve-node tree finishes in microseconds, so it is too close to the
+        floor for a ratio to mean much. The tree worth timing is fifty to a
+        thousand buttons in two columns, each with an icon whose width and a row
+        whose height change every frame — so no frame is a repeat of the last
+        one and neither engine can serve a stale layout.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="num">buttons</th>
+            <th class="num">nodes</th>
+            <th class="num">taffy</th>
+            <th class="num">morphorm</th>
+            <th>result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {buttons.map((row) => (
+            <tr>
+              <td class="num">{row.count}</td>
+              <td class="num">{row.nodes}</td>
+              <td class="num">{row.taffy}</td>
+              <td class="num">{row.morphorm}</td>
+              <td class="win">{row.ratio} faster</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-note">
+      One frame of layout, mean estimates from criterion, 100 measurements per
+      benchmark. A second run put the three ratios at 3.48×, 3.49× and 3.82×, so
+      the headline is a range: <strong>3.4–3.8×</strong>. The trees are laid out
+      identically by both engines — 0.00 px across all 3501 nodes at a thousand
+      buttons.
+    </p>
+
+    <div class="prose">
+      <p>
+        The ratio holds as the tree grows rather than converging, which is what
+        makes the absolute numbers the interesting ones. Against a 16.7 ms
+        frame:
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="num">buttons</th>
+            <th class="num">taffy</th>
+            <th class="num">morphorm</th>
+          </tr>
+        </thead>
+        <tbody>
+          {budget.map((row) => (
+            <tr>
+              <td class="num">{row.count}</td>
+              <td class="num">{row.taffy}</td>
+              <td class="num win">{row.morphorm}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-note">
+      At a thousand changing buttons the default engine spends nearly half the
+      frame on layout and this one spends an eighth. The demo in the repository
+      renders exactly this tree and reports the pipeline's own layout phase, so
+      the two can be compared on screen rather than in a table — set
+      <span class="mono">BITE_LAYOUT_ENGINE=taffy</span> for the default,
+      <span class="mono">BITE_BUTTONS=1000</span> to make it unmissable.
+    </p>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>on the 12-node tree</th>
+            <th class="num">taffy</th>
+            <th class="num">morphorm</th>
+            <th>result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {frame.map((row) => (
+            <tr>
+              <td>
+                <span class="mono">{row.op}</span>
+              </td>
+              <td class="num">{row.taffy}</td>
+              <td class="num">{row.morphorm}</td>
+              <td class={row.dir}>{row.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-note">
+      <span class="mono">bounds</span> is the one figure here that is not stable
+      — 1.03× and 1.21× in the two runs this page quotes, against 1.28× and
+      1.42× on the older compiler the numbers were first taken with, and run 1's
+      taffy interval spans 2.065–2.501 µs on its own. Read it as "comparable,
+      both under three microseconds", not as a ratio.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What it does not say.</h2>
+    </div>
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>It is not a general claim.</strong> One host, one laptop, no
+          CPU pinning, and 20–25% run-to-run spread on the timings. The
+          correctness result did not move between runs; only the clocks did.
+        </li>
+        <li>
+          <strong>It is not attributable to the algorithm alone.</strong> Each
+          engine's node storage, caching and bookkeeping are inside the
+          measurement, so the ratio is a claim about these two engines as
+          written — not about taffy and morphorm in the abstract.
+        </li>
+        <li>
+          <strong>
+            The conformance comparison is not a proof of equivalence.
+          </strong>
+          It says the conversion is right where it claims to be right, on trees
+          built from that subset. It says nothing about the cases it declines.
+        </li>
+        <li>
+          <strong>taffy implements more of CSS.</strong> Block flow, wrapping
+          modes, grid track sizing with <span class="mono">minmax</span> and{" "}
+          <span class="mono">fr</span>, <span class="mono">flex_shrink</span>,
+          and independent <span class="mono">justify_content</span> and{" "}
+          <span class="mono">align_items</span>. morphorm has fewer concepts,
+          which is part of why it is cheaper here, and the table below is what
+          that costs.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Where the vocabularies differ.</h2>
+      <p>
+        <span class="mono">EngineLayoutStyle</span> is a set of copies of
+        taffy's style enums; morphorm reads its own, and they are not the same
+        shape. So most of the crate is a translation rather than a rename, and
+        every choice it makes is written down — in the table here, and with its
+        reasoning in the module docs.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>construct</th>
+            <th>what happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          {mapping.map((row) => (
+            <tr>
+              <td>
+                <span class="mono">{row.construct}</span>
+              </td>
+              <td>{row.what}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-title">flex_grow is the one that bites</span>
+      <p>
+        CSS grows an item <em>beyond its own content</em>; morphorm's{" "}
+        <code>Stretch</code> divides the free space by factor <em>from zero</em>
+        . One grown item and the two agree, which is why the twelve-node tree
+        can use it. Two grown items carrying different content and they do not:
+        two
+        <code>flex_grow: 1</code> buttons whose labels differ came out
+        <strong>170 and 168 px</strong> wide under taffy and{" "}
+        <strong>169 and 169</strong> under morphorm. The buttons tree therefore
+        uses explicit widths, explicit row heights and a column of rows instead
+        of a grid — all three are constructs morphorm cannot express, and all
+        three are listed rather than measured.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Reproduce it.</h2>
+      <p>
+        The harness is in the crate, and its two columns are two implementations
+        behind the same trait — one solver measured alone would say what
+        morphorm costs, not what <em>choosing</em> morphorm costs.
+      </p>
+    </div>
+
+    <div class="code-block">
+      <pre><code set:html={verify}></code></pre>
+    </div>
+
+    <div class="prose">
+      <p>
+        The recorded run — command, toolchain, host and every sample — is
+        <a
+          href="https://github.com/bite-gpui/gpui_morphorm/blob/main/benchmarks/2026-09-26-layout-engine-swap.md"
+          target="_blank"
+          rel="noreferrer"
+        >
+          benchmarks/2026-09-26-layout-engine-swap.md
+        </a>
+        in the crate's repository, which is where the numbers above come from.
+      </p>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/bite-gpui/gpui_morphorm"
+            target="_blank"
+            rel="noreferrer"
+          >
+            bite-gpui/gpui_morphorm
+          </a>
+          — the engine, its conformance tests, its two-column benchmark and the
+          demo example.
+        </li>
+        <li>
+          <a
+            href="https://crates.io/crates/bite-gp-morphorm"
+            target="_blank"
+            rel="noreferrer"
+          >
+            bite-gp-morphorm on crates.io
+          </a>
+          — the published artefact every number here was taken against.
+        </li>
+      </ul>
+    </div>
+  </section>
+</Page>

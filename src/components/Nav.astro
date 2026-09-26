@@ -19,6 +19,7 @@ const anchors = [
 
 const pages = [
   { href: "/parley", label: "Parley", key: "parley" },
+  { href: "/morphorm", label: "Morphorm", key: "morphorm" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];
@@ -184,11 +185,11 @@ const pages = [
   });
 
   // Resizing past the breakpoint would otherwise leave the desktop row hidden.
-  // Kept in step with the `max-width: 1180px` query in global.css that
-  // collapses the bar — the row carries seven links plus the CTA now, which is
+  // Kept in step with the `max-width: 1280px` query in global.css that
+  // collapses the bar — the row carries eight links plus the CTA now, which is
   // a wider bar than the hero's own 820px breakpoint.
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 1180) setOpen(false);
+    if (window.innerWidth > 1280) setOpen(false);
   });
 
   // The nav CTA copies the install line rather than jumping: the sheet already

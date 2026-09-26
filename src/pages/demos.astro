@@ -33,18 +33,18 @@ const shipped = [
     note: "The copy that builds on the published crates is the usage suite's. That repository is the app's upstream and still points at a fork checkout.",
   },
   {
-    name: "layout-engine",
+    name: "gpui_morphorm",
     badge: "Category 1",
     role: "A second LayoutEngine",
-    href: null,
-    hrefLabel: null,
-    body: "A layout solver written outside the tree: morphorm, behind the same six-method trait the default engine implements. Two engines that disagree are not two columns, so the bounds are compared before anything is timed — and then a real frame is drawn, because agreeing node for node turned out not to be the same as filling a window.",
+    href: "https://github.com/bite-gpui/gpui_morphorm",
+    hrefLabel: "Crate source · bite-gpui/gpui_morphorm",
+    body: "A layout solver written outside the tree: morphorm, behind the same six-method trait the default engine implements. Two engines that disagree are not two columns, so the bounds are compared before anything is timed — and then a real frame is drawn, because agreeing node for node turned out not to be the same as filling a window. It publishes as bite-gp-morphorm from a repository of its own.",
     facts: [
       "0.00 px from the default engine, on 12 nodes and on 176–3501 changing buttons",
-      "3.3–3.7× cheaper for 50–1000 buttons with changing content",
-      "At 1000 buttons: 47% of a 16.7 ms frame against 13%",
+      "3.4–3.8× cheaper for 50–1000 buttons with changing content",
+      "At 1000 buttons: 44% of a 16.7 ms frame against 12%",
     ],
-    note: "Lives in the usage suite, which is not published yet, so there is no repository to link.",
+    note: "The layout swap is no longer only something to measure with: bite-gp-morphorm 1.21.2 is on crates.io, so a second LayoutEngine is a dependency line.",
   },
 ];
 
@@ -115,9 +115,10 @@ const planned = [
       <h2>Shipped</h2>
       <p>
         All three build today against published crates, by version, resolved
-        from crates.io. They live in the project's own usage suite, which is not
-        published yet, so the links below point at what <em>is</em> public —
-        each card says which part is upstream and which part is this project's.
+        from crates.io. Each card links to the repository that is public; the
+        usage suite they are gathered in is not published yet, so where a copy
+        under it differs from its upstream — or from a repository of its own —
+        the card says which part is which.
       </p>
     </div>
 
