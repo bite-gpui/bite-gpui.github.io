@@ -72,23 +72,33 @@ const cargo = `<span class="c"># Cargo.toml</span>
 bite-gpui = <span class="s">"1.21"</span>
 bite-gp-pass = <span class="s">"1.21"</span>`;
 
-const main = `<span class="k">use</span> gpui_pass::<span class="m">{</span><span class="t">FramePipelineExt</span>, <span class="t">Ledger</span>, <span class="t">RatePolicy</span><span class="m">}</span>;
+const main = `<span class="k">use</span> gpui::<span class="m">*</span>;
+<span class="k">use</span> gpui_pass::<span class="m">{</span><span class="t">FramePipelineExt</span>, <span class="t">Ledger</span>, <span class="t">RatePolicy</span><span class="m">}</span>;
 <span class="k">use</span> core::num::<span class="t">NonZeroU32</span>;
 
-<span class="k">let</span> ledger = <span class="t">Ledger</span>::<span class="f">shared</span>(<span class="t">Ledger</span>::<span class="t">DEFAULT_CAPACITY</span>); <span class="c">// 240 frames, made once</span>
+<span class="k">fn</span> <span class="f">main</span>() {
+    <span class="k">let</span> ledger = <span class="t">Ledger</span>::<span class="f">shared</span>(<span class="t">Ledger</span>::<span class="t">DEFAULT_CAPACITY</span>); <span class="c">// 240 frames, made once</span>
 
-app.<span class="f">with_frame_pipeline</span>({
-    <span class="k">let</span> ledger = ledger.<span class="f">clone</span>();
-    <span class="k">move</span> |<span class="m">_window_id</span>| {
-        <span class="t">Box</span>::<span class="f">new</span>(
-            <span class="t">StandardImmediatePipeline</span>.<span class="f">pass</span>(
-                <span class="t">RatePolicy</span>::<span class="f">at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">60</span>).<span class="f">unwrap</span>())
-                    .<span class="f">inactive_at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">15</span>).<span class="f">unwrap</span>()), <span class="c">// a background window</span>
-                ledger.<span class="f">clone</span>(),
-            ),
-        )
-    }
-});`;
+    <span class="f">application</span>()
+        .<span class="f">with_frame_pipeline</span>({
+            <span class="k">let</span> ledger = ledger.<span class="f">clone</span>();
+            <span class="k">move</span> |<span class="m">_window_id</span>| {
+                <span class="t">Box</span>::<span class="f">new</span>(
+                    <span class="t">StandardImmediatePipeline</span>.<span class="f">pass</span>(
+                        <span class="t">RatePolicy</span>::<span class="f">at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">60</span>).<span class="f">unwrap</span>())
+                            .<span class="f">inactive_at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">15</span>).<span class="f">unwrap</span>()), <span class="c">// a background window</span>
+                        ledger.<span class="f">clone</span>(),
+                    ),
+                )
+            }
+        })
+        .<span class="f">run</span>(|cx: &amp;<span class="k">mut</span> <span class="t">App</span>| {
+            cx.<span class="f">open_window</span>(<span class="t">WindowOptions</span>::<span class="f">default</span>(), |_, cx| {
+                cx.<span class="f">new</span>(|_| <span class="t">MyView</span>)
+            })
+            .<span class="f">unwrap</span>();
+        });
+}`;
 
 const readLedger = `<span class="c">// In a debug overlay's render, between frames — a RefCell borrow is taken.</span>
 <span class="k">let</span> ledger = ledger.<span class="f">borrow</span>();
