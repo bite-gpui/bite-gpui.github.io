@@ -26,14 +26,14 @@ const anchors = [
 ];
 
 // Every sub-page, and the page that contains it. `parent` is what the trail names
-// after the frontdoor: the swap guides live under the Swaps hub and the pass
-// under Wraps, so their trail stops at the hub rather than at the frontdoor.
+// after the frontdoor: the two swap guides and the wrap guide all live under the
+// one Wraps & Swaps hub, so their trail stops at the hub rather than at the
+// frontdoor.
 const guides = [
-  { href: "/swaps", label: "Swaps", key: "swaps" },
+  { href: "/swaps", label: "Wraps & Swaps", key: "swaps" },
   { href: "/parley", label: "Parley", key: "parley", parent: "swaps" },
   { href: "/morphorm", label: "Morphorm", key: "morphorm", parent: "swaps" },
-  { href: "/wraps", label: "Wraps", key: "wraps" },
-  { href: "/pass", label: "The Pass", key: "pass", parent: "wraps" },
+  { href: "/pass", label: "The Pass", key: "pass", parent: "swaps" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];
@@ -53,9 +53,9 @@ const sectionPages = section
   : [];
 // What the trail already says. On a section page the bar says nothing else — the
 // reader is inside one section and the guides standing beside it are clutter — so
-// this set is what decides which of the section's own pages belong to it: Parley
-// and Morphorm are pages of Swaps, and /demos and /compare have no business
-// listing them.
+// this set is what decides which of the section's own pages belong to it: Parley,
+// Morphorm and The Pass are pages of Wraps & Swaps, and /demos and /compare have
+// no business listing them.
 const carried = new Set(
   section ? [section, ...sectionPages].map((guide) => guide.key) : [],
 );
@@ -70,9 +70,9 @@ const rail = guides.filter((guide) => !guide.parent || carried.has(guide.key));
 const sectionRail = section
   ? [{ ...section, label: "Overview" }, ...sectionPages]
   : [];
-// What the frontdoor shows: the hub and the two standalone guides. The swap
-// guides are one level down, inside the hub, and the frontdoor is not the place
-// to flatten that.
+// What the frontdoor shows: the hub and the two standalone guides. The section's
+// own guides are one level down, inside the hub, and the frontdoor is not the
+// place to flatten that.
 const topLevel = guides.filter((guide) => !guide.parent);
 ---
 

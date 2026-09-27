@@ -2,7 +2,12 @@
 import Page from "../layouts/Page.astro";
 import CodeTabs from "../components/CodeTabs.astro";
 
-// The seam inventory, read out of the published crates rather than from a
+// The hub for both extension tiers — the page the nav calls "Wraps & Swaps". It
+// was two pages, swaps and wraps, until they were merged into one overview: a
+// reader deciding how to extend the engine is asking a single question, and the
+// two tiers are the two answers to it.
+//
+// The seam inventory is read out of the published crates rather than from a
 // diagram: every trait below is declared in a `bite-gp-*` layer crate, every
 // hook is a real method on `Application`, and every default is the type the
 // facade installs when you say nothing. The two swaps are published from their
@@ -16,6 +21,10 @@ import CodeTabs from "../components/CodeTabs.astro";
 //   FramePipeline   bite-gp-authoring   with_frame_pipeline         StandardImmediatePipeline
 //   Platform        bite-gp-platform    with_platform               one per host, by cfg
 //   SceneRenderer   bite-gp-engine      — none —                    one per backend, by cfg
+//
+// The wrap tier is the second half: bite-gp-pass depends on `bite-gp-authoring`
+// and nothing else at runtime, and the two in-tree decorators are
+// `gpui_runtime`'s, documented below beside the trait they decorate.
 
 const stats = [
   {
@@ -25,20 +34,45 @@ const stats = [
   },
   {
     value: "2",
-    label: "Ready to pick",
+    label: "Ready to swap",
     note: "Live on crates.io",
+    win: true,
+  },
+  {
+    value: "1",
+    label: "Ready to wrap",
+    note: "bite-gp-pass 1.21.3",
     win: true,
   },
   {
     value: "0",
     label: "Engine forks",
-    note: "Maintained across both",
+    note: "Maintained across all",
+  },
+];
+
+// The distinction the whole page turns on. It is not stylistic: it decides which
+// seam a crate can plug into and what publishing it commits the project to.
+const tiers = [
+  {
+    name: "Swap",
+    badge: "Replace",
+    does: "Implements one of the seam traits and is installed at bootstrap in place of the default. One implementation per seam, chosen when the application is built.",
+    facts: [
+      "replaces the algorithm",
+      "one per seam, never beside it",
+      "freezes the trait on publication",
+    ],
   },
   {
-    value: "0.00 px",
-    label: "Layout delta",
-    note: "Across 3,501 nodes",
-    win: true,
+    name: "Wrap",
+    badge: "Decorate",
+    does: "Implements FramePipeline and delegates: handed every pass of every frame it admits, it forwards the ones it does not change and wraps whatever pipeline is already installed.",
+    facts: [
+      "decorates the frame pipeline",
+      "stacks in any order, any number",
+      "consumes a trait rather than freezing one",
+    ],
   },
 ];
 
@@ -88,7 +122,7 @@ const seams = [
     defaultNote:
       "and its shipped decorators: .max_fps(n) and .instrumented(metrics)",
     swap: null,
-    note: "The frame governor the one-pager shows is configuration of this default — ThrottledPipeline and InstrumentedPipeline, both in gpui_runtime — rather than a second implementation. Nothing out of tree publishes one.",
+    note: "The frame governor the one-pager shows is configuration of this default — ThrottledPipeline and InstrumentedPipeline, both in gpui_runtime — rather than a second implementation. Nothing out of tree publishes one. It is also the one seam a wrap can plug into.",
     link: "/demos",
     linkLabel: "The open seams",
     published: false,
@@ -120,6 +154,47 @@ const seams = [
     link: "/demos",
     linkLabel: "The open seams",
     published: false,
+  },
+];
+
+// The wraps. One is published from its own repository; two ship inside the
+// facade. All three implement FramePipeline, and all three forward the passes
+// they do not change.
+const wraps: {
+  name: string;
+  badge: string;
+  lib: string;
+  does: string;
+  facts: string[];
+  link?: string;
+  linkLabel?: string;
+}[] = [
+  {
+    name: "bite-gp-pass",
+    badge: "Published",
+    lib: "gpui_pass",
+    does: "Reads the frame's passes and the asks that did not draw: a policy-driven rate on one side, a ledger of what each pass cost on the other. A decorator you install without changing a view.",
+    facts: [
+      "a rate and a ledger",
+      "one runtime dependency",
+      "exercisable in CI",
+    ],
+    link: "/pass",
+    linkLabel: "Using gpui_pass",
+  },
+  {
+    name: "ThrottledPipeline",
+    badge: "In the facade",
+    lib: "gpui_runtime",
+    does: "The facade's own rate cap: draw every Nth ask, decided from one number and the last frame.",
+    facts: ["caps a rate", "whole intervals only"],
+  },
+  {
+    name: "InstrumentedPipeline",
+    badge: "In the facade",
+    lib: "gpui_runtime",
+    does: "The facade's own accounting: an Instant around each root pass, summed into running phase totals.",
+    facts: ["running totals", "drawn frames only"],
   },
 ];
 
@@ -170,6 +245,11 @@ const artifacts = [
     href: "https://crates.io/crates/bite-gp-morphorm",
   },
   {
+    name: "bite-gp-pass",
+    desc: "The first wrap: a rate policy and a per-frame ledger behind the frame pipeline.",
+    href: "https://crates.io/crates/bite-gp-pass",
+  },
+  {
     name: "bite-gpui/gpui_parley",
     desc: "The repository the text engine is developed and released from.",
     href: "https://github.com/bite-gpui/gpui_parley",
@@ -179,27 +259,63 @@ const artifacts = [
     desc: "The repository the layout solver is developed and released from.",
     href: "https://github.com/bite-gpui/gpui_morphorm",
   },
+  {
+    name: "bite-gpui/gpui_pass",
+    desc: "The repository the frame-pipeline wrap is developed and released from.",
+    href: "https://github.com/bite-gpui/gpui_pass",
+  },
 ];
 ---
 
 <Page
-  title="Swaps — bite-gpui"
-  description="The five trait contracts the facade lets you replace, which of them have a published second implementation, and what the open ones would take."
-  kicker="Architecture · The seams"
-  heading="Pick your swaps."
-  accent="Or cook your own."
-  lede="Why maintain an engine fork? Swap your text shaper or layout solver with a single line in Cargo.toml. Your existing div() views stay completely untouched."
+  title="Wraps & Swaps — bite-gpui"
+  description="The two ways the engine is extended: swaps, which replace a seam's implementation, and wraps, which decorate the frame pipeline — with the published crates and what the open seams would take."
+  kicker="Architecture · Wraps & swaps"
+  heading="Swap a seam."
+  accent="Or wrap the frame."
+  lede="The engine is extended two ways, and the difference decides what a crate can do. A swap replaces what does the work — the text shaper, the layout solver — at one hook, chosen when the application is built. A wrap decorates the frame pipeline instead, handed every pass of every frame and forwarding the ones it does not change. Neither touches a single div()."
   current="swaps"
   stats={stats}
 >
   <section>
     <div class="section-head">
-      <span class="kicker">The shelf</span>
+      <span class="kicker">Two tiers</span>
+      <h2>Replace it, or decorate it.</h2>
+      <p>
+        The distinction is not stylistic: it decides which seam a crate can plug
+        into and what publishing it commits the project to. Everything below is
+        one of the two.
+      </p>
+    </div>
+
+    <div class="card-grid two">
+      {tiers.map((tier) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">{tier.name}</h3>
+            <span class="card-badge">{tier.badge}</span>
+          </div>
+          <p>{tier.does}</p>
+          <ul class="card-facts">
+            {tier.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Swaps · The shelf</span>
       <h2>What you can swap out.</h2>
       <p>
         Every swappable boundary is defined in a standalone layer crate, backed
         by a default implementation, and re-exported under
-        <span class="mono">use gpui::*</span>.
+        <span class="mono">use gpui::*</span>. Two have a published second
+        implementation; the other three do not, and this page says so rather
+        than implying one.
       </p>
     </div>
 
@@ -297,10 +413,68 @@ const artifacts = [
 
   <section>
     <div class="section-head">
+      <span class="kicker">Wraps · The inventory</span>
+      <h2>Decorate the pipeline.</h2>
+      <p>
+        One wrap is published from its own repository; two ship inside the
+        facade as decorators you can stack without depending on anything. All
+        three implement the same trait, and all three forward the passes they do
+        not change.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      {wraps.map((wrap) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{wrap.name}</h3>
+            <span class="card-badge">{wrap.badge}</span>
+          </div>
+          <p>{wrap.does}</p>
+          <ul class="card-facts">
+            {wrap.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          <p class="card-note mono">lib: {wrap.lib}</p>
+          {wrap.link ? (
+            <a class="card-link" href={wrap.link}>
+              {wrap.linkLabel} →
+            </a>
+          ) : null}
+        </article>
+      ))}
+    </div>
+
+    <div class="prose">
+      <p>
+        A wrap implements <span class="mono">FramePipeline</span> and delegates.
+        Every pass has a default that calls the <span class="mono">Window</span>{" "}
+        method behind it, so a decorator is only as transparent as the passes it
+        explicitly forwards — which is the whole of the contract.
+      </p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Compose with any pipeline</span>
+      <p>
+        A wrap goes where any pipeline goes — the factory you hand to
+        <span class="mono">with_frame_pipeline</span> — and stacks in any order
+        and any number. Nothing in the tree is forked, so there is no patch to
+        rebase when the engine moves. The published one is{" "}
+        <a href="/pass">bite-gp-pass</a>, and{" "}
+        <span class="mono">cargo add bite-gp-pass</span> is the whole of its
+        install.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
       <span class="kicker">Installation</span>
       <h2>A swap is installed, not applied.</h2>
       <p>
-        The two published ones are ordinary crate dependencies. Nothing in the
+        The two published swaps are ordinary crate dependencies. Nothing in the
         tree is forked, so there is no patch to rebase when the engine moves —
         and because each published package keeps its library target name,
         <span class="mono">use gpui_parley::…</span> and
@@ -438,6 +612,16 @@ const artifacts = [
           instantiation overhead. Morphorm cuts layout frame time by up to 3.8×,
           but omits complex CSS Grid track rules.
         </li>
+        <li>
+          <strong>
+            A wrap is the frame pipeline, and only the frame pipeline:
+          </strong>{" "}
+          <span class="mono">FramePipeline</span> is the one seam that hands a
+          crate the frame's passes, so a decorator on
+          <span class="mono">TextSystem</span> or{" "}
+          <span class="mono">LayoutEngine</span> would have to be the
+          implementation — which is a swap.
+        </li>
       </ul>
     </div>
 
@@ -457,9 +641,10 @@ const artifacts = [
   <section>
     <div class="section-head">
       <span class="kicker">Where they live</span>
-      <h2>The published two.</h2>
+      <h2>The published crates.</h2>
       <p>
-        The crates, and the repositories they are developed and released from.
+        The three crates, and the repositories they are developed and released
+        from.
       </p>
     </div>
 

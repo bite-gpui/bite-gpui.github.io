@@ -44,7 +44,7 @@ illustration is keyed to it.
 
 ## Page structure
 
-There is one marketing page and three guide pages. `src/pages/index.astro`
+There is one marketing page and six guide pages. `src/pages/index.astro`
 composes the marketing sections in order; each component is self-contained:
 markup, scoped-by-convention styles (all CSS lives in `src/styles/global.css`)
 and its own `<script>`.
@@ -65,21 +65,30 @@ handler.
 
 ### Guide pages
 
-The three sub-pages are long-form material for a reader who has finished the
+The sub-pages are long-form material for a reader who has finished the
 one-pager. They share `src/layouts/Page.astro`—`Nav`, a hero (kicker, `h1` with an
 optional gradient `<em>`, lede), a `<slot />`, and `Footer`—so adding a page is
 content only. Their prose/table/card primitives are the `SUB-PAGES` block in
 `global.css`.
 
-| Route      | Source          | What it covers                                                                                                  |
-| ---------- | --------------- | --------------------------------------------------------------------------------------------------------------- |
-| `/parley`  | `parley.astro`  | How to swap the text engine, and the measured trade that comes with it.                                         |
-| `/demos`   | `demos.astro`   | The projects built on the published crates, filed by which boundary each one tests, plus what is still planned. |
-| `/compare` | `compare.astro` | Two comparisons that can actually be run, and an explicit list of what the project will not claim.              |
+`/swaps` is the hub for both extension tiers, the page the nav calls _Wraps &
+Swaps_; `/parley`, `/morphorm` and `/pass` are its three child guides. It was
+two pages until they were merged, so `/wraps` now redirects to `/swaps` (the
+`redirects` entry in `astro.config.mjs`).
 
-`Nav.astro` takes a `current` prop (`"parley"`, `"demos"`, `"compare"`, or `""`)
-that sets `aria-current` on the active link. Its four anchors are written
-absolute (`/#journey`) so the same markup works from a sub-page.
+| Route       | Source           | What it covers                                                                                                  |
+| ----------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `/swaps`    | `swaps.astro`    | The hub for both extension tiers: the swaps shelf, the wraps, and the published crates behind them.             |
+| `/parley`   | `parley.astro`   | How to swap the text engine, and the measured trade that comes with it.                                         |
+| `/morphorm` | `morphorm.astro` | How to swap the layout solver, and the conformance numbers against the default engine.                          |
+| `/pass`     | `pass.astro`     | How to wrap the frame pipeline, and the rate and ledger that come with it.                                      |
+| `/demos`    | `demos.astro`    | The projects built on the published crates, filed by which boundary each one tests, plus what is still planned. |
+| `/compare`  | `compare.astro`  | Two comparisons that can actually be run, and an explicit list of what the project will not claim.              |
+
+`Nav.astro` takes a `current` prop (`"swaps"`, `"parley"`, `"morphorm"`,
+`"pass"`, `"demos"`, `"compare"`, or `""`) that sets `aria-current` on the
+active link. Its four anchors are written absolute (`/#journey`) so the same
+markup works from a sub-page.
 
 The one link that is not a plain anchor is **The Layers**, which points at
 `/#layers`. Its job is to land on the _unstacked_ stack rather than on the
@@ -150,10 +159,11 @@ Pages on if it was never enabled, but it does not move an existing branch-based
 source over to Actions — if Pages is already publishing from a branch, switch the
 source by hand once.
 
-`astro.config.mjs` is intentionally empty: the repository is named
-`bite-gpui.github.io`, so it is served from the org's root and needs no `site` or
-`base`. Setting `site` would only matter for absolute URLs such as canonical tags
-or a sitemap.
+`astro.config.mjs` carries no `site` or `base`: the repository is named
+`bite-gpui.github.io`, so it is served from the org's root and needs neither.
+Setting `site` would only matter for absolute URLs such as canonical tags or a
+sitemap. The one thing in the file besides `compressHTML` is the `/wraps` →
+`/swaps` redirect left by the Wraps & Swaps merge.
 
 Because Pages serves the uploaded artifact directly rather than running Jekyll,
 the `_astro/` asset directory needs no `.nojekyll`. That would only be needed if
