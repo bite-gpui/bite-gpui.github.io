@@ -11,3 +11,6 @@ package-lock.json
 # assets, and the artwork generator is Python
 public/
 scripts/render-burger.py
+
+# standalone design prototypes: Tailwind CDN + inline styles, not site source
+design/prototypes/

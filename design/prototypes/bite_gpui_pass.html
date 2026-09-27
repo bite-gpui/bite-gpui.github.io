@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Pass · Pipeline Telemetry &amp; Ledger | bite-gpui</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-sage: #E5ECE3;
+      --card-sage: #EFF5EE;
+      --card-hover: #F6FAF5;
+      --text-forest: #1F2E23;
+      --text-secondary: #4D6452;
+      --text-muted: #6F8774;
+      --border-hairline: #BED2C3;
+      --accent-green: #2F5A3D;
+      --accent-amber: #B45309;
+      --accent-coral: #C2410C;
+    }
+    body {
+      background-color: var(--bg-sage);
+      color: var(--text-forest);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-serif-custom { font-family: 'Instrument Serif', Georgia, serif; }
+    .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+
+    /* Drafting paper rule grid */
+    .bg-grid-laurel {
+      background-size: 32px 32px;
+      background-image:
+        linear-gradient(to right, rgba(31, 46, 35, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(31, 46, 35, 0.035) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-[#2F5A3D] selection:text-[#EFF5EE] bg-grid-laurel flex flex-col justify-between">
+
+  <!-- TOP NAVIGATION -->
+  <header class="sticky top-0 z-50 bg-[#E5ECE3]/90 backdrop-blur-md border-b border-[#BED2C3]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <a href="bite_gpui_five_seams_overview.html" class="flex items-center gap-1.5 text-xs font-mono font-medium text-[#6F8774] hover:text-[#1F2E23] transition-colors whitespace-nowrap group">
+          <span>&larr; Frontdoor</span>
+          <span class="text-[#BED2C3]">/</span>
+          <span class="text-[#1F2E23] font-bold group-hover:text-[#2F5A3D]">Wraps</span>
+        </a>
+        <span class="text-[#BED2C3] font-mono text-xs select-none" aria-hidden="true">&middot;</span>
+        <nav class="flex items-center gap-2 text-xs font-mono">
+          <div class="flex items-center gap-1 bg-[#EFF5EE] border border-[#BED2C3] p-0.5 rounded-lg">
+            <span class="text-[10px] uppercase font-bold text-[#6F8774] px-1.5 select-none">Swaps:</span>
+            <a href="bite_gpui_textsystem_article.html" class="px-2 py-0.5 rounded text-[#4D6452] hover:text-[#1F2E23] hover:bg-white/80 transition-colors whitespace-nowrap">🌶️ Parley</a>
+            <a href="bite_gpui_layoutengine_article.html" class="px-2 py-0.5 rounded text-[#4D6452] hover:text-[#1F2E23] hover:bg-white/80 transition-colors whitespace-nowrap">🍯 Morphorm</a>
+          </div>
+          <div class="flex items-center gap-1 bg-[#EFF5EE] border border-[#BED2C3] p-0.5 rounded-lg">
+            <span class="text-[10px] uppercase font-bold text-[#2F5A3D] px-1.5 select-none">Wraps:</span>
+            <a href="#" class="px-2 py-0.5 rounded font-semibold bg-[#2F5A3D] text-[#EFF5EE] whitespace-nowrap">⏱️ The Pass</a>
+          </div>
+          <a href="bite_gpui_demos_page.html" class="px-2.5 py-1 text-[#4D6452] hover:text-[#1F2E23] hover:bg-[#EFF5EE] rounded-lg transition-colors whitespace-nowrap">Demos</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <button onclick="copyText('cargo add bite-gp-pass', this)" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-mono font-medium text-[#EFF5EE] bg-[#2F5A3D] hover:bg-[#254830] rounded-md transition-all shadow-sm active:scale-95 cursor-pointer">
+          <span class="text-[#BED2C3]">$</span>
+          <span>cargo add bite-gp-pass</span>
+          <svg class="w-3.5 h-3.5 text-[#BED2C3]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full space-y-16">
+
+    <!-- 1. HERO -->
+    <section class="space-y-8">
+      <div>
+        <span class="inline-flex items-center gap-1.5 font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">
+          ⏱️ The Pass &middot; Frame Pipeline &amp; Ledger
+        </span>
+        <div class="mt-2 text-xs font-mono text-[#6F8774]">
+          crate <code class="font-bold text-[#1F2E23]">bite-gp-pass</code> &middot; lib <code class="font-bold text-[#1F2E23]">gpui_pass</code> &middot; a <span class="font-bold text-[#2F5A3D]">wrap</span>, not a swap &middot; <span class="font-bold text-[#B45309]">not yet on crates.io</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-serif-custom tracking-tight text-[#1F2E23] mt-2 mb-4">
+          Watch the pass. Time every ticket down to the microsecond.
+        </h1>
+        <p class="text-base sm:text-lg text-[#4D6452] leading-relaxed max-w-3xl font-normal">
+          <strong class="text-[#1F2E23] font-semibold">Swaps replace what does the work. Wraps observe and pace it.</strong>
+          The frame pipeline seam does two things: it decides whether an ask does the frame's
+          work, and it sees every pass the frame is made of. <span class="font-medium text-[#1F2E23]">bite-gp-pass</span>
+          does both in one decorator — a policy-driven rate on one side; a ledger of what the
+          passes cost and how many asks were passed over on the other; and, behind a
+          <code class="px-1.5 py-0.5 rounded bg-[#BED2C3]/30 font-mono text-xs text-[#1F2E23]">puffin</code>
+          feature, one profiler scope per pass — and it never touches a
+          single <code class="px-1.5 py-0.5 rounded bg-[#BED2C3]/30 font-mono text-xs text-[#1F2E23]">div()</code>.
+        </p>
+        <p class="text-xs sm:text-sm text-[#6F8774] leading-relaxed max-w-3xl mt-3">
+          The name is the kitchen's. The pass is the hot counter where every plate is checked, timed and
+          paced before it leaves — and the frame pipeline is that one place in the engine: every stage of
+          every frame goes through it, and nothing reaches the screen without it.
+        </p>
+      </div>
+
+      <!-- Metrics: every figure here is reproduced by a test in the crate -->
+      <div class="grid grid-cols-2 md:grid-cols-4 bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-5 shadow-sm">
+        <div class="pr-4 md:pr-6 border-r border-[#BED2C3] pb-4 md:pb-0">
+          <div class="text-3xl sm:text-4xl font-mono font-bold text-[#2F5A3D]">121</div>
+          <div class="text-xs font-semibold text-[#1F2E23] mt-1">Frames in 5 s at 24 fps</div>
+          <div class="text-[11px] text-[#6F8774] mt-0.5">The 3:2 pulldown, on a 60 Hz grid</div>
+        </div>
+        <div class="pl-4 md:px-6 border-r-0 md:border-r border-[#BED2C3] pb-4 md:pb-0">
+          <div class="text-3xl sm:text-4xl font-mono font-bold text-[#1F2E23]">49%</div>
+          <div class="text-xs font-semibold text-[#1F2E23] mt-1">Asks passed over</div>
+          <div class="text-[11px] text-[#6F8774] mt-0.5">At 30 fps — counted, not invisible</div>
+        </div>
+        <div class="pr-4 md:px-6 border-r border-[#BED2C3] pt-4 md:pt-0">
+          <div class="text-3xl sm:text-4xl font-mono font-bold text-[#1F2E23]">16.67 ms</div>
+          <div class="text-xs font-semibold text-[#1F2E23] mt-1">Budget at 60 fps</div>
+          <div class="text-[11px] text-[#6F8774] mt-0.5">Derived from the rate, not a second knob</div>
+        </div>
+        <div class="pl-4 md:pl-6 pt-4 md:pt-0">
+          <div class="text-3xl sm:text-4xl font-mono font-bold text-[#1F2E23]">0</div>
+          <div class="text-xs font-semibold text-[#1F2E23] mt-1">C++ or system deps</div>
+          <div class="text-[11px] text-[#6F8774] mt-0.5">Pure Rust, so CI can exercise it</div>
+        </div>
+      </div>
+
+      <!-- Setup snippet -->
+      <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg overflow-hidden shadow-sm">
+        <div class="bg-[#E5ECE3] px-4 py-2 border-b border-[#BED2C3] flex items-center justify-between text-xs font-mono text-[#6F8774]">
+          <span class="font-semibold text-[#1F2E23]">src/main.rs &mdash; one decorator, a rate and a ledger</span>
+          <button onclick="copyText(document.getElementById('code-hero').innerText, this)" class="text-[#4D6452] hover:text-[#1F2E23] flex items-center gap-1 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+        <pre class="p-4 text-xs sm:text-sm font-mono-custom text-[#1F2E23] overflow-x-auto leading-relaxed bg-[#EFF5EE]"><code id="code-hero">use gpui_pass::{FramePipelineExt, Ledger, RatePolicy};
+use core::num::NonZeroU32;
+
+let ledger = Ledger::shared(Ledger::DEFAULT_CAPACITY); // 240 frames, made once
+
+app.with_frame_pipeline({
+    let ledger = ledger.clone();
+    move |_window_id| {
+        Box::new(
+            StandardImmediatePipeline.pass(
+                RatePolicy::at(NonZeroU32::new(60).unwrap())
+                    .inactive_at(NonZeroU32::new(15).unwrap()), // a background window
+                ledger.clone(),
+            ),
+        )
+    }
+});</code></pre>
+      </div>
+    </section>
+
+    <!-- 2. TAXONOMY: SWAPS VS WRAPS -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Taxonomy &middot; Where an extension plugs in</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">Swaps vs. Wraps</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          Engine modularity needs two distinct extension patterns, and they are orthogonal. A
+          <strong class="text-[#1F2E23]">swap</strong> replaces what does the work; a
+          <strong class="text-[#1F2E23]">wrap</strong> decorates how the work is run.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <article class="p-6 rounded-2xl bg-[#EFF5EE] border border-[#BED2C3] flex flex-col justify-between gap-5 shadow-sm">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-[#BED2C3]/60 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔄</span>
+                <h3 class="font-mono font-bold text-base text-[#1F2E23]">SWAPS</h3>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#E5ECE3] text-[#1F2E23] border border-[#BED2C3]">Seam implementations</span>
+            </div>
+            <p class="text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+              <strong class="text-[#1F2E23]">Replaces one seam's implementation.</strong> A swap is
+              exclusive — one implementation per seam, chosen when the application is built — and it
+              names a leaf contract rather than a pipeline.
+            </p>
+            <ul class="space-y-2 text-xs font-mono text-[#1F2E23] pt-1">
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span><strong>bite-gp-parley</strong> &rarr; <code class="bg-white px-1 py-0.5 rounded border border-[#BED2C3]">TextSystem</code></span></li>
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span><strong>bite-gp-morphorm</strong> &rarr; <code class="bg-white px-1 py-0.5 rounded border border-[#BED2C3]">LayoutEngine</code></span></li>
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span>the host backends &rarr; <code class="bg-white px-1 py-0.5 rounded border border-[#BED2C3]">Platform</code></span></li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[#BED2C3]/60 text-[11px] font-mono text-[#6F8774]">
+            Contract: <code class="text-[#1F2E23]">Box&lt;dyn LayoutEngine&gt;</code> behind an <code class="text-[#1F2E23]">Application</code> bootstrap &middot; exclusive
+          </div>
+        </article>
+
+        <article class="p-6 rounded-2xl bg-white border border-[#BED2C3] border-l-4 border-l-[#2F5A3D] flex flex-col justify-between gap-5 shadow-sm">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-[#BED2C3]/60 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🎁</span>
+                <h3 class="font-mono font-bold text-base text-[#1F2E23]">WRAPS</h3>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#DCE7DA] text-[#2F5A3D] border border-[#2F5A3D]/30">Pipeline decorators</span>
+            </div>
+            <p class="text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+              <strong class="text-[#1F2E23]">Decorates the frame pipeline.</strong> A wrap is handed
+              every pass of every frame it admits, forwards the ones it does not change, and stacks
+              under anything else that wraps a pipeline.
+            </p>
+            <ul class="space-y-2 text-xs font-mono text-[#1F2E23] pt-1">
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span><strong>bite-gp-pass</strong> &rarr; a policy-driven throttle <em>and</em> a ledger</span></li>
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span><strong>ThrottledPipeline</strong> &rarr; the facade's rate cap</span></li>
+              <li class="flex items-start gap-2"><span class="text-[#2F5A3D] font-bold">&bull;</span><span><strong>InstrumentedPipeline</strong> &rarr; the facade's phase totals</span></li>
+            </ul>
+          </div>
+          <div class="pt-3 border-t border-[#BED2C3]/60 text-[11px] font-mono text-[#6F8774]">
+            Contract: <code class="text-[#1F2E23]">impl FramePipeline</code> &middot; arbitrarily composable
+          </div>
+        </article>
+      </div>
+
+      <p class="text-[11px] text-[#6F8774] leading-relaxed max-w-3xl">
+        The five seams a swap can replace are not all in one crate:
+        <code class="font-mono text-[10px]">TextSystem</code>, <code class="font-mono text-[10px]">LayoutEngine</code> and
+        <code class="font-mono text-[10px]">SceneRenderer</code> are defined in <code class="font-mono text-[10px]">gpui_engine</code>,
+        <code class="font-mono text-[10px]">FramePipeline</code> in <code class="font-mono text-[10px]">gpui_authoring</code> and
+        <code class="font-mono text-[10px]">Platform</code> in <code class="font-mono text-[10px]">gpui_platform</code>.
+        The text system and the platform are process-wide; the layout engine and the frame pipeline are
+        per-window factories.
+      </p>
+    </section>
+
+    <!-- 3. WHAT A PASS CAN AND CANNOT DO -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Boundary</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">Two things, and one thing it cannot do</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          A pipeline is asked one question before a frame's work begins, and then handed every pass of
+          the frames it admitted. That leaves room for exactly two jobs, and the honesty of the crate
+          is in naming the third thing as impossible.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+        <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+          <strong class="text-[#1F2E23] font-mono text-xs block">1 · Decide</strong>
+          <p>
+            <code class="font-mono text-xs">should_render</code> is the throttle. A
+            <code class="font-mono text-xs">RatePolicy</code> is read per frame from the metrics the seam
+            already hands in, so one install can run a focused window at 60 and a backgrounded one at 15.
+          </p>
+        </div>
+        <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+          <strong class="text-[#1F2E23] font-mono text-xs block">2 · Account</strong>
+          <p>
+            Every pass is timed into a <code class="font-mono text-xs">Ledger</code> that keeps the recent
+            frames rather than a running average, and counts the asks the throttle passed over to draw them.
+          </p>
+        </div>
+        <div class="bg-[#EFF5EE] border-2 border-dashed border-[#BED2C3] rounded-lg p-4 space-y-2">
+          <strong class="text-[#B45309] font-mono text-xs block">✗ · Pace presentation</strong>
+          <p>
+            The seam names no swapchain, no vblank and no timestamp, and
+            <code class="font-mono text-xs">WindowMetrics</code> carries no refresh rate. What emerges is the
+            right <em>rate</em> landing on the display's grid — never a lock to the raster. Where rigid
+            cadence matters, count refreshes in the platform.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. THE PHASED FRAME -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Architecture</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">The frame, as seven passes</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">FramePipeline</code> hands
+          each pass through the pipeline in turn, so a decorator times each one without reaching into the
+          engine. The ledger's <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">FrameCost</code>
+          has a slot for every one — a pass a frame did not run reads as zero, not as missing.
+        </p>
+      </div>
+
+      <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-6 overflow-x-auto shadow-sm">
+        <div class="min-w-[700px] flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Opens</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">begin_frame</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Samples the window</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&rarr;</span>
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Gathers</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">evaluate_roots</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">View state &rarr; roots</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&rarr;</span>
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Measures</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">layout_roots</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Taffy or Morphorm</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&rarr;</span>
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#B45309] block uppercase font-semibold">Draws</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">paint_roots</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Quads, text, atlases</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-4">
+            <span class="text-[11px] text-[#6F8774] font-mono">the same three, plus four to close out</span>
+            <span class="text-[#BED2C3] font-mono text-sm">&darr;</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Ready to present</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">end_frame</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Files the frame's cost</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&larr;</span>
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Swaps in</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">complete_frame</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Focus changes dispatched</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&larr;</span>
+            <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded-md p-3 w-40 text-center">
+              <span class="font-mono text-[10px] text-[#6F8774] block uppercase font-semibold">Closes</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">finish_frame</strong>
+              <span class="text-[11px] text-[#4D6452] block mt-1">Views touched recorded</span>
+            </div>
+            <span class="text-[#BED2C3] font-mono text-sm">&larr;</span>
+            <div class="bg-[#2F5A3D]/10 border-2 border-[#2F5A3D] rounded-md p-3 w-44 text-center">
+              <span class="font-mono text-[10px] text-[#2F5A3D] block uppercase font-bold">The ledger</span>
+              <strong class="font-mono text-xs text-[#1F2E23] block mt-0.5">FrameCost</strong>
+              <span class="text-[11px] text-[#2F5A3D] block mt-1 font-medium">Seven times, one frame</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. THE LEDGER -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">The Ledger</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">A ticket for every frame</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          Wrapping the pipeline in the facade's own
+          <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">InstrumentedPipeline</code> gives
+          you running totals of the passes that drew. It cannot give you the frames that did not — and it
+          keeps no frame to measure a tail against. The ledger is both.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-6 bg-[#FFFFFF] border-2 border-dashed border-[#BED2C3] rounded-lg p-5 shadow-sm font-mono text-xs text-[#1F2E23] space-y-3">
+          <div class="text-center border-b border-[#BED2C3] pb-3">
+            <span class="text-sm font-bold tracking-widest uppercase block">FRAME RECORD</span>
+            <span class="text-[11px] text-[#6F8774] block mt-0.5">sample values · target 16.67 ms (60 fps)</span>
+          </div>
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-[#6F8774] border-b border-[#BED2C3]/60 text-[11px]">
+                <th class="pb-1">Phase</th>
+                <th class="pb-1">Cost</th>
+                <th class="pb-1 text-right">Note</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#BED2C3]/30">
+              <tr><td class="py-1.5 font-semibold">begin_frame</td><td class="py-1.5 text-[#4D6452]">0.04 ms</td><td class="py-1.5 text-right text-[#6F8774]">&mdash;</td></tr>
+              <tr><td class="py-1.5 font-semibold">evaluate_roots</td><td class="py-1.5 text-[#4D6452]">0.41 ms</td><td class="py-1.5 text-right text-[#6F8774]">&mdash;</td></tr>
+              <tr class="bg-[#2F5A3D]/5 font-semibold"><td class="py-1.5 text-[#2F5A3D]">layout_roots</td><td class="py-1.5 text-[#2F5A3D]">0.02 ms</td><td class="py-1.5 text-right text-[#2F5A3D]">cached subtree</td></tr>
+              <tr><td class="py-1.5 font-semibold">paint_roots</td><td class="py-1.5 text-[#4D6452]">1.12 ms</td><td class="py-1.5 text-right text-[#B45309]">the tail</td></tr>
+              <tr><td class="py-1.5 font-semibold">finish_frame</td><td class="py-1.5 text-[#4D6452]">0.18 ms</td><td class="py-1.5 text-right text-[#6F8774]">&mdash;</td></tr>
+            </tbody>
+          </table>
+          <div class="border-t-2 border-[#1F2E23] pt-2 flex items-center justify-between font-bold text-xs sm:text-sm">
+            <span>TOTAL PASSES</span>
+            <span class="text-[#2F5A3D]">1.77 ms of 16.67 ms</span>
+          </div>
+          <div class="text-[10px] text-[#6F8774] text-center pt-1 border-t border-[#BED2C3]/50">
+            deferred_since_previous: 2 &mdash; this frame stood in for two asks the throttle passed over
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 space-y-4 text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+          <h3 class="text-base font-bold text-[#1F2E23]">What the ledger answers</h3>
+          <ul class="space-y-3 list-disc pl-5 marker:text-[#2F5A3D]">
+            <li>
+              <strong class="text-[#1F2E23]">Was this frame held back, or was it slow?</strong>
+              Totals across drawn frames cannot tell the difference. The ledger counts the asks that did
+              not draw, so <code class="font-mono text-xs">deferral_ratio()</code> says a throttle is
+              dropping half the display's refreshes — and
+              <code class="font-mono text-xs">deferred_since_previous()</code> attributes them to the frame
+              that stood in for them.
+            </li>
+            <li>
+              <strong class="text-[#1F2E23]">What is the tail, not the mean?</strong>
+              <code class="font-mono text-xs">phase_percentile(Phase::Paint, 0.99)</code> reads the p99 out of
+              the ring. A mean hides the one frame that hitched.
+            </li>
+            <li>
+              <strong class="text-[#1F2E23]">Does the work fit the rate?</strong>
+              <code class="font-mono text-xs">budget()</code> is the interval the policy implies and
+              <code class="font-mono text-xs">over_budget(budget)</code> counts the frames past it — no second
+              knob to keep in step with the policy.
+            </li>
+            <li>
+              <strong class="text-[#1F2E23]">Is it true in CI?</strong>
+              A <code class="font-mono text-xs">FakeClock</code> drives the decisions and the recorded costs,
+              so a frame budget is an assertion:
+              <code class="font-mono text-xs">assert!(ledger.phase_percentile(Phase::Paint, 0.99) &lt; budget())</code>.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. LIVE SCHEDULE -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Live Simulator</span>
+          <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">The admission rule, run for real</h2>
+        </div>
+        <span class="text-xs font-mono text-[#4D6452] bg-[#BED2C3]/30 px-2.5 py-1 rounded-md">300 asks &middot; 60 Hz grid</span>
+      </div>
+
+      <p class="text-xs sm:text-sm text-[#4D6452] leading-relaxed max-w-3xl">
+        This is not an illustration: the page runs the crate's own admission rule — a theoretical arrival
+        time, one interval of slack as the burst, and the remainder carried — over five seconds of a 60 Hz
+        ask grid, and reports what it admits. It is the same arithmetic
+        <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">tests/throttling.rs</code>
+        asserts.
+      </p>
+
+      <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-xl p-6 shadow-sm space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-xs font-mono font-semibold text-[#1F2E23] block">Requested rate</label>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button onclick="setRate(24)" data-rate="24" class="rate-btn px-2 py-1.5 rounded text-xs font-mono font-semibold bg-[#2F5A3D] text-[#EFF5EE] shadow-sm cursor-pointer">24</button>
+              <button onclick="setRate(30)" data-rate="30" class="rate-btn px-2 py-1.5 rounded text-xs font-mono font-medium bg-[#FFFFFF] border border-[#BED2C3] text-[#1F2E23] cursor-pointer">30</button>
+              <button onclick="setRate(60)" data-rate="60" class="rate-btn px-2 py-1.5 rounded text-xs font-mono font-medium bg-[#FFFFFF] border border-[#BED2C3] text-[#1F2E23] cursor-pointer">60</button>
+              <button onclick="setRate(144)" data-rate="144" class="rate-btn px-2 py-1.5 rounded text-xs font-mono font-medium bg-[#FFFFFF] border border-[#BED2C3] text-[#1F2E23] cursor-pointer">144</button>
+            </div>
+            <span class="text-[10px] text-[#6F8774] block">24 fps does not divide 60, which is the interesting case.</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <label class="font-semibold text-[#1F2E23]">A pass's cost</label>
+              <span id="cost-label" class="text-[#2F5A3D] font-bold">4.0 ms</span>
+            </div>
+            <input type="range" id="cost-slider" min="0.5" max="30" step="0.5" value="4" oninput="render()" class="w-full cursor-pointer h-2 bg-[#BED2C3] rounded-lg">
+            <span class="text-[10px] text-[#6F8774] block">Illustrative: compare it against the interval below.</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center font-mono">
+          <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded py-2 px-2">
+            <span class="text-[10px] text-[#6F8774] block">Interval</span>
+            <strong id="m-interval" class="text-sm text-[#1F2E23]">41.67 ms</strong>
+          </div>
+          <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded py-2 px-2">
+            <span class="text-[10px] text-[#6F8774] block">Drawn</span>
+            <strong id="m-drawn" class="text-sm text-[#2F5A3D]">121 / 300</strong>
+          </div>
+          <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded py-2 px-2">
+            <span class="text-[10px] text-[#6F8774] block">Delivered</span>
+            <strong id="m-fps" class="text-sm text-[#1F2E23]">24.2 fps</strong>
+          </div>
+          <div class="bg-[#FFFFFF] border border-[#BED2C3] rounded py-2 px-2">
+            <span class="text-[10px] text-[#6F8774] block">Passed over</span>
+            <strong id="m-deferred" class="text-sm text-[#B45309]">59.7%</strong>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-mono">
+            <span class="font-semibold text-[#1F2E23]">The 3:2 cycle &mdash; gaps between drawn asks</span>
+            <span id="m-cadence" class="text-[#6F8774]">3,2,3,2,3,2…</span>
+          </div>
+          <div id="ask-strip" class="w-full h-4 rounded bg-[#BED2C3]/40 overflow-hidden flex gap-px"></div>
+        </div>
+
+        <div id="budget-verdict" class="text-xs font-mono rounded border border-[#2F5A3D]/30 bg-[#2F5A3D]/5 text-[#2F5A3D] px-3 py-2">
+          A 4.0 ms pass fits a 41.67 ms interval with room to spare.
+        </div>
+
+        <p class="text-[11px] text-[#6F8774] leading-relaxed">
+          Note what 144 fps shows here: the grid still only offers 60 asks a second, so the throttle admits
+          every one and the rate that arrives is the display's. That is the seam's ceiling, not the crate's.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. COMPOSITION -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Mechanics</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">One decorator, and still composable</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">PassPipeline</code> replaces the
+          facade's <code class="font-mono text-xs">.max_fps(n)</code> and a metrics cell at once, because the
+          decision and the accounting share a clock. It is still a decorator, so it stacks under anything
+          else that wraps a pipeline.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-7 bg-[#EFF5EE] border border-[#BED2C3] rounded-lg overflow-hidden shadow-sm">
+          <div class="bg-[#E5ECE3] px-4 py-2 border-b border-[#BED2C3] flex items-center justify-between text-xs font-mono text-[#6F8774]">
+            <span class="font-semibold text-[#1F2E23]">Reading the ledger between frames</span>
+            <button onclick="copyText(document.getElementById('code-read').innerText, this)" class="text-[#4D6452] hover:text-[#1F2E23] flex items-center gap-1 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy</span>
+          </button>
+          </div>
+          <pre class="p-4 text-xs font-mono-custom text-[#1F2E23] overflow-x-auto leading-relaxed bg-[#EFF5EE]"><code id="code-read">// In a debug overlay's render, between frames — a RefCell borrow is taken.
+let ledger = ledger.borrow();
+
+let drawn  = ledger.drawn();
+let passed = ledger.deferred();          // the asks the throttle turned away
+let p99    = ledger.phase_percentile(Phase::Paint, 0.99);
+let over   = ledger.over_budget(budget); // frames past the rate's own interval</code></pre>
+        </div>
+
+        <div class="lg:col-span-5 space-y-4 text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+            <strong class="text-[#1F2E23] font-mono text-xs block">One clock, two answers</strong>
+            <p>
+              The same <code class="font-mono text-xs">Clock</code> that decides whether an ask is too soon
+              times the passes. Install <code class="font-mono text-xs">RealClock</code> and the numbers are
+              the machine's; install <code class="font-mono text-xs">FakeClock</code> and they are the test's.
+            </p>
+          </div>
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+            <strong class="text-[#1F2E23] font-mono text-xs block">What it costs</strong>
+            <p>
+              The decision is one comparison against a carried schedule; the ledger writes a duration per
+              pass into a ring sized once. No allocation per frame, and no new dependency — the crate's only
+              runtime dependency is the trait it implements.
+            </p>
+          </div>
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+            <strong class="text-[#1F2E23] font-mono text-xs block">What it is not</strong>
+            <p>
+              Not a pacer — it cannot place a pixel on a vblank. And the ledger is a summary rather than a
+              timeline: it sees the passes, not a syscall, a GPU wait or which view was slow. A scope per pass
+              is the other shape, and it is the second decorator below, behind the
+              <code class="font-mono text-xs">puffin</code> feature.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. THE SCOPE EMITTER -->
+    <section class="space-y-6">
+      <div class="border-b border-[#BED2C3] pb-3">
+        <span class="font-mono text-xs font-semibold tracking-wider uppercase text-[#6F8774]">Telemetry &middot; The timeline, behind a feature</span>
+        <h2 class="text-2xl sm:text-3xl font-serif-custom text-[#1F2E23] mt-0.5">A scope per pass, read back in-process</h2>
+        <p class="text-xs sm:text-sm text-[#4D6452] mt-1 max-w-3xl">
+          The ledger keeps a summary — what each pass cost, how many asks were passed over. A
+          <strong class="text-[#1F2E23]">timeline</strong> is the other shape a measurement takes, and it is
+          <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">PuffinPipeline</code>,
+          behind the off-by-default <code class="font-mono text-xs px-1 bg-[#BED2C3]/30 rounded text-[#1F2E23]">puffin</code>
+          feature: one <a href="https://github.com/EmbarkStudios/puffin" target="_blank" class="underline decoration-[#BED2C3] hover:text-[#1F2E23]">puffin</a>
+          scope for every pass it forwards, and a frame boundary at the top of each frame. It is the same
+          passes the ledger times, in the shape a viewer draws.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-6 bg-[#FFFFFF] border border-[#BED2C3] rounded-lg p-5 shadow-sm font-mono text-xs text-[#1F2E23] space-y-3">
+          <div class="text-center border-b border-[#BED2C3] pb-3">
+            <span class="text-sm font-bold tracking-widest uppercase block">FRAME 482 &middot; PASSES &middot; 1.80 ms</span>
+            <span class="text-[11px] text-[#6F8774] block mt-0.5">seven scopes &middot; sample values, not a frame time</span>
+          </div>
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-[#6F8774] border-b border-[#BED2C3]/60 text-[11px]">
+                <th class="pb-1">Scope</th>
+                <th class="pb-1 text-right">Span</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#BED2C3]/30">
+              <tr><td class="py-1 font-semibold">gpui::begin_frame</td><td class="py-1 text-right text-[#4D6452]">0.04 ms</td></tr>
+              <tr><td class="py-1 font-semibold">gpui::evaluate_roots</td><td class="py-1 text-right text-[#4D6452]">0.41 ms</td></tr>
+              <tr class="bg-[#2F5A3D]/5 font-semibold"><td class="py-1 text-[#2F5A3D]">gpui::layout_roots</td><td class="py-1 text-right text-[#2F5A3D]">0.02 ms</td></tr>
+              <tr><td class="py-1 font-semibold">gpui::paint_roots</td><td class="py-1 text-right text-[#B45309]">1.12 ms</td></tr>
+              <tr><td class="py-1 font-semibold">gpui::finish_frame</td><td class="py-1 text-right text-[#4D6452]">0.18 ms</td></tr>
+              <tr><td class="py-1 font-semibold">gpui::complete_frame</td><td class="py-1 text-right text-[#4D6452]">0.02 ms</td></tr>
+              <tr><td class="py-1 font-semibold">gpui::end_frame</td><td class="py-1 text-right text-[#4D6452]">0.01 ms</td></tr>
+            </tbody>
+          </table>
+          <div class="border-t-2 border-[#1F2E23] pt-2 flex items-center justify-between font-bold text-xs sm:text-sm">
+            <span>SEVEN PASSES</span>
+            <span class="text-[#2F5A3D]">one scope each</span>
+          </div>
+          <div class="text-[10px] text-[#6F8774] text-center pt-1 border-t border-[#BED2C3]/50">
+            should_render is deliberately unscoped &mdash; it runs per ask, not per drawn frame.<br>
+            The present is below the seam: the GPU submit and the swap are the platform's, and no pipeline sees them. A 60&nbsp;fps frame is 16.67&nbsp;ms.
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 space-y-4 text-xs sm:text-sm text-[#4D6452] leading-relaxed">
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg overflow-hidden shadow-sm">
+            <div class="bg-[#E5ECE3] px-4 py-2 border-b border-[#BED2C3] flex items-center justify-between text-xs font-mono text-[#6F8774]">
+              <span class="font-semibold text-[#1F2E23]">Stacking the emitter onto the pass</span>
+              <button onclick="copyText(document.getElementById('code-puffin').innerText, this)" class="text-[#4D6452] hover:text-[#1F2E23] flex items-center gap-1 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs font-mono-custom text-[#1F2E23] overflow-x-auto leading-relaxed bg-[#EFF5EE]"><code id="code-puffin">use gpui_pass::PuffinPipeline;
+
+// A scope measures whatever it encloses — wrap the pass in the emitter.
+let pipeline = PuffinPipeline::new(
+    StandardImmediatePipeline.pass(policy, ledger.clone()),
+);
+
+// Scopes are off by default, and the sink is the caller's half.
+// In-process, for a test or an example:
+puffin::set_scopes_on(true);
+let view = puffin::GlobalFrameView::default();</code></pre>
+          </div>
+
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+            <strong class="text-[#1F2E23] font-mono text-xs block">Why puffin, not a C++ profiler client</strong>
+            <p>
+              It is pure Rust, so a consumer links nothing it was not already building — no C++ toolchain in
+              every build. And it records scopes <em>in-process</em>, so a test can turn them on, drive real
+              frames and read the frames back: <code class="font-mono text-xs">tests/puffin.rs</code> asserts
+              exactly one scope per pass, and
+              <code class="font-mono text-xs">examples/puffin_scopes.rs</code> prints the waterfall with no
+              display. A profiler whose data lives only inside an external GUI cannot be checked in CI.
+            </p>
+          </div>
+
+          <div class="bg-[#EFF5EE] border border-[#BED2C3] rounded-lg p-4 space-y-2">
+            <strong class="text-[#1F2E23] font-mono text-xs block">How to watch it</strong>
+            <p>
+              Emitting the scopes is the crate's half; the sink is yours.
+              <code class="font-mono text-xs">puffin_http</code> serves them over TCP for
+              <code class="font-mono text-xs">puffin_viewer</code>, or
+              <code class="font-mono text-xs">puffin_egui</code> draws them inside the application — whatever
+              <code class="font-mono text-xs">GlobalProfiler::lock().add_sink</code> was handed. The crate
+              depends on none of them.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-20 border-t border-[#BED2C3] bg-[#E5ECE3] py-8 text-xs font-mono text-[#6F8774]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-[#1F2E23]">bite-gpui</strong> &mdash; A modular re-architecture of GPUI. Licensed under Apache-2.0.
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="bite_gpui_five_seams_overview.html" class="hover:text-[#1F2E23] transition-colors">Frontdoor</a>
+        <span>&middot;</span>
+        <a href="bite_gpui_five_seams_overview.html" class="hover:text-[#1F2E23] transition-colors">The Shelf</a>
+        <span>&middot;</span>
+        <a href="bite_gpui_demos_page.html" class="hover:text-[#1F2E23] transition-colors">Demos</a>
+        <span>&middot;</span>
+        <a href="https://github.com" target="_blank" class="hover:text-[#1F2E23] transition-colors">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-12 opacity-0 transition-all duration-200 pointer-events-none bg-[#1F2E23] text-[#EFF5EE] px-3.5 py-2 rounded shadow-lg text-xs font-mono flex items-center gap-2">
+    <svg class="w-3.5 h-3.5 text-[#BED2C3]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+    <span id="toast-msg">Copied to clipboard</span>
+  </div>
+
+  <script>
+    const GRID_NS = Math.round(1e9 / 60); // 16,666,667ns — the step the harness uses
+    const ASKS = 300;                     // five seconds at 60Hz
+    const SECONDS = 5;
+    let currentRate = 24;
+
+    // The crate's admission rule, transcribed: a theoretical arrival time, a burst
+    // of whole intervals as tolerance, and a remainder shorter than an interval
+    // carried rather than lost.
+    function schedule(fps) {
+      const interval = Math.floor(1e9 / fps); // whole nanoseconds, as the crate stores it
+      const tolerance = interval;             // one interval of slack (allow_burst(2))
+      let nextAllowed = 0;
+      let admitted = 0;
+      let last = null;
+      const drawn = [];
+      const gaps = [];
+      for (let ask = 0; ask < ASKS; ask++) {
+        const now = ask * GRID_NS;
+        if (now + tolerance >= nextAllowed) {
+          admitted++;
+          if (last !== null) gaps.push(ask - last);
+          last = ask;
+          drawn.push(ask);
+          nextAllowed = Math.max(nextAllowed, now) + interval;
+        }
+      }
+      return { admitted, drawn, gaps };
+    }
+
+    function setRate(fps) {
+      currentRate = fps;
+      document.querySelectorAll('.rate-btn').forEach((btn) => {
+        btn.classList.remove('bg-[#2F5A3D]', 'text-[#EFF5EE]', 'shadow-sm');
+        btn.classList.add('bg-[#FFFFFF]', 'border', 'border-[#BED2C3]', 'text-[#1F2E23]');
+      });
+      const active = document.querySelector('.rate-btn[data-rate="' + fps + '"]');
+      if (active) {
+        active.classList.remove('bg-[#FFFFFF]', 'border', 'border-[#BED2C3]', 'text-[#1F2E23]');
+        active.classList.add('bg-[#2F5A3D]', 'text-[#EFF5EE]', 'shadow-sm');
+      }
+      render();
+    }
+
+    function cadence(gaps) {
+      if (gaps.length === 0) return '—';
+      const unique = [...new Set(gaps)];
+      if (unique.length === 1) {
+        const n = unique[0];
+        if (n === 1) return 'every ask';
+        const suffix = n === 2 ? 'nd' : n === 3 ? 'rd' : 'th';
+        return 'every ' + n + suffix + ' ask';
+      }
+      return gaps.slice(0, 10).join(',') + '…';
+    }
+
+    function render() {
+      const result = schedule(currentRate);
+      const intervalMs = (1e9 / currentRate) / 1e6;
+      const delivered = result.admitted / SECONDS;
+      const passedOver = (ASKS - result.admitted) / ASKS;
+
+      document.getElementById('m-interval').innerText = intervalMs.toFixed(2) + ' ms';
+      document.getElementById('m-drawn').innerText = result.admitted + ' / ' + ASKS;
+      document.getElementById('m-fps').innerText = delivered.toFixed(1) + ' fps';
+      document.getElementById('m-deferred').innerText = (passedOver * 100).toFixed(1) + '%';
+      document.getElementById('m-cadence').innerText = cadence(result.gaps);
+
+      const strip = document.getElementById('ask-strip');
+      strip.innerHTML = '';
+      const drawnSet = new Set(result.drawn);
+      for (let ask = 0; ask < ASKS; ask++) {
+        const cell = document.createElement('div');
+        cell.className = 'flex-1 h-full';
+        cell.style.background = drawnSet.has(ask) ? '#2F5A3D' : 'transparent';
+        strip.appendChild(cell);
+      }
+
+      const cost = parseFloat(document.getElementById('cost-slider').value);
+      document.getElementById('cost-label').innerText = cost.toFixed(1) + ' ms';
+
+      const verdict = document.getElementById('budget-verdict');
+      if (cost > intervalMs) {
+        verdict.innerText =
+          'A ' + cost.toFixed(1) + ' ms pass overruns a ' + intervalMs.toFixed(2) +
+          ' ms interval: the passes alone eat the frame, and there is nothing left to present it.';
+        verdict.className =
+          'text-xs font-mono rounded border border-[#C2410C]/30 bg-[#C2410C]/5 text-[#C2410C] px-3 py-2';
+      } else {
+        verdict.innerText =
+          'A ' + cost.toFixed(1) + ' ms pass fits a ' + intervalMs.toFixed(2) +
+          ' ms interval — but remember the budget covers the passes, not the platform presenting them.';
+        verdict.className =
+          'text-xs font-mono rounded border border-[#2F5A3D]/30 bg-[#2F5A3D]/5 text-[#2F5A3D] px-3 py-2';
+      }
+    }
+
+    function copyText(text, btn) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      document.body.removeChild(area);
+      showToast('Copied to clipboard');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-12', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-12', 'opacity-0');
+      }, 2000);
+    }
+
+    render();
+  </script>
+</body>
+</html>

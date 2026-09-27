@@ -1,0 +1,1179 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeTabs from "../components/CodeTabs.astro";
+
+// A port of `design/prototypes/bite_gpui_pass.html` into the guide conventions
+// Parley and Morphorm already use. The prototype's copy is the content; only the
+// chrome changes. Every figure below is one the prototype states as reproduced
+// by a test in the crate, and none is invented here.
+
+const stats = [
+  {
+    value: "121",
+    label: "Frames in 5 s at 24 fps",
+    note: "The 3:2 pulldown, on a 60 Hz grid",
+    win: true,
+  },
+  {
+    value: "49%",
+    label: "Asks passed over",
+    note: "At 30 fps — counted, not invisible",
+  },
+  {
+    value: "16.67 ms",
+    label: "Budget at 60 fps",
+    note: "Derived from the rate, not a second knob",
+  },
+  {
+    value: "0",
+    label: "C++ or system deps",
+    note: "Pure Rust, so CI can exercise it",
+  },
+];
+
+// The prototype's frame record: sample values, not a measured frame of the page.
+const ledgerRows: {
+  phase: string;
+  cost: string;
+  note: string | null;
+  kind: "win" | "loss" | null;
+}[] = [
+  { phase: "begin_frame", cost: "0.04 ms", note: null, kind: null },
+  { phase: "evaluate_roots", cost: "0.41 ms", note: null, kind: null },
+  {
+    phase: "layout_roots",
+    cost: "0.02 ms",
+    note: "cached subtree",
+    kind: "win",
+  },
+  { phase: "paint_roots", cost: "1.12 ms", note: "the tail", kind: "loss" },
+  { phase: "finish_frame", cost: "0.18 ms", note: null, kind: null },
+];
+
+// The same frame, as the seven scopes PuffinPipeline emits. `key` marks the
+// cached pass the prototype lifts out; `hot` marks the tail it flags in amber.
+const scopeRows: {
+  scope: string;
+  span: string;
+  key?: boolean;
+  hot?: boolean;
+}[] = [
+  { scope: "gpui::begin_frame", span: "0.04 ms" },
+  { scope: "gpui::evaluate_roots", span: "0.41 ms" },
+  { scope: "gpui::layout_roots", span: "0.02 ms", key: true },
+  { scope: "gpui::paint_roots", span: "1.12 ms", hot: true },
+  { scope: "gpui::finish_frame", span: "0.18 ms" },
+  { scope: "gpui::complete_frame", span: "0.02 ms" },
+  { scope: "gpui::end_frame", span: "0.01 ms" },
+];
+
+const cargo = `<span class="c"># Cargo.toml</span>
+[<span class="t">dependencies</span>]
+bite-gpui = <span class="s">"1.21"</span>
+bite-gp-pass = <span class="s">"1.21"</span>`;
+
+const main = `<span class="k">use</span> gpui_pass::<span class="m">{</span><span class="t">FramePipelineExt</span>, <span class="t">Ledger</span>, <span class="t">RatePolicy</span><span class="m">}</span>;
+<span class="k">use</span> core::num::<span class="t">NonZeroU32</span>;
+
+<span class="k">let</span> ledger = <span class="t">Ledger</span>::<span class="f">shared</span>(<span class="t">Ledger</span>::<span class="t">DEFAULT_CAPACITY</span>); <span class="c">// 240 frames, made once</span>
+
+app.<span class="f">with_frame_pipeline</span>({
+    <span class="k">let</span> ledger = ledger.<span class="f">clone</span>();
+    <span class="k">move</span> |<span class="m">_window_id</span>| {
+        <span class="t">Box</span>::<span class="f">new</span>(
+            <span class="t">StandardImmediatePipeline</span>.<span class="f">pass</span>(
+                <span class="t">RatePolicy</span>::<span class="f">at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">60</span>).<span class="f">unwrap</span>())
+                    .<span class="f">inactive_at</span>(<span class="t">NonZeroU32</span>::<span class="f">new</span>(<span class="s">15</span>).<span class="f">unwrap</span>()), <span class="c">// a background window</span>
+                ledger.<span class="f">clone</span>(),
+            ),
+        )
+    }
+});`;
+
+const readLedger = `<span class="c">// In a debug overlay's render, between frames — a RefCell borrow is taken.</span>
+<span class="k">let</span> ledger = ledger.<span class="f">borrow</span>();
+
+<span class="k">let</span> drawn  = ledger.<span class="f">drawn</span>();
+<span class="k">let</span> passed = ledger.<span class="f">deferred</span>();          <span class="c">// the asks the throttle turned away</span>
+<span class="k">let</span> p99    = ledger.<span class="f">phase_percentile</span>(<span class="t">Phase</span>::<span class="t">Paint</span>, <span class="s">0.99</span>);
+<span class="k">let</span> over   = ledger.<span class="f">over_budget</span>(budget); <span class="c">// frames past the rate's own interval</span>`;
+
+const readLedgerCopy = `// In a debug overlay's render, between frames — a RefCell borrow is taken.
+let ledger = ledger.borrow();
+
+let drawn  = ledger.drawn();
+let passed = ledger.deferred();          // the asks the throttle turned away
+let p99    = ledger.phase_percentile(Phase::Paint, 0.99);
+let over   = ledger.over_budget(budget); // frames past the rate's own interval`;
+
+const puffin = `<span class="k">use</span> gpui_pass::<span class="t">PuffinPipeline</span>;
+
+<span class="c">// A scope measures whatever it encloses — wrap the pass in the emitter.</span>
+<span class="k">let</span> pipeline = <span class="t">PuffinPipeline</span>::<span class="f">new</span>(
+    <span class="t">StandardImmediatePipeline</span>.<span class="f">pass</span>(policy, ledger.<span class="f">clone</span>()),
+);
+
+<span class="c">// Scopes are off by default, and the sink is the caller's half.</span>
+<span class="c">// In-process, for a test or an example:</span>
+puffin::<span class="f">set_scopes_on</span>(<span class="s">true</span>);
+<span class="k">let</span> view = puffin::<span class="t">GlobalFrameView</span>::<span class="f">default</span>();`;
+
+const puffinCopy = `use gpui_pass::PuffinPipeline;
+
+// A scope measures whatever it encloses — wrap the pass in the emitter.
+let pipeline = PuffinPipeline::new(
+    StandardImmediatePipeline.pass(policy, ledger.clone()),
+);
+
+// Scopes are off by default, and the sink is the caller's half.
+// In-process, for a test or an example:
+puffin::set_scopes_on(true);
+let view = puffin::GlobalFrameView::default();`;
+---
+
+<Page
+  title="The Pass — bite-gpui"
+  description="Wrap GPUI's frame pipeline in one decorator: a policy-driven rate, a per-frame ledger, and a profiler scope per pass — without touching a single div()."
+  kicker="The Pass · Frame Pipeline & Ledger"
+  heading="Watch the pass."
+  accent="Time every ticket down to the microsecond."
+  lede="Swaps replace what does the work. Wraps observe and pace it. The frame pipeline seam does two things: it decides whether an ask does the frame's work, and it sees every pass the frame is made of."
+  current="pass"
+  install={{
+    command: "cargo add bite-gp-pass",
+    note: "1.21.3 on crates.io",
+  }}
+  stats={stats}
+>
+  <section>
+    <div class="section-head">
+      <span class="kicker">The seam</span>
+      <h2>One decorator to install.</h2>
+      <p>
+        The frame pipeline is where every stage of every frame passes through —
+        the one seam nothing reaches the screen without.{" "}
+        <span class="mono">FramePipeline</span> is that boundary, and a
+        decorator wraps it rather than replacing it, so an existing
+        <span class="mono">div()</span> tree is untouched.
+      </p>
+    </div>
+
+    <div class="prose">
+      <p>
+        <strong>bite-gp-pass</strong> does both in one decorator — a
+        policy-driven rate on one side; a ledger of what the passes cost and how
+        many asks were passed over on the other; and, behind a
+        <code>puffin</code> feature, one profiler scope per pass — and it never
+        touches a single <code>div()</code>.
+      </p>
+      <p>
+        The name is the kitchen's. The pass is the hot counter where every plate
+        is checked, timed and paced before it leaves — and the frame pipeline is
+        that one place in the engine: every stage of every frame goes through
+        it, and nothing reaches the screen without it.
+      </p>
+    </div>
+
+    <CodeTabs
+      panes={[
+        { label: "Cargo.toml", html: cargo },
+        { label: "src/main.rs", html: main },
+      ]}
+    />
+
+    <div class="callout">
+      <span class="callout-title">Package and library names</span>
+      <p>
+        The published package is <code>bite-gp-pass</code>, and its library
+        target is <code>gpui_pass</code> — so{" "}
+        <code>cargo add bite-gp-pass</code> and <code>use gpui_pass::…</code>,
+        with no <code>package =</code> key in your manifest.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Boundary</span>
+      <h2>Two things, and one thing it cannot do.</h2>
+      <p>
+        A pipeline is asked one question before a frame's work begins, and then
+        handed every pass of the frames it admitted. That leaves room for
+        exactly two jobs, and the honesty of the crate is in naming the third
+        thing as impossible.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      <article class="card">
+        <span class="card-title mono">1 · Decide</span>
+        <p>
+          <code>should_render</code> is the throttle. A <code>RatePolicy</code>{" "}
+          is read per frame from the metrics the seam already hands in, so one
+          install can run a focused window at 60 and a backgrounded one at 15.
+        </p>
+      </article>
+
+      <article class="card">
+        <span class="card-title mono">2 · Account</span>
+        <p>
+          Every pass is timed into a <code>Ledger</code> that keeps the recent
+          frames rather than a running average, and counts the asks the throttle
+          passed over to draw them.
+        </p>
+      </article>
+
+      <article class="card is-cannot">
+        <span class="card-title mono">✗ · Pace presentation</span>
+        <p>
+          The seam names no swapchain, no vblank and no timestamp, and{" "}
+          <code>WindowMetrics</code> carries no refresh rate. What emerges is
+          the right <em>rate</em> landing on the display's grid — never a lock
+          to the raster. Where rigid cadence matters, count refreshes in the
+          platform.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Architecture</span>
+      <h2>The frame, as seven passes.</h2>
+      <p>
+        <span class="mono">FramePipeline</span> hands each pass through the
+        pipeline in turn, so a decorator times each one without reaching into
+        the engine. The ledger's <span class="mono">FrameCost</span> has a slot
+        for every one — a pass a frame did not run reads as zero, not as
+        missing.
+      </p>
+    </div>
+
+    <div class="pass-flow">
+      <div class="pass-flow-track">
+        <div class="pass-flow-row">
+          <div class="pass-node">
+            <span class="pass-node-role">Opens</span>
+            <strong>begin_frame</strong>
+            <span class="pass-node-note">Samples the window</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            →
+          </span>
+          <div class="pass-node">
+            <span class="pass-node-role">Gathers</span>
+            <strong>evaluate_roots</strong>
+            <span class="pass-node-note">View state → roots</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            →
+          </span>
+          <div class="pass-node">
+            <span class="pass-node-role">Measures</span>
+            <strong>layout_roots</strong>
+            <span class="pass-node-note">Taffy or Morphorm</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            →
+          </span>
+          <div class="pass-node">
+            <span class="pass-node-role">Draws</span>
+            <strong>paint_roots</strong>
+            <span class="pass-node-note">Quads, text, atlases</span>
+          </div>
+        </div>
+
+        <div class="pass-flow-turn">
+          <span>the same three, plus four to close out</span>
+          <span aria-hidden="true">↓</span>
+        </div>
+
+        <div class="pass-flow-row">
+          <div class="pass-node">
+            <span class="pass-node-role">Ready to present</span>
+            <strong>end_frame</strong>
+            <span class="pass-node-note">Files the frame's cost</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            ←
+          </span>
+          <div class="pass-node">
+            <span class="pass-node-role">Swaps in</span>
+            <strong>complete_frame</strong>
+            <span class="pass-node-note">Focus changes dispatched</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            ←
+          </span>
+          <div class="pass-node">
+            <span class="pass-node-role">Closes</span>
+            <strong>finish_frame</strong>
+            <span class="pass-node-note">Views touched recorded</span>
+          </div>
+          <span class="pass-arrow" aria-hidden="true">
+            ←
+          </span>
+          <div class="pass-node is-ledger">
+            <span class="pass-node-role">The ledger</span>
+            <strong>FrameCost</strong>
+            <span class="pass-node-note">Seven times, one frame</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">The ledger</span>
+      <h2>A ticket for every frame.</h2>
+      <p>
+        Wrapping the pipeline in the facade's own{" "}
+        <span class="mono">InstrumentedPipeline</span> gives you running totals
+        of the passes that drew. It cannot give you the frames that did not —
+        and it keeps no frame to measure a tail against. The ledger is both.
+      </p>
+    </div>
+
+    <div class="pass-split">
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-head-title">Frame record</span>
+          <span class="table-head-note">
+            sample values · target 16.67 ms (60 fps)
+          </span>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table pass-table">
+            <thead>
+              <tr>
+                <th>phase</th>
+                <th class="num">cost</th>
+                <th>note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ledgerRows.map((row) => (
+                <tr>
+                  <td>
+                    <span class="mono">{row.phase}</span>
+                  </td>
+                  <td class="num">{row.cost}</td>
+                  <td>
+                    {row.note ? (
+                      <span class={`pill ${row.kind}`}>{row.note}</span>
+                    ) : (
+                      <span class="dim">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              <tr class="is-key">
+                <td>
+                  <strong>Total passes</strong>
+                </td>
+                <td class="num">
+                  <strong>1.77 ms</strong>
+                </td>
+                <td>of 16.67 ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">
+          <span class="mono">deferred_since_previous: 2</span> — this frame
+          stood in for two asks the throttle passed over.
+        </p>
+      </div>
+
+      <div class="pass-answers prose">
+        <h3>What the ledger answers</h3>
+        <ul>
+          <li>
+            <strong>Was this frame held back, or was it slow?</strong> Totals
+            across drawn frames cannot tell the difference. The ledger counts
+            the asks that did not draw, so <code>deferral_ratio()</code> says a
+            throttle is dropping half the display's refreshes — and{" "}
+            <code>deferred_since_previous()</code> attributes them to the frame
+            that stood in for them.
+          </li>
+          <li>
+            <strong>What is the tail, not the mean?</strong>{" "}
+            <code>phase_percentile(Phase::Paint, 0.99)</code> reads the p99 out
+            of the ring. A mean hides the one frame that hitched.
+          </li>
+          <li>
+            <strong>Does the work fit the rate?</strong> <code>budget()</code>{" "}
+            is the interval the policy implies and{" "}
+            <code>over_budget(budget)</code> counts the frames past it — no
+            second knob to keep in step with the policy.
+          </li>
+          <li>
+            <strong>Is it true in CI?</strong> A <code>FakeClock</code> drives
+            the decisions and the recorded costs, so a frame budget is an
+            assertion:{" "}
+            <code>
+              assert!(ledger.phase_percentile(Phase::Paint, 0.99) &lt; budget())
+            </code>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Simulator</span>
+      <h2>The admission rule, run for real.</h2>
+      <p>
+        This is not an illustration: the page runs the crate's own admission
+        rule — a theoretical arrival time, one interval of slack as the burst,
+        and the remainder carried — over five seconds of a 60 Hz ask grid, and
+        reports what it admits. It is the same arithmetic{" "}
+        <span class="mono">tests/throttling.rs</span> asserts.
+      </p>
+      <span class="pass-chip">300 asks · 60 Hz grid</span>
+    </div>
+
+    <div class="sim" data-sim>
+      <div class="sim-controls">
+        <div class="sim-control">
+          <label class="sim-label">Requested rate</label>
+          <div class="sim-rates" role="group" aria-label="Requested rate">
+            <button class="sim-rate is-active" type="button" data-rate="24">
+              24
+            </button>
+            <button class="sim-rate" type="button" data-rate="30">
+              30
+            </button>
+            <button class="sim-rate" type="button" data-rate="60">
+              60
+            </button>
+            <button class="sim-rate" type="button" data-rate="144">
+              144
+            </button>
+          </div>
+          <span class="sim-hint">
+            24 fps does not divide 60, which is the interesting case.
+          </span>
+        </div>
+
+        <div class="sim-control">
+          <div class="sim-cost-head">
+            <label for="sim-cost">A pass's cost</label>
+            <span data-sim-cost-label>4.0 ms</span>
+          </div>
+          <input
+            id="sim-cost"
+            class="sim-range"
+            type="range"
+            min="0.5"
+            max="30"
+            step="0.5"
+            value="4"
+            data-sim-cost
+          />
+          <span class="sim-hint">
+            Illustrative: compare it against the interval below.
+          </span>
+        </div>
+      </div>
+
+      <div class="sim-metrics">
+        <div class="sim-metric">
+          <span>Interval</span>
+          <strong data-sim-interval>41.67 ms</strong>
+        </div>
+        <div class="sim-metric">
+          <span>Drawn</span>
+          <strong class="is-brand" data-sim-drawn>
+            121 / 300
+          </strong>
+        </div>
+        <div class="sim-metric">
+          <span>Delivered</span>
+          <strong data-sim-delivered>24.2 fps</strong>
+        </div>
+        <div class="sim-metric">
+          <span>Passed over</span>
+          <strong class="is-warn" data-sim-deferred>
+            59.7%
+          </strong>
+        </div>
+      </div>
+
+      <div class="sim-cadence">
+        <div class="sim-cadence-head">
+          <span>The 3:2 cycle — gaps between drawn asks</span>
+          <span data-sim-cadence>3,2,3,2,3,2,3,2,3,2…</span>
+        </div>
+        <div class="sim-strip" data-sim-strip aria-hidden="true"></div>
+      </div>
+
+      <div class="sim-verdict" data-sim-verdict aria-live="polite">
+        A 4.0 ms pass fits a 41.67 ms interval — but remember the budget covers
+        the passes, not the platform presenting them.
+      </div>
+
+      <p class="sim-note">
+        Note what 144 fps shows here: the grid still only offers 60 asks a
+        second, so the throttle admits every one and the rate that arrives is
+        the display's. That is the seam's ceiling, not the crate's.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Mechanics</span>
+      <h2>One decorator, and still composable.</h2>
+      <p>
+        <span class="mono">PassPipeline</span> replaces the facade's{" "}
+        <span class="mono">.max_fps(n)</span> and a metrics cell at once,
+        because the decision and the accounting share a clock. It is still a
+        decorator, so it stacks under anything else that wraps a pipeline.
+      </p>
+    </div>
+
+    <div class="pass-split">
+      <div class="pass-code">
+        <div class="pass-code-head">
+          <span>Reading the ledger between frames</span>
+          <button
+            class="pass-code-copy"
+            type="button"
+            data-copy={readLedgerCopy}
+            aria-label="Copy snippet"
+          >
+            Copy
+          </button>
+        </div>
+        <pre><code set:html={readLedger} /></pre>
+      </div>
+
+      <div class="pass-stack">
+        <article class="card">
+          <span class="card-title mono">One clock, two answers</span>
+          <p>
+            The same <code>Clock</code> that decides whether an ask is too soon
+            times the passes. Install <code>RealClock</code> and the numbers are
+            the machine's; install <code>FakeClock</code> and they are the
+            test's.
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-title mono">What it costs</span>
+          <p>
+            The decision is one comparison against a carried schedule; the
+            ledger writes a duration per pass into a ring sized once. No
+            allocation per frame, and no new dependency — the crate's only
+            runtime dependency is the trait it implements.
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-title mono">What it is not</span>
+          <p>
+            Not a pacer — it cannot place a pixel on a vblank. And the ledger is
+            a summary rather than a timeline: it sees the passes, not a syscall,
+            a GPU wait or which view was slow. A scope per pass is the other
+            shape, and it is the second decorator below, behind the{" "}
+            <code>puffin</code> feature.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Telemetry</span>
+      <h2>A scope per pass, read back in-process.</h2>
+      <p>
+        The ledger keeps a summary — what each pass cost, how many asks were
+        passed over. A <strong>timeline</strong> is the other shape a
+        measurement takes, and it is <span class="mono">PuffinPipeline</span>,
+        behind the off-by-default <span class="mono">puffin</span> feature: one{" "}
+        <a
+          href="https://github.com/EmbarkStudios/puffin"
+          target="_blank"
+          rel="noreferrer"
+        >
+          puffin
+        </a>{" "}
+        scope for every pass it forwards, and a frame boundary at the top of
+        each frame. It is the same passes the ledger times, in the shape a
+        viewer draws.
+      </p>
+    </div>
+
+    <div class="pass-split">
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-head-title">Frame 482 · passes · 1.80 ms</span>
+          <span class="table-head-note">
+            seven scopes · sample values, not a frame time
+          </span>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table pass-table">
+            <thead>
+              <tr>
+                <th>scope</th>
+                <th class="num">span</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scopeRows.map((row) => (
+                <tr class={row.key ? "is-key" : undefined}>
+                  <td>
+                    <span class="mono">{row.scope}</span>
+                  </td>
+                  <td class={`num${row.hot ? " is-hot" : ""}`}>{row.span}</td>
+                </tr>
+              ))}
+              <tr class="is-key">
+                <td>
+                  <strong>Seven passes</strong>
+                </td>
+                <td class="num">one scope each</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">
+          <span class="mono">should_render</span> is deliberately unscoped — it
+          runs per ask, not per drawn frame. The present is below the seam: the
+          GPU submit and the swap are the platform's, and no pipeline sees them.
+          A 60 fps frame is 16.67 ms.
+        </p>
+      </div>
+
+      <div class="pass-stack">
+        <div class="pass-code">
+          <div class="pass-code-head">
+            <span>Stacking the emitter onto the pass</span>
+            <button
+              class="pass-code-copy"
+              type="button"
+              data-copy={puffinCopy}
+              aria-label="Copy snippet"
+            >
+              Copy
+            </button>
+          </div>
+          <pre><code set:html={puffin} /></pre>
+        </div>
+
+        <article class="card">
+          <span class="card-title mono">
+            Why puffin, not a C++ profiler client
+          </span>
+          <p>
+            It is pure Rust, so a consumer links nothing it was not already
+            building — no C++ toolchain in every build. And it records scopes{" "}
+            <em>in-process</em>, so a test can turn them on, drive real frames
+            and read the frames back: <code>tests/puffin.rs</code> asserts
+            exactly one scope per pass, and{" "}
+            <code>examples/puffin_scopes.rs</code> prints the waterfall with no
+            display. A profiler whose data lives only inside an external GUI
+            cannot be checked in CI.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="card-title mono">How to watch it</span>
+          <p>
+            Emitting the scopes is the crate's half; the sink is yours.{" "}
+            <code>puffin_http</code> serves them over TCP for{" "}
+            <code>puffin_viewer</code>, or <code>puffin_egui</code> draws them
+            inside the application — whatever{" "}
+            <code>GlobalProfiler::lock().add_sink</code> was handed. The crate
+            depends on none of them.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  /* The seven-pass flow: a two-row diagram that scrolls rather than reflows, so
+     each pass keeps its place on the pipeline. Same reason `.table-scroll` does. */
+  .pass-flow {
+    margin-top: 24px;
+    padding: 22px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow-x: auto;
+  }
+  .pass-flow-track {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 720px;
+  }
+  .pass-flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .pass-flow-turn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-3);
+  }
+  .pass-node {
+    flex: 0 0 auto;
+    width: 150px;
+    padding: 12px 10px;
+    text-align: center;
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .pass-node-role {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .pass-node strong {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text);
+  }
+  .pass-node-note {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.66rem;
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+  .pass-arrow {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: var(--border-2);
+  }
+  .pass-node.is-ledger {
+    width: 176px;
+    background: var(--brand-dim);
+    border: 2px solid var(--brand);
+  }
+  .pass-node.is-ledger .pass-node-role {
+    font-weight: 700;
+    color: var(--brand);
+  }
+  .pass-node.is-ledger .pass-node-note {
+    color: var(--brand);
+  }
+
+  /* Two columns where a card and its explanation sit side by side, stacking
+     below the width at which a half-column table stops fitting its own values. */
+  .pass-split {
+    display: grid;
+    gap: 24px;
+    align-items: start;
+    margin-top: 24px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 900px) {
+    .pass-split {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+  }
+  .pass-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* The half-column table drops the 620px floor `.data-table` keeps, which is
+     there for the wide measured tables and too wide for these two short ones. */
+  .pass-table {
+    min-width: 0;
+  }
+  /* The tail the prototype flags in amber. `.pill` has no caution hue, so the
+     one cell that is not a win or a loss takes --authoring directly — the same
+     hue, and the measured contrast, `.pill.loss` uses. */
+  .is-hot {
+    color: var(--authoring);
+    font-weight: 700;
+  }
+
+  /* The card that names an impossibility takes the prototype's dashed edge. */
+  .card.is-cannot {
+    border-style: dashed;
+  }
+  /* `.card p` has no code chip, and five cards here quote a type name. */
+  .card code {
+    font-size: 0.88em;
+    color: var(--text);
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+  .section-head a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* The admission-rule simulator. A panel of its own rather than a `.card`: it
+     is a working control, not a claim. */
+  .pass-chip {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 10px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-2);
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+  }
+  .sim {
+    margin-top: 24px;
+    padding: 22px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+  }
+  .sim-controls {
+    display: grid;
+    gap: 22px 32px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 760px) {
+    .sim-controls {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .sim-label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sim-rates {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .sim-rate {
+    padding: 6px 4px;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-2);
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .sim-rate:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+  .sim-rate.is-active {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--bg);
+    font-weight: 700;
+  }
+  .sim-cost-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+  .sim-cost-head label {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sim-cost-head span {
+    font-weight: 700;
+    color: var(--brand);
+  }
+  .sim-range {
+    width: 100%;
+    margin: 12px 0 0;
+    accent-color: var(--brand);
+  }
+  .sim-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.68rem;
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+  .sim-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 24px;
+  }
+  @media (min-width: 640px) {
+    .sim-metrics {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .sim-metric {
+    padding: 10px 12px;
+    text-align: center;
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+  .sim-metric span {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .sim-metric strong {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .sim-metric strong.is-brand {
+    color: var(--brand);
+  }
+  .sim-metric strong.is-warn {
+    color: var(--authoring);
+  }
+  .sim-cadence {
+    margin-top: 24px;
+  }
+  .sim-cadence-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+  .sim-cadence-head span:first-child {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sim-cadence-head span:last-child {
+    color: var(--text-3);
+  }
+  .sim-strip {
+    display: flex;
+    gap: 1px;
+    height: 14px;
+    margin-top: 8px;
+    border-radius: 5px;
+    background: var(--inset);
+    overflow: hidden;
+  }
+  .sim-strip i {
+    flex: 1 1 0;
+    min-width: 0;
+    background: transparent;
+  }
+  .sim-strip i[data-drawn] {
+    background: var(--brand);
+  }
+  .sim-verdict {
+    margin-top: 24px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--brand);
+    background: var(--inset);
+    border: 1px solid color-mix(in srgb, var(--brand) 42%, transparent);
+    border-radius: 8px;
+  }
+  /* The overrun pairing is `.pill.loss`'s: the fill stays recessed and only the
+     border and text take the hue, so the rust never drops under 4.5:1. */
+  .sim-verdict.is-over {
+    color: var(--authoring);
+    border-color: color-mix(in srgb, var(--authoring) 40%, transparent);
+  }
+  .sim-note {
+    margin-top: 16px;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--text-3);
+  }
+
+  /* The prototype's code panels: `.code-block` without the header, plus the copy
+     affordance Page.astro already delegates on `[data-copy]`. */
+  .pass-code {
+    background: var(--inset);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .pass-code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pass-code-copy {
+    padding: 3px 10px;
+    font-family: var(--ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-3);
+    background: var(--inset);
+    border: 1px solid var(--border-2);
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .pass-code-copy:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+  .pass-code pre {
+    margin: 0;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.75;
+    color: var(--code-text);
+  }
+</style>
+
+<script>
+  // The crate's admission rule, transcribed from `tests/throttling.rs`: a
+  // theoretical arrival time, one interval of slack as the burst, and a remainder
+  // shorter than an interval carried rather than lost. The page runs it over five
+  // seconds of a 60 Hz ask grid and reports what it admits.
+  document.querySelectorAll("[data-sim]").forEach((root) => {
+    const GRID_NS = Math.round(1e9 / 60); // the step the harness uses
+    const ASKS = 300; // five seconds at 60 Hz
+    const SECONDS = 5;
+
+    const rates = [...root.querySelectorAll("[data-rate]")];
+    const cost = root.querySelector("[data-sim-cost]");
+    const costLabel = root.querySelector("[data-sim-cost-label]");
+    const intervalOut = root.querySelector("[data-sim-interval]");
+    const drawnOut = root.querySelector("[data-sim-drawn]");
+    const deliveredOut = root.querySelector("[data-sim-delivered]");
+    const deferredOut = root.querySelector("[data-sim-deferred]");
+    const cadenceOut = root.querySelector("[data-sim-cadence]");
+    const strip = root.querySelector("[data-sim-strip]");
+    const verdict = root.querySelector("[data-sim-verdict]");
+    if (!cost || !strip || !verdict) return;
+
+    let currentRate = 24;
+    const active = rates.find((button) =>
+      button.classList.contains("is-active"),
+    );
+    if (active) currentRate = Number(active.dataset.rate);
+
+    const schedule = (fps) => {
+      const interval = Math.floor(1e9 / fps); // whole nanoseconds, as the crate stores it
+      const tolerance = interval; // one interval of slack (allow_burst(2))
+      let nextAllowed = 0;
+      let admitted = 0;
+      let last = null;
+      const drawn = [];
+      const gaps = [];
+      for (let ask = 0; ask < ASKS; ask++) {
+        const now = ask * GRID_NS;
+        if (now + tolerance >= nextAllowed) {
+          admitted++;
+          if (last !== null) gaps.push(ask - last);
+          last = ask;
+          drawn.push(ask);
+          nextAllowed = Math.max(nextAllowed, now) + interval;
+        }
+      }
+      return { admitted, drawn, gaps };
+    };
+
+    const cadence = (gaps) => {
+      if (gaps.length === 0) return "—";
+      const unique = [...new Set(gaps)];
+      if (unique.length === 1) {
+        const n = unique[0];
+        if (n === 1) return "every ask";
+        const suffix = n === 2 ? "nd" : n === 3 ? "rd" : "th";
+        return `every ${n}${suffix} ask`;
+      }
+      return `${gaps.slice(0, 10).join(",")}…`;
+    };
+
+    const render = () => {
+      const result = schedule(currentRate);
+      const intervalMs = 1e9 / currentRate / 1e6;
+      const delivered = result.admitted / SECONDS;
+      const passedOver = (ASKS - result.admitted) / ASKS;
+
+      intervalOut.textContent = `${intervalMs.toFixed(2)} ms`;
+      drawnOut.textContent = `${result.admitted} / ${ASKS}`;
+      deliveredOut.textContent = `${delivered.toFixed(1)} fps`;
+      deferredOut.textContent = `${(passedOver * 100).toFixed(1)}%`;
+      cadenceOut.textContent = cadence(result.gaps);
+
+      strip.replaceChildren();
+      const drawnSet = new Set(result.drawn);
+      for (let ask = 0; ask < ASKS; ask++) {
+        const cell = document.createElement("i");
+        if (drawnSet.has(ask)) cell.dataset.drawn = "true";
+        strip.appendChild(cell);
+      }
+
+      const ms = Number(cost.value);
+      costLabel.textContent = `${ms.toFixed(1)} ms`;
+      if (ms > intervalMs) {
+        verdict.textContent = `A ${ms.toFixed(1)} ms pass overruns a ${intervalMs.toFixed(2)} ms interval: the passes alone eat the frame, and there is nothing left to present it.`;
+        verdict.classList.add("is-over");
+      } else {
+        verdict.textContent = `A ${ms.toFixed(1)} ms pass fits a ${intervalMs.toFixed(2)} ms interval — but remember the budget covers the passes, not the platform presenting them.`;
+        verdict.classList.remove("is-over");
+      }
+    };
+
+    rates.forEach((button) => {
+      button.addEventListener("click", () => {
+        currentRate = Number(button.dataset.rate);
+        rates.forEach((other) =>
+          other.classList.toggle("is-active", other === button),
+        );
+        render();
+      });
+    });
+    cost.addEventListener("input", render);
+    render();
+  });
+</script>
