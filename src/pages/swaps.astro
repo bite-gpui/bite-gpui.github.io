@@ -271,9 +271,9 @@ const artifacts = [
   title="Wraps & Swaps — bite-gpui"
   description="The two ways the engine is extended: swaps, which replace a seam's implementation, and wraps, which decorate the frame pipeline — with the published crates and what the open seams would take."
   kicker="Architecture · Wraps & swaps"
-  heading="Swap a seam."
-  accent="Or wrap the frame."
-  lede="The engine is extended two ways, and the difference decides what a crate can do. A swap replaces what does the work — the text shaper, the layout solver — at one hook, chosen when the application is built. A wrap decorates the frame pipeline instead, handed every pass of every frame and forwarding the ones it does not change. Neither touches a single div()."
+  heading="Pick your swaps, wrap it,"
+  accent="or cook your own."
+  lede="Why maintain an engine fork? Swap your text shaper or layout solver with a single line in Cargo.toml, or wrap the frame pipeline to pace it and read every pass. Your existing div() views stay completely untouched."
   current="swaps"
   stats={stats}
 >
