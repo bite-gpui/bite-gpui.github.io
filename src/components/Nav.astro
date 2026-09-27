@@ -26,13 +26,14 @@ const anchors = [
 ];
 
 // Every sub-page, and the page that contains it. `parent` is what the trail names
-// after the frontdoor: the two swap guides live under the hub, so their trail
-// stops at Swaps rather than at the frontdoor.
+// after the frontdoor: the swap guides live under the Swaps hub and the pass
+// under Wraps, so their trail stops at the hub rather than at the frontdoor.
 const guides = [
   { href: "/swaps", label: "Swaps", key: "swaps" },
   { href: "/parley", label: "Parley", key: "parley", parent: "swaps" },
   { href: "/morphorm", label: "Morphorm", key: "morphorm", parent: "swaps" },
-  { href: "/pass", label: "The Pass", key: "pass" },
+  { href: "/wraps", label: "Wraps", key: "wraps" },
+  { href: "/pass", label: "The Pass", key: "pass", parent: "wraps" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];

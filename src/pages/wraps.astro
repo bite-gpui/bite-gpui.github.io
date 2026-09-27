@@ -1,0 +1,141 @@
+---
+import Page from "../layouts/Page.astro";
+
+// The wrap tier's landing page, one level beside Swaps. A wrap is the second way
+// the engine is extended: it decorates the frame pipeline instead of replacing a
+// seam, so it is added to the factory a pipeline already comes from and composes
+// with whatever else is installed. Today that is one published crate and the two
+// decorators the facade ships.
+//
+// Every fact below is one the crate or the facade can be read for: bite-gp-pass
+// depends on `bite-gp-authoring` and nothing else at runtime, and the two
+// in-tree decorators are `gpui_runtime`'s, documented on the swaps page beside
+// the seam they decorate.
+
+const stats = [
+  {
+    value: "1",
+    label: "Wrap on crates.io",
+    note: "bite-gp-pass 1.21.3",
+    win: true,
+  },
+  {
+    value: "2",
+    label: "Shipped with the facade",
+    note: "ThrottledPipeline · InstrumentedPipeline",
+  },
+  {
+    value: "0",
+    label: "Seams replaced",
+    note: "a decorator, not a swap",
+  },
+];
+
+const wraps: {
+  name: string;
+  badge: string;
+  lib: string;
+  does: string;
+  facts: string[];
+  link?: string;
+  linkLabel?: string;
+}[] = [
+  {
+    name: "bite-gp-pass",
+    badge: "Published",
+    lib: "gpui_pass",
+    does: "Reads the frame's passes and the asks that did not draw: a policy-driven rate on one side, a ledger of what each pass cost on the other. A decorator you install without changing a view.",
+    facts: [
+      "a rate and a ledger",
+      "one runtime dependency",
+      "exercisable in CI",
+    ],
+    link: "/pass",
+    linkLabel: "Using gpui_pass",
+  },
+  {
+    name: "ThrottledPipeline",
+    badge: "In the facade",
+    lib: "gpui_runtime",
+    does: "The facade's own rate cap: draw every Nth ask, decided from one number and the last frame.",
+    facts: ["caps a rate", "whole intervals only"],
+  },
+  {
+    name: "InstrumentedPipeline",
+    badge: "In the facade",
+    lib: "gpui_runtime",
+    does: "The facade's own accounting: an Instant around each root pass, summed into running phase totals.",
+    facts: ["running totals", "drawn frames only"],
+  },
+];
+---
+
+<Page
+  title="Wraps — bite-gpui"
+  description="Decorators on the frame pipeline: a policy-driven rate, a per-frame ledger, and a profiler scope per pass — installed beside the pipeline rather than replacing it."
+  kicker="Architecture · The wraps"
+  heading="Decorate the pipeline."
+  accent="Replace nothing."
+  lede="A wrap is the second way the engine is extended. Where a swap replaces what does the work, a wrap is handed every pass of every frame and forwards the ones it does not change — so it composes with whatever pipeline is already installed, and takes no bootstrap to add."
+  current="wraps"
+  stats={stats}
+>
+  <section>
+    <div class="section-head">
+      <span class="kicker">Inventory</span>
+      <h2>The wraps.</h2>
+      <p>
+        One is published from its own repository; two ship inside the facade as
+        decorators you can stack without depending on anything. All three
+        implement the same trait, and all three forward the passes they do not
+        change.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      {wraps.map((wrap) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{wrap.name}</h3>
+            <span class="card-badge">{wrap.badge}</span>
+          </div>
+          <p>{wrap.does}</p>
+          <ul class="card-facts">
+            {wrap.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          <p class="card-note mono">lib: {wrap.lib}</p>
+          {wrap.link ? (
+            <a class="card-link" href={wrap.link}>
+              {wrap.linkLabel} →
+            </a>
+          ) : null}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Contract</span>
+      <h2>One trait, and every pass.</h2>
+      <p>
+        A wrap implements <span class="mono">FramePipeline</span> and delegates.
+        Every pass has a default that calls the <span class="mono">Window</span>{" "}
+        method behind it, so a decorator is only as transparent as the passes it
+        forwards — which is the whole of the contract.
+      </p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Installed, not applied</span>
+      <p>
+        A wrap goes where any pipeline goes — the factory you hand to
+        <span class="mono">with_frame_pipeline</span> — and stacks in any order
+        and any number. Nothing in the tree is forked, so there is no patch to
+        rebase when the engine moves.
+      </p>
+    </div>
+  </section>
+</Page>
