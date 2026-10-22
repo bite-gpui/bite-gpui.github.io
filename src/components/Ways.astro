@@ -1,0 +1,51 @@
+---
+import { ways } from "../data/ways";
+
+// The four ways, on the one-pager. It repeats the taxonomy /swaps is built on,
+// but with a promise where the hub puts the noun: the reader landing here wants
+// to know what the engine will let them do, not what the seam is called.
+//
+// The data's `href` is page-relative because it was written for the hub, where
+// `#wrap` and `#swap` are real anchors. On the frontdoor those fragments would
+// resolve against this page, so they are rebased onto /swaps here rather than
+// duplicating the taxonomy with a second set of links.
+const resolve = (href: string) =>
+  href.startsWith("#") ? `/swaps${href}` : href;
+---
+
+<!-- ACT III: THE FOUR WAYS TO EXTEND -->
+<section class="ways" id="ways">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">
+        Wrap &middot; Swap &middot; Shove &middot; Serve
+      </span>
+      <h2>Four ways to bite.</h2>
+      <p>
+        Pace the frame, replace a seam, composite your own pixels, or run on a
+        platform of your own. Every one keeps <code>div()</code> untouched.
+      </p>
+    </div>
+
+    <div class="card-grid four">
+      {ways.map((way) => (
+        <article class={`card way ${way.accent}`}>
+          <span class="way-n">{way.n}</span>
+          <div class="card-head">
+            <h3 class="card-title">{way.headline}</h3>
+            <span class="card-badge">{way.name}</span>
+          </div>
+          <p>{way.does}</p>
+          <ul class="card-facts">
+            {way.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          <a class="card-link" href={resolve(way.href)}>
+            {way.linkLabel} &rarr;
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

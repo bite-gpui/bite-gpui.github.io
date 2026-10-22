@@ -2653,6 +2653,19 @@ footer {
   color: var(--text-3);
 }
 
+/* ============================================================
+   THE FOUR WAYS BAND (frontdoor)
+   ============================================================ */
+/* A plain band between the pinned journey and the Combo Studio. It must not live
+   inside .journey: that element's sticky stage owns 280svh and anything added to
+   it would be caught by the pinned track. It draws the same top rule as .combo
+   below, so the band reads as its own slice rather than as hero overflow. */
+.ways {
+  padding: 48px 0 64px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
 /* Card grids: demos, planned projects. */
 .card-grid {
   display: grid;
@@ -3890,6 +3903,12 @@ footer {
     padding: 36px 0 48px;
   }
   .combo .container {
+    padding-inline: 16px;
+  }
+  .ways {
+    padding: 36px 0 48px;
+  }
+  .ways .container {
     padding-inline: 16px;
   }
   .foot-grid {

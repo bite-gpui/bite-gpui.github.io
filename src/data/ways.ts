@@ -12,6 +12,10 @@
 export type Way = {
   n: string;
   name: string;
+  // The one-liner the frontdoor band leads with. The hub keeps `name` as its
+  // card title, so the same four entries can read as a taxonomy there and as a
+  // promise here without a second list to keep in step.
+  headline: string;
   badge: string;
   does: string;
   facts: string[];
@@ -24,6 +28,7 @@ export const ways: Way[] = [
   {
     n: "01",
     name: "Wrap",
+    headline: "Pace the frame.",
     badge: "Decorate",
     does: "Implements FramePipeline and delegates. It is handed every pass of every frame it admits, forwards the ones it does not change, and decides the ones it does — including whether the frame runs at all.",
     facts: [
@@ -38,6 +43,7 @@ export const ways: Way[] = [
   {
     n: "02",
     name: "Swap",
+    headline: "Replace a seam.",
     badge: "Replace",
     does: "Implements one of the algorithm seams and is installed at bootstrap in place of the default. One implementation per seam, chosen when the application is built.",
     facts: [
@@ -52,6 +58,7 @@ export const ways: Way[] = [
   {
     n: "03",
     name: "Shove",
+    headline: "Composite your own.",
     badge: "Insert",
     does: "Replaces no seam and decorates no pipeline. It builds on the published surface and pushes foreign pixels into the frame — a 3D viewport, a decoded video frame, or a texture you computed.",
     facts: [
@@ -66,6 +73,7 @@ export const ways: Way[] = [
   {
     n: "04",
     name: "Serve",
+    headline: "Bring your own host.",
     badge: "Host",
     does: "Supplies the platform the application runs on: one of the four built-in backends compiled in by cfg, or a Platform implementation of your own.",
     facts: [
