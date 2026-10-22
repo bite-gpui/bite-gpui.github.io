@@ -1,5 +1,6 @@
 ---
 import Page from "../layouts/Page.astro";
+import TargetGrid from "../components/TargetGrid.astro";
 
 // The platform guide: the fourth of the four ways. A platform is the host seam —
 // chosen when the application is built, never swapped at runtime — and it is the
@@ -31,41 +32,6 @@ const stats = [
     value: "1",
     label: "Hook",
     note: "Application::with_platform",
-  },
-];
-
-const builtins = [
-  {
-    platform: "macOS",
-    crate: "gpui_macos",
-    renderer: "Metal, through gpui_apple",
-    detail:
-      "AppKit windows and the NSRunLoop, with the same Apple rendering crate iOS shares.",
-    cfg: 'target_os = "macos"',
-  },
-  {
-    platform: "Windows",
-    crate: "gpui_windows",
-    renderer: "Direct3D 11",
-    detail:
-      "Win32 windows and messages, DirectWrite for text, and a DXGI swapchain for presentation.",
-    cfg: 'target_os = "windows"',
-  },
-  {
-    platform: "Linux",
-    crate: "gpui_linux",
-    renderer: "wgpu, through gpui_wgpu",
-    detail:
-      "X11 or Wayland for windows and input, and wgpu for the scene — Vulkan in practice, with the same renderer the web uses.",
-    cfg: 'any(target_os = "linux", target_os = "freebsd")',
-  },
-  {
-    platform: "Web",
-    crate: "gpui_web",
-    renderer: "wgpu, through gpui_wgpu",
-    detail:
-      "wasm32: a canvas surface, a JS event loop, and wgpu over WebGPU where the browser offers it.",
-    cfg: 'target_family = "wasm"',
   },
 ];
 
@@ -110,31 +76,12 @@ const owns = [
         A platform is never chosen by a manifest line or a runtime string. The
         facade's platform bundle enables the one for the target, and the
         application is constructed with it — which is why the same source
-        compiles on all four.
+        compiles on all four. The two mobile slabs are the exception: they are
+        a third-party platform crate, not a backend in this tree.
       </p>
     </div>
 
-    <div class="card-grid two">
-      {builtins.map((row) => (
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title mono">{row.platform}</h3>
-            <span class="card-badge">{row.crate}</span>
-          </div>
-          <p>{row.detail}</p>
-          <dl class="seam-facts">
-            <dt>renderer</dt>
-            <dd>
-              <strong>{row.renderer}</strong>
-            </dd>
-            <dt>selected by</dt>
-            <dd>
-              <span class="mono">cfg({row.cfg})</span>
-            </dd>
-          </dl>
-        </article>
-      ))}
-    </div>
+    <TargetGrid />
 
     <div class="prose">
       <p>

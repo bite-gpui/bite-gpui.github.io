@@ -1,0 +1,83 @@
+---
+// The platform tiles for `/serve`. Six slabs — four built in, two through the
+// third-party mobile crate — drawn as inline SVG so they take the theme's
+// tokens, survive the light theme, and cost no image request.
+//
+// The built-in slabs are lit in the palette's accent; the mobile pair is
+// desaturated and dimmed, because neither is a backend this project ships. The
+// caption is real text, so the figure is readable with the artwork ignored.
+type Target = {
+  name: string;
+  note: string;
+  kind: "builtin" | "web" | "thirdparty";
+  device: "desktop" | "phone" | "web";
+};
+
+const targets: Target[] = [
+  {
+    name: "macOS",
+    note: 'Metal · cfg(target_os = "macos")',
+    kind: "builtin",
+    device: "desktop",
+  },
+  {
+    name: "Windows",
+    note: 'Direct3D 11 · cfg(target_os = "windows")',
+    kind: "builtin",
+    device: "desktop",
+  },
+  {
+    name: "Linux",
+    note: "wgpu · cfg(any(linux, freebsd))",
+    kind: "builtin",
+    device: "desktop",
+  },
+  {
+    name: "WebGPU",
+    note: 'wasm32 · cfg(target_family = "wasm")',
+    kind: "web",
+    device: "web",
+  },
+  {
+    name: "iOS",
+    note: "third-party · gpui-mobile",
+    kind: "thirdparty",
+    device: "phone",
+  },
+  {
+    name: "Android",
+    note: "third-party · gpui-mobile",
+    kind: "thirdparty",
+    device: "phone",
+  },
+];
+---
+
+<div class="target-grid">
+  {targets.map((target) => (
+    <figure class={`target is-${target.kind}`}>
+      <svg class="target-slab" viewBox="0 0 220 130" aria-hidden="true">
+        {target.device === "desktop" || target.device === "web" ? (
+          <>
+            <polygon class="slab-base" points="55,38 195,78 165,118 25,78" />
+            <polygon class="slab-top" points="55,32 195,72 165,112 25,72" />
+            <polygon class="slab-face" points="68,42 180,73 158,102 46,71" />
+            {target.device === "web" ? (
+              <line class="slab-bar" x1="74" y1="50" x2="176" y2="79" />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <polygon class="slab-base" points="88,24 144,54 136,114 80,84" />
+            <polygon class="slab-top" points="88,18 144,48 136,108 80,78" />
+            <polygon class="slab-face" points="94,26 138,50 131,100 87,76" />
+          </>
+        )}
+      </svg>
+      <figcaption>
+        <span class="target-name">04. serve ({target.name})</span>
+        <span class="target-note">{target.note}</span>
+      </figcaption>
+    </figure>
+  ))}
+</div>

@@ -2702,6 +2702,81 @@ footer {
 .way .card-facts li::before {
   background: color-mix(in srgb, var(--way) 45%, transparent);
 }
+
+/* The platform tiles on /serve: an isometric slab per target, drawn inline so
+   it takes the theme's tokens. The built-ins are lit in the brand hue; the two
+   third-party mobile slabs are desaturated, because this project does not ship
+   them. No vendor marks: the caption is the identity. */
+.target-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+.target {
+  margin: 0;
+  padding: 16px 14px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.target-slab {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+.target-slab .slab-base {
+  fill: var(--inset);
+}
+.target-slab .slab-top {
+  fill: var(--surface-2);
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.target-slab .slab-face {
+  fill: var(--inset);
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+.target-slab .slab-bar {
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+}
+.target.is-builtin .target-slab .slab-top {
+  stroke: color-mix(in srgb, var(--brand) 55%, transparent);
+}
+.target.is-builtin .target-slab {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--brand) 20%, transparent));
+}
+.target.is-web .target-slab .slab-top {
+  stroke: color-mix(in srgb, var(--malt) 60%, transparent);
+}
+.target.is-web .target-slab {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--malt) 18%, transparent));
+}
+.target.is-thirdparty .target-slab {
+  opacity: 0.5;
+  filter: saturate(0.15);
+}
+.target-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-2);
+}
+.target-note {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  text-align: center;
+}
+.target.is-thirdparty .target-name {
+  color: var(--text-3);
+}
 .card {
   display: flex;
   flex-direction: column;
@@ -3465,6 +3540,9 @@ footer {
   .seam-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  .target-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
   /* Stacked, the odd-card rule would only stretch a card to one column. */
   .seam-grid > .seam:last-child:nth-child(odd) {
     grid-column: auto;
@@ -3758,6 +3836,9 @@ footer {
   .card-grid.two,
   .card-grid.three {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .target-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .page-body > section {
     padding: 44px 0;
