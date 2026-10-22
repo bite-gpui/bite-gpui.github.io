@@ -1,0 +1,274 @@
+---
+import Page from "../layouts/Page.astro";
+
+// The platform guide: the fourth of the four ways. A platform is the host seam —
+// chosen when the application is built, never swapped at runtime — and it is the
+// one place where "bring your own" means writing a `Platform` impl rather than
+// implementing an algorithm.
+//
+// The built-ins below are the four the facade compiles in, plus the two test
+// harnesses. The mobile path is the third-party `gpui-mobile` crate; it is not
+// ported to these crates yet, so it is named without a link and marked as such.
+
+const stats = [
+  {
+    value: "4",
+    label: "Built-in platforms",
+    note: "macOS, Windows, Linux, Web",
+    win: true,
+  },
+  {
+    value: "1",
+    label: "Host seam",
+    note: "Platform, in gpui_platform",
+  },
+  {
+    value: "0",
+    label: "Drivers linked",
+    note: "The leaf links nothing",
+  },
+  {
+    value: "1",
+    label: "Hook",
+    note: "Application::with_platform",
+  },
+];
+
+const builtins = [
+  {
+    platform: "macOS",
+    crate: "gpui_macos",
+    renderer: "Metal, through gpui_apple",
+    detail:
+      "AppKit windows and the NSRunLoop, with the same Apple rendering crate iOS shares.",
+    cfg: 'target_os = "macos"',
+  },
+  {
+    platform: "Windows",
+    crate: "gpui_windows",
+    renderer: "Direct3D 11",
+    detail:
+      "Win32 windows and messages, DirectWrite for text, and a DXGI swapchain for presentation.",
+    cfg: 'target_os = "windows"',
+  },
+  {
+    platform: "Linux",
+    crate: "gpui_linux",
+    renderer: "wgpu, through gpui_wgpu",
+    detail:
+      "X11 or Wayland for windows and input, and wgpu for the scene — Vulkan in practice, with the same renderer the web uses.",
+    cfg: 'any(target_os = "linux", target_os = "freebsd")',
+  },
+  {
+    platform: "Web",
+    crate: "gpui_web",
+    renderer: "wgpu, through gpui_wgpu",
+    detail:
+      "wasm32: a canvas surface, a JS event loop, and wgpu over WebGPU where the browser offers it.",
+    cfg: 'target_family = "wasm"',
+  },
+];
+
+const harnesses = [
+  {
+    name: "TestPlatform",
+    where: "gpui_authoring · test-support",
+    does: "The in-process platform the test harness draws through: deterministic dispatchers, a simulated display and window, and no display server.",
+  },
+  {
+    name: "Headless Linux",
+    where: "gpui_linux · ZED_HEADLESS",
+    does: "A platform with no compositor surface: layout, text shaping and entity plumbing run normally, and draw discards the scene.",
+  },
+];
+
+const owns = [
+  "the event loop, and when a frame is asked for",
+  "window creation, its raw handles, and the swapchain",
+  "displays, their bounds and their refresh intervals",
+  "the clipboard, drag and drop, and the input queue",
+  "the GPU backend's devices, and the renderer a window draws through",
+  "screen capture, thermal state and system appearance",
+];
+---
+
+<Page
+  title="Bring your own platform — bite-gpui"
+  description="Run the same stack on Metal, Direct3D, wgpu, X11/Wayland or wasm — or implement Platform and bring the host yourself. The platform is the one seam an application chooses at build time."
+  kicker="Ways to extend · Serve"
+  heading="Use one of ours,"
+  accent="or bring your own."
+  lede="The platform is the host seam: it supplies the event loop, the windows, the displays, the clipboard and the GPU backend the scene draws through. Four ship and two harnesses exist for tests; a platform of your own is a Platform impl, not a fork."
+  current="serve"
+  stats={stats}
+>
+  <section>
+    <div class="section-head">
+      <span class="kicker">Built in</span>
+      <h2>One backend per build, selected by cfg.</h2>
+      <p>
+        A platform is never chosen by a manifest line or a runtime string. The
+        facade's platform bundle enables the one for the target, and the
+        application is constructed with it — which is why the same source
+        compiles on all four.
+      </p>
+    </div>
+
+    <div class="card-grid two">
+      {builtins.map((row) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{row.platform}</h3>
+            <span class="card-badge">{row.crate}</span>
+          </div>
+          <p>{row.detail}</p>
+          <dl class="seam-facts">
+            <dt>renderer</dt>
+            <dd>
+              <strong>{row.renderer}</strong>
+            </dd>
+            <dt>selected by</dt>
+            <dd>
+              <span class="mono">cfg({row.cfg})</span>
+            </dd>
+          </dl>
+        </article>
+      ))}
+    </div>
+
+    <div class="prose">
+      <p>
+        The wgpu renderer is the one two platforms share: Linux always draws
+        through it, and the web reaches WebGPU through the same crate. Metal and
+        Direct3D are native backends with their own command encoders.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">What a platform owns</span>
+      <h2>Everything a plain window cannot name.</h2>
+      <p>
+        The trait is the contract between the facade and a backend. It is
+        declared in <span class="mono">gpui_platform</span>, the acyclic leaf
+        that links no drivers — a backend implements it without depending on the
+        framework.
+      </p>
+    </div>
+
+    <div class="prose">
+      <ul class="checklist">
+        {owns.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">The seam, in one line</span>
+      <p>
+        <span class="mono">Application::with_platform(Rc&lt;dyn Platform&gt;)</span>
+        — the constructor, not a setter. A platform is chosen with the
+        application rather than chained onto it. The default is the host's own,
+        compiled in by <span class="mono">cfg</span>.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Bring your own</span>
+      <h2>The test harness is the proof it is a seam.</h2>
+      <p>
+        Two implementations in the tree are not desktop platforms at all, and
+        they are what a new backend can be modelled on: neither has a window
+        server, and one has no GPU.
+      </p>
+    </div>
+
+    <div class="card-grid two">
+      {harnesses.map((row) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{row.name}</h3>
+            <span class="card-badge">in tree</span>
+          </div>
+          <p>{row.does}</p>
+          <p class="card-note mono">{row.where}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="prose">
+      <p>
+        An out-of-tree platform implements the same trait, gets a
+        <span class="mono">WindowId</span> space and a renderer, and is installed
+        with <span class="mono">with_platform</span>. The mobile path is the
+        third-party <span class="mono">gpui-mobile</span> crate, which targets
+        iOS (Metal) and Android (wgpu/Vulkan) — it is not ported to these crates
+        yet.
+      </p>
+      <ul class="checklist">
+        <li>
+          <strong>iOS and Android are not built in.</strong>{" "}
+          <span class="mono">gpui_apple</span> already compiles for iOS and
+          shares its Metal and text code, but there is no iOS
+          <span class="mono">Platform</span> or entrypoint here; Android has no
+          backend in this tree.
+        </li>
+        <li>
+          <strong>A platform is a large impl.</strong> The trait covers the
+          event loop, window creation, displays, input, clipboard, GPU specs and
+          screen capture. It is the widest seam in the stack, and the one where
+          a fork is most tempting — which is why it is documented as its own
+          way.
+        </li>
+        <li>
+          <strong>The renderer follows the platform.</strong> A backend picks
+          the <span class="mono">SceneRenderer</span> its windows draw through;
+          that is why a renderer is not a swap today, and why a second one needs
+          a door first (<a href="/swaps#open-seams">the open seams</a>).
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Limits</span>
+      <h2>What the plate does not do.</h2>
+    </div>
+
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>It links nothing.</strong> The leaf depends only on the
+          vocabulary crates, never on a driver or a windowing library. A backend
+          does the linking, in its own crate.
+        </li>
+        <li>
+          <strong>It is not a swap at runtime.</strong> There is no
+          <span class="mono">request_windowing</span>-style switch between
+          backends; a platform is fixed when the application is built. The one
+          thing that changes at runtime is windowing mode, not the backend.
+        </li>
+        <li>
+          <strong>It is not the distribution story.</strong> Versions, crates
+          and provenance are the <a href="/compare">comparison</a> and the
+          <a href="/#quickstart">quickstart</a>; this page is about the host.
+        </li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">The rest of the ways</span>
+      <p>
+        <a href="/swaps">Ways to extend</a> has all four, and
+        <a href="/shove">Bring your own surface</a> is the pixels side. If what
+        you want to change is the algorithm a seam runs, that is a
+        <a href="/swaps#swap">swap</a>.
+      </p>
+    </div>
+  </section>
+</Page>

@@ -44,7 +44,7 @@ illustration is keyed to it.
 
 ## Page structure
 
-There is one marketing page and six guide pages. `src/pages/index.astro`
+There is one marketing page and eight guide pages. `src/pages/index.astro`
 composes the marketing sections in order; each component is self-contained:
 markup, scoped-by-convention styles (all CSS lives in `src/styles/global.css`)
 and its own `<script>`.
@@ -78,7 +78,9 @@ two pages until they were merged, so `/wraps` now redirects to `/swaps` (the
 
 | Route       | Source           | What it covers                                                                                                  |
 | ----------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-| `/swaps`    | `swaps.astro`    | The hub for both extension tiers: the swaps shelf, the wraps, and the published crates behind them.             |
+| `/swaps`    | `swaps.astro`    | The hub for the four ways to extend: the swap shelf, the wrap inventory, and the surface and platform doors.   |
+| `/shove`    | `shove.astro`    | How to composite pixels GPUI did not draw: `surface()`, `gpu_canvas()`, the transports and the producers.      |
+| `/serve`    | `serve.astro`    | The host seam: the four built-in platforms, the test harnesses, and what bringing a `Platform` of your own takes. |
 | `/parley`   | `parley.astro`   | How to swap the text engine, and the measured trade that comes with it.                                         |
 | `/morphorm` | `morphorm.astro` | How to swap the layout solver, and the conformance numbers against the default engine.                          |
 | `/pass`     | `pass.astro`     | How to wrap the frame pipeline, and the rate and ledger that come with it.                                      |
@@ -86,7 +88,7 @@ two pages until they were merged, so `/wraps` now redirects to `/swaps` (the
 | `/compare`  | `compare.astro`  | Two comparisons that can actually be run, and an explicit list of what the project will not claim.              |
 
 `Nav.astro` takes a `current` prop (`"swaps"`, `"parley"`, `"morphorm"`,
-`"pass"`, `"demos"`, `"compare"`, or `""`) that sets `aria-current` on the
+`"pass"`, `"shove"`, `"serve"`, `"demos"`, `"compare"`, or `""`) that sets `aria-current` on the
 active link. Its four anchors are written absolute (`/#journey`) so the same
 markup works from a sub-page.
 

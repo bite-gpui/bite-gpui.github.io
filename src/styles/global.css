@@ -2665,6 +2665,43 @@ footer {
 .card-grid.three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+/* The four ways: auto-fit so the band needs no breakpoint of its own — four up
+   at the container width, then three, two, one as the page narrows. */
+.card-grid.four {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+/* Each way takes the hue of the layer it touches. `--way` is the card's own
+   token, set from the shared data's `accent`, never a new colour. */
+.way {
+  --way: var(--brand);
+  border-top: 2px solid color-mix(in srgb, var(--way) 60%, transparent);
+}
+.way.brand {
+  --way: var(--brand);
+}
+.way.engine {
+  --way: var(--engine);
+}
+.way.authoring {
+  --way: var(--authoring);
+}
+.way.platform {
+  --way: var(--platform);
+}
+.way-n {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--way);
+}
+.way .card-badge {
+  color: var(--way);
+  border-color: color-mix(in srgb, var(--way) 35%, transparent);
+}
+.way .card-facts li::before {
+  background: color-mix(in srgb, var(--way) 45%, transparent);
+}
 .card {
   display: flex;
   flex-direction: column;

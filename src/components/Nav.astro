@@ -26,14 +26,16 @@ const anchors = [
 ];
 
 // Every sub-page, and the page that contains it. `parent` is what the trail names
-// after the frontdoor: the two swap guides and the wrap guide all live under the
-// one Wraps & Swaps hub, so their trail stops at the hub rather than at the
-// frontdoor.
+// after the frontdoor: the four ways and their guides all live under the one
+// Ways to extend hub, so their trail stops at the hub rather than at the frontdoor.
+// The URL stays `/swaps`: every published crate's README links it.
 const guides = [
-  { href: "/swaps", label: "Wraps & Swaps", key: "swaps" },
+  { href: "/swaps", label: "Ways to extend", key: "swaps" },
   { href: "/parley", label: "Parley", key: "parley", parent: "swaps" },
   { href: "/morphorm", label: "Morphorm", key: "morphorm", parent: "swaps" },
   { href: "/pass", label: "The Pass", key: "pass", parent: "swaps" },
+  { href: "/shove", label: "Shove", key: "shove", parent: "swaps" },
+  { href: "/serve", label: "Serve", key: "serve", parent: "swaps" },
   { href: "/demos", label: "Demos", key: "demos" },
   { href: "/compare", label: "Compare", key: "compare" },
 ];
@@ -54,7 +56,7 @@ const sectionPages = section
 // What the trail already says. On a section page the bar says nothing else — the
 // reader is inside one section and the guides standing beside it are clutter — so
 // this set is what decides which of the section's own pages belong to it: Parley,
-// Morphorm and The Pass are pages of Wraps & Swaps, and /demos and /compare have
+// Morphorm, The Pass, Shove and Serve are pages of Ways to extend, and /demos and /compare have
 // no business listing them.
 const carried = new Set(
   section ? [section, ...sectionPages].map((guide) => guide.key) : [],
@@ -88,7 +90,7 @@ const topLevel = guides.filter((guide) => !guide.parent);
     >
       <Logo />
       <span class="logo-word">bite-gpui</span>
-      <span class="logo-version">v1.21.0</span>
+      <span class="logo-version">v1.25.202</span>
     </a>
 
     {section ? (

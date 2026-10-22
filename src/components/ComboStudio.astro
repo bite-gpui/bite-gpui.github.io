@@ -263,6 +263,7 @@
         type: "condiment",
         name: "Parley Text Engine",
         crate: "bite-gp-parley",
+        version: "1.21",
         pill: "🥫 SRIRACHA",
         sub: "🌶️ Sriracha · Extra kick: BiDi text, complex script shaping & font fallback",
         kicker: "Linebender Typography",
@@ -278,6 +279,7 @@
         type: "condiment",
         name: "Frame Governor",
         crate: "bite-gp-runtime",
+        version: "1.25",
         pill: "🍯 HONEY MUSTARD",
         sub: "🍯 Honey Mustard · Smooth pacing: hard 60 FPS cap & deferred idle frames",
         kicker: "Pacing Decorator",
@@ -293,6 +295,7 @@
         type: "condiment",
         name: "WGPU Renderer",
         crate: "bite-gp-wgpu",
+        version: "1.25",
         pill: "🌮 LOADED NACHOS",
         sub: "🌮 Loaded Nachos · The works: Raw 3D render passes & custom WGSL shaders",
         kicker: "Renderer Seam",
@@ -308,6 +311,7 @@
         type: "condiment",
         name: "Layout Profiler",
         crate: "bite-gp-runtime",
+        version: "1.25",
         pill: "🥒 EXTRA PICKLES",
         sub: "🥒 Extra Pickles · Crunch the numbers: per-pass layout and paint timers",
         kicker: "Instrumented Pipeline",
@@ -575,11 +579,11 @@
           { code: "[dependencies]", raw: "[dependencies]" },
           {
             code: isHeadless
-              ? `bite-gpui = { version = <span class="s">"1.21"</span>, default-features = <span class="k">false</span> }`
-              : `bite-gpui = { version = <span class="s">"1.21"</span> }`,
+              ? `bite-gpui = { version = <span class="s">"1.25"</span>, default-features = <span class="k">false</span> }`
+              : `bite-gpui = { version = <span class="s">"1.25"</span> }`,
             raw: isHeadless
-              ? 'bite-gpui = { version = "1.21", default-features = false }'
-              : 'bite-gpui = { version = "1.21" }',
+              ? 'bite-gpui = { version = "1.25", default-features = false }'
+              : 'bite-gpui = { version = "1.25" }',
           },
           { code: "", raw: "" },
         ];
@@ -588,8 +592,8 @@
         Object.values(CONDIMENT_DATA).forEach((side) => {
           if (!condimentsState[side.key]) return;
           lines.push({
-            code: `${side.crate} = { version = <span class="s">"1.21"</span> }`,
-            raw: `${side.crate} = { version = "1.21" }`,
+            code: `${side.crate} = { version = <span class="s">"${side.version}"</span> }`,
+            raw: `${side.crate} = { version = "${side.version}" }`,
             condiment: side.key,
             tag: side.pill,
           });

@@ -1,0 +1,390 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeTabs from "../components/CodeTabs.astro";
+
+// The surface guide: the third of the four ways. It is deliberately not in the
+// same shape as Parley or Morphorm, because a surface is not a seam — there is
+// nothing to implement and nothing to install. The two doors (`surface` and
+// `gpu_canvas`) and the two transports (same-device texture, exported handle)
+// are the whole of the API, and the producers out of tree are what make it
+// useful.
+//
+// Facts and figures below are from the 1.25 line: `surface()` and `gpu_canvas()`
+// in `gpui_authoring`, `SurfaceSource`/`PaintSurface` in `gpui_engine`, and the
+// export-cost band from `gpui_interop`'s `interop_bevy` example.
+
+const stats = [
+  {
+    value: "2",
+    label: "Doors",
+    note: "surface() and gpu_canvas()",
+    win: true,
+  },
+  {
+    value: "3",
+    label: "Transports",
+    note: "CoreVideo, Direct3D, dma-buf",
+  },
+  {
+    value: "0",
+    label: "Seams replaced",
+    note: "It sits above the facade",
+  },
+  {
+    value: "0.15–0.8 ms",
+    label: "Export cost",
+    note: "Measured by interop_bevy",
+  },
+];
+
+const transports = [
+  {
+    platform: "macOS · iOS",
+    source: "CoreVideo",
+    payload: "CFRetained<CVPixelBuffer>",
+    note: "an IOSurface-backed image buffer",
+  },
+  {
+    platform: "Windows",
+    source: "DirectX",
+    payload: "DirectXSource",
+    note: "a Direct3D 11 texture, or a view a producer already made",
+  },
+  {
+    platform: "Linux",
+    source: "DmaBuf",
+    payload: "DmaBufHandle",
+    note: "an fd plus a DRM fourcc, modifier, stride and offset",
+  },
+];
+
+const consumers = [
+  {
+    name: "gpui_interop",
+    badge: "public · 0.1",
+    does: "Bridges a producer's own device: dma-buf on Linux, a shared texture and fence on Windows, IOSurface planned on macOS. It is the crate that makes an external renderer or decoder a surface source.",
+    facts: [
+      "Vulkan, wgpu, Direct3D 12 producers",
+      "the same-device fast path as well as the export",
+      "input and guest-mode follow-ons live here",
+    ],
+    href: "https://github.com/bite-gpui/gpui_interop",
+    linkLabel: "bite-gpui/gpui_interop",
+  },
+  {
+    name: "gpui_video",
+    badge: "public · pre-release",
+    does: "A hardware-decoded video player on the same path: a VA-API decoder renders into driver-tiled NV12 surfaces, exports them as dma-bufs, and the element paces playback with HTML5-shaped controls.",
+    facts: [
+      "Linux / VA-API is the implemented backend",
+      "macOS and Windows designed, not built",
+      "not published under these names",
+    ],
+    href: "https://github.com/bite-gpui/gpui_video",
+    linkLabel: "bite-gpui/gpui_video",
+  },
+  {
+    name: "interop_bevy",
+    badge: "example",
+    does: "A Bevy scene inside a GPUI window, with Bevy built headless: no winit, no window, no event loop of its own. GPUI owns the cadence and Bevy renders into the window renderer's own device.",
+    facts: [
+      "one Bevy tick per GPUI paint",
+      "paint_texture by default; --transfer for the dma-buf shape",
+      "~4–6 ms/frame on the test laptop",
+    ],
+    href: "https://github.com/bite-gpui/gpui_interop/tree/main/examples/interop_bevy",
+    linkLabel: "examples/interop_bevy",
+  },
+];
+
+const surfaceCode = `<span class="k">use</span> gpui::{<span class="t">ObjectFit</span>, surface};
+
+<span class="c">// a decoded frame, a shared texture, or a dma-buf you already hold</span>
+<span class="k">let</span> picture = <span class="f">surface</span>(source)
+    .<span class="f">object_fit</span>(<span class="t">ObjectFit</span>::<span class="t">Contain</span>);`;
+
+const canvasCode = `<span class="k">use</span> gpui::{<span class="t">GpuCanvasContext</span>, gpu_canvas};
+
+<span class="k">let</span> viewport = <span class="f">gpu_canvas</span>(|gpu: &amp;<span class="k">mut</span> <span class="t">GpuCanvasContext</span>| {
+    <span class="c">// \`frame\` is a SurfaceSource from your producer</span>
+    gpu.<span class="f">paint_surface</span>(frame);
+});`;
+
+const textureCode = `<span class="k">use</span> gpui::{<span class="t">Corners</span>, gpu_canvas};
+<span class="k">use</span> gpui_wgpu::<span class="t">WgpuRenderer</span>;
+
+<span class="k">let</span> viewport = <span class="f">gpu_canvas</span>(|gpu| {
+    <span class="c">// the device and queue this window already draws with</span>
+    <span class="k">let</span> (device, queue) = gpu.<span class="f">device</span>::&lt;<span class="t">WgpuRenderer</span>&gt;();
+
+    <span class="c">// draw into a texture on \`device\`, then composite it</span>
+    gpu.<span class="f">paint_texture</span>(handle, <span class="t">Corners</span>::<span class="f">default</span>(), <span class="n">1.0</span>, <span class="k">false</span>);
+});`;
+---
+
+<Page
+  title="Bring your own surface — bite-gpui"
+  description="Composite a 3D viewport, a decoded video frame, or a texture you computed into a GPUI window through surface() and gpu_canvas(), with no CPU copy and no seam to implement."
+  kicker="Ways to extend · Shove"
+  heading="Bring your own"
+  accent="pixels."
+  lede="A surface is content GPUI did not draw: a video frame from a hardware decoder, a 3D viewport on its own device, or a texture computed off-thread. surface() and gpu_canvas() composite it as an ordinary element — no seam to implement, no install hook, no CPU round-trip."
+  current="shove"
+  stats={stats}
+>
+  <section>
+    <div class="section-head">
+      <span class="kicker">Two doors</span>
+      <h2>What you already hold decides the door.</h2>
+      <p>
+        If your producer already has a handle GPUI can import, hand it to
+        <span class="mono">surface()</span>. If it needs the window's own device
+        to make one, open a <span class="mono">gpu_canvas()</span> and paint
+        through the context it gives you.
+      </p>
+    </div>
+
+    <CodeTabs
+      panes={[
+        { label: "surface(source)", html: surfaceCode },
+        { label: "gpu_canvas(|gpu| …)", html: canvasCode },
+      ]}
+    />
+
+    <div class="prose">
+      <p>
+        Both return ordinary elements. <span class="mono">surface()</span> takes
+        a <span class="mono">SurfaceSource</span> and fits it into the element's
+        bounds with the same <span class="mono">ObjectFit</span> modes an image
+        uses. <span class="mono">gpu_canvas()</span> is a
+        <span class="mono">Div</span> in every respect — styling, layout and
+        interactivity are forwarded to the box — whose paint phase adds one
+        primitive after the box. There is no
+        <span class="mono">with_surface</span> and nothing to install.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">What travels</span>
+      <h2>One enum, cfg-gated to the platform.</h2>
+      <p>
+        <span class="mono">SurfaceSource</span> names only the transport this
+        build is compiled against, so the engine stays free of every graphics
+        API but one. Each variant reaches the renderer as a view it samples; the
+        renderer cannot tell how the view was made.
+      </p>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">The transports</span>
+        <span class="table-head-note">one variant per platform</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>platform</th>
+              <th>source</th>
+              <th>payload</th>
+              <th>what it is</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transports.map((row) => (
+              <tr>
+                <td><span class="mono">{row.platform}</span></td>
+                <td><span class="mono">{row.source}</span></td>
+                <td><span class="mono">{row.payload}</span></td>
+                <td>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        A <span class="mono">PaintSurface</span> carries the source with its
+        bounds, content mask and draw order. Its
+        <span class="mono">to_quad_record</span> is the same quad record a
+        styled element builds, which is why a surface clips and stacks like any
+        other layer.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Same device or exported handle</span>
+      <h2>The short path, and the portable one.</h2>
+      <p>
+        A producer that renders on the window renderer's own device never leaves
+        it: <span class="mono">paint_texture</span> samples the texture view and
+        queue ordering is the only synchronization. A producer with its own
+        device exports an OS handle and a fence, and
+        <span class="mono">paint_surface</span> imports it.
+      </p>
+    </div>
+
+    <CodeTabs panes={[{ label: "Same device", html: textureCode }]} />
+
+    <div class="prose">
+      <p>
+        <span class="mono">gpui_wgpu</span> is the published
+        <span class="mono">bite-gp-wgpu</span>. On Apple the renderer type is
+        <span class="mono">MetalRenderer</span> and on Windows
+        <span class="mono">DirectXRenderer</span>; the device each lends is that
+        backend's own handle.
+      </p>
+      <ul class="checklist">
+        <li>
+          <strong>The same-device path is the default for a reason.</strong>
+          There is no export, no fence and no hand-off. It is what
+          <span class="mono">interop_bevy</span> uses: Bevy renders into an
+          image on the window renderer's wgpu device and GPUI samples its view.
+        </li>
+        <li>
+          <strong>The exported path costs a hand-off per frame.</strong> In the
+          Bevy example, exporting the dma-buf and importing it on the consumer
+          side adds <strong>~0.15–0.8 ms/frame</strong>; the producer's own
+          timings barely move, which is why the cost shows up on a tight frame
+          budget rather than in a throughput number.
+        </li>
+        <li>
+          <strong>The device is the renderer's, not a new one.</strong>
+          <span class="mono">device::&lt;R&gt;()</span> returns the handle the
+          window already draws with — a <span class="mono">metal::Device</span>,
+          an <span class="mono">ID3D11Device</span>, or a wgpu device and queue
+          — and <span class="mono">try_device</span> is the fallible form for a
+          producer that can degrade instead of asserting the backend.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Who does it</span>
+      <h2>The producers are crates, not features.</h2>
+      <p>
+        Nothing about a surface names a video decoder or a 3D engine. The crates
+        that do are public and sit above the facade, exactly where the
+        architecture puts them.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      {consumers.map((consumer) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{consumer.name}</h3>
+            <span class="card-badge">{consumer.badge}</span>
+          </div>
+          <p>{consumer.does}</p>
+          <ul class="card-facts">
+            {consumer.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          <a
+            class="card-link"
+            href={consumer.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {consumer.linkLabel} →
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <div class="prose">
+      <p>
+        The same primitive carries four kinds of work: hardware video (a decoder
+        exports NV12 buffers), embedded 3D viewports (a renderer on its own
+        device), emulators and capture pipelines (frames leave another process),
+        and computed textures (a simulation or a chart rendered off-thread).
+        None of them is a seam in this engine; all of them are a source the
+        renderer samples.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">What it is not</span>
+      <h2>Not a swap, and not a wrap.</h2>
+    </div>
+
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>No trait is implemented.</strong> A swap implements a seam and
+          is installed at bootstrap; a surface does not replace a shaper, a
+          solver or a pipeline. It adds a primitive to a frame.
+        </li>
+        <li>
+          <strong>No frame is decorated.</strong> A wrap forwards passes; a
+          surface is painted by the element that owns it and is done before the
+          frame's own bookkeeping.
+        </li>
+        <li>
+          <strong>It sits above the facade.</strong> The commitment is to the
+          published payload types a source is built from — the token and the
+          handle — not to a trait that would freeze a backend.
+        </li>
+        <li>
+          <strong>It does not copy through the CPU.</strong> That is the whole
+          point. A producer that can only hand over bytes should upload them
+          itself; a surface exists for the cases where the pixels never need to
+          leave the GPU.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="kicker">Boundaries</span>
+      <h2>What a producer has to get right.</h2>
+    </div>
+
+    <div class="prose">
+      <ul class="checklist">
+        <li>
+          <strong>The decoder must share the renderer's GPU.</strong> A dma-buf
+          is importable only on the GPU that exported it, so a VA-API device and
+          the wgpu renderer must be the same physical card.
+        </li>
+        <li>
+          <strong>The handle has to match what the renderer imports.</strong>
+          A dma-buf declares its DRM format and modifier; a Direct3D texture
+          must be shareable; an IOSurface is the Apple equivalent. The importer
+          refuses what it cannot sample rather than guessing.
+        </li>
+        <li>
+          <strong>Cross-API means a fence.</strong> Two devices, two queues: the
+          producer exports a fence with the frame and the consumer waits on it.
+          On the same device, queue ordering is the fence.
+        </li>
+        <li>
+          <strong>The platform matrix is not symmetric yet.</strong> Linux and
+          Windows have the full imported path; macOS has the CoreVideo variant
+          and <span class="mono">gpui_interop</span>'s IOSurface support is
+          planned.
+        </li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">The rest of the ways</span>
+      <p>
+        <a href="/swaps">Ways to extend</a> has all four, and
+        <a href="/serve">Bring your own platform</a> is the host side. If what
+        you want to change is the algorithm a seam runs, that is a
+        <a href="/swaps#swap">swap</a>.
+      </p>
+    </div>
+  </section>
+</Page>
