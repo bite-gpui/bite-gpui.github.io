@@ -64,24 +64,25 @@ import Logo from "./Logo.astro";
       <div class="foot-col">
         <h4>Crates</h4>
         <ul>
-          <li>
-            <a href="/#journey">bite-gpui</a>
-          </li>
-          <li>
-            <a href="/#journey">bite-gp-runtime</a>
-          </li>
-          <li>
-            <a href="/#journey">bite-gp-authoring</a>
-          </li>
-          <li>
-            <a href="/#journey">bite-gp-engine</a>
-          </li>
-          <li>
-            <a href="/#journey">bite-gp-platform</a>
-          </li>
-          <li>
-            <a href="/shove">gpui_interop</a>
-          </li>
+          {[
+            "bite-gpui",
+            "bite-gp-runtime",
+            "bite-gp-authoring",
+            "bite-gp-types",
+            "bite-gp-engine",
+            "bite-gp-platform",
+            "gpui_interop",
+          ].map((krate) => (
+            <li>
+              <a
+                href={`https://crates.io/crates/${krate}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {krate}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -122,15 +123,6 @@ import Logo from "./Logo.astro";
               rel="noreferrer"
             >
               bite-gp-morphorm
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://crates.io/crates/gpui_interop"
-              target="_blank"
-              rel="noreferrer"
-            >
-              gpui_interop
             </a>
           </li>
           <li>
