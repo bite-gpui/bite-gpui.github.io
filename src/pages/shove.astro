@@ -61,7 +61,7 @@ const transports = [
 const consumers = [
   {
     name: "gpui_interop",
-    badge: "public · 0.1",
+    badge: "published · 0.2",
     does: "Bridges a producer's own device: dma-buf on Linux, a shared texture and fence on Windows, IOSurface planned on macOS. It is the crate that makes an external renderer or decoder a surface source.",
     facts: [
       "Vulkan, wgpu, Direct3D 12 producers",
@@ -195,9 +195,15 @@ const textureCode = `<span class="k">use</span> gpui::{<span class="t">Corners</
           <tbody>
             {transports.map((row) => (
               <tr>
-                <td><span class="mono">{row.platform}</span></td>
-                <td><span class="mono">{row.source}</span></td>
-                <td><span class="mono">{row.payload}</span></td>
+                <td>
+                  <span class="mono">{row.platform}</span>
+                </td>
+                <td>
+                  <span class="mono">{row.source}</span>
+                </td>
+                <td>
+                  <span class="mono">{row.payload}</span>
+                </td>
                 <td>{row.note}</td>
               </tr>
             ))}
@@ -358,9 +364,9 @@ const textureCode = `<span class="k">use</span> gpui::{<span class="t">Corners</
           the wgpu renderer must be the same physical card.
         </li>
         <li>
-          <strong>The handle has to match what the renderer imports.</strong>
-          A dma-buf declares its DRM format and modifier; a Direct3D texture
-          must be shareable; an IOSurface is the Apple equivalent. The importer
+          <strong>The handle has to match what the renderer imports.</strong> A
+          dma-buf declares its DRM format and modifier; a Direct3D texture must
+          be shareable; an IOSurface is the Apple equivalent. The importer
           refuses what it cannot sample rather than guessing.
         </li>
         <li>
