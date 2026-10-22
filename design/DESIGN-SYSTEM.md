@@ -204,6 +204,18 @@ fully opaque while the stack is closed, lifting to a faint shade as the layers
 part. That is what gives the closed stack its dark contact lines without leaving
 dark lobes floating under the layers once they separate.
 
+#### The ways band, the ways figure, and the target slabs
+
+Three newer figures are token-only: none of their fills is a painted gradient,
+so nothing here is a new palette entry. They take the crate tokens and the ways'
+existing accents.
+
+| Figure          | Where                                                        | How it is coloured                                                                                                                                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Ways band cards | `Ways.astro` on the frontdoor, `.card-grid.four` on `/swaps` | Each card sets `--way` to one crate token: `--brand` (wrap), `--engine` (swap), `--authoring` (shove), `--platform` (serve). The top rail is a 60% mix, the badge rim 35%, the fact dots 45%, and the number is the token flat.                                                                              |
+| Ways figure     | `FourWaysFigure.astro` on `/swaps`                           | The five chips use the crate tokens on a 3px left rail (`--runtime`, `--authoring`, `--types`, `--engine`, `--platform`). The four callouts reuse the same `--way` tokens on a 2px rail, and their connector hairlines are a 40% mix. Every label is real text, so the figure reads with the colour ignored. |
+| Target slabs    | `TargetGrid.astro` on `/serve`                               | Bodies are `--surface-2` / `--inset` with `--border-2` / `--border` edges. Built-ins get a `--brand` rim at 55% and an 8px glow at 20%; WebGPU gets `--malt` at 60% and 18%. The two third-party mobile slabs are `opacity: .5` with `saturate(.15)`, because this project ships the other four.             |
+
 #### The lettuce is the constrained layer
 
 The leaf is painted _under_ the patty, so most of its shape is dictated from
@@ -617,6 +629,13 @@ cubic-bezier(.16, 1, .3, 1)`. Transitions are short (`.15s–.3s`). The scroll
 choreography is driven by a single `--move` custom property that the sticky hero
 and burger stage both read, so the copy fade and the stack separation can never
 drift out of sync.
+
+A `prefers-reduced-motion: reduce` block at the tail of `global.css` collapses
+the ambient animations — the kicker pulse, the scroll hint's bob, the code-pane
+fade — and every transition to an instant cut, and turns off smooth
+`scroll-behavior`. The journey's scroll mapping is kept because the reader
+drives it; `scrollToLayers` checks the same query so its programmatic jump lands
+instantly instead of gliding.
 
 ### 6.1 Responsive behaviour
 

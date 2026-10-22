@@ -1,0 +1,65 @@
+---
+import { ways } from "../data/ways";
+
+// The `/swaps` hero figure: the five crates as one vertical stack, with each of
+// the four ways attached to the row it crosses. It is a diagram, not a second
+// copy of the burger — the journey's artwork is scroll-choreographed and its
+// layers are positioned by that script, so pulling it out would couple this
+// page to the frontdoor's choreography for no gain.
+//
+// `ways` is the taxonomy; this file adds only the placement and the one line
+// naming what the verb hands over. The hues are crate tokens, never new ones.
+const layers = [
+  { crate: "gpui_runtime", role: "Application harness", token: "runtime" },
+  { crate: "gpui_authoring", role: "Reactive DSL", token: "authoring" },
+  { crate: "gpui_types", role: "Scalar leaf", token: "types" },
+  { crate: "gpui_engine", role: "Scene & render", token: "engine" },
+  { crate: "gpui_platform", role: "Platform SPI", token: "platform" },
+];
+
+const placement: Record<string, { row: number; touch: string }> = {
+  Wrap: { row: 1, touch: "gpui_runtime · FramePipeline" },
+  Shove: { row: 2, touch: "gpui_authoring · surface()" },
+  Swap: { row: 4, touch: "gpui_engine · text · layout · render" },
+  Serve: { row: 5, touch: "gpui_platform · Platform" },
+};
+
+const order = ["Wrap", "Shove", "Swap", "Serve"];
+const placed = order.map((name) => {
+  const way = ways.find((entry) => entry.name === name)!;
+  return { ...way, ...placement[name] };
+});
+---
+
+<figure class="ways-figure" aria-labelledby="ways-figure-cap">
+  <figcaption class="ways-figure-cap" id="ways-figure-cap">
+    <span class="kicker">The stack, and where each way plugs in</span>
+  </figcaption>
+
+  <div class="wf-grid">
+    {layers.map((layer, i) => (
+      <div
+        class={`wf-chip wf-row-${i + 1}`}
+        style={`--wf-accent: var(--${layer.token})`}
+      >
+        <span class="wf-crate">{layer.crate}</span>
+        <span class="wf-role">{layer.role}</span>
+      </div>
+    ))}
+
+    {placed.map((way) => (
+      <div
+        class={`wf-callout wf-row-${way.row}`}
+        style={`--way: var(--${way.accent})`}
+      >
+        <span class="wf-callout-head">
+          <span class="wf-n">{way.n}</span>
+          <span class="wf-verb">{way.name}</span>
+        </span>
+        <span class="wf-touch">{way.touch}</span>
+      </div>
+    ))}
+
+    <span class="wf-leaf wf-row-3">no seam — the leaf every way keeps</span>
+  </div>
+</figure>

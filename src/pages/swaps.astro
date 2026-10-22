@@ -1,6 +1,7 @@
 ---
 import Page from "../layouts/Page.astro";
 import CodeTabs from "../components/CodeTabs.astro";
+import FourWaysFigure from "../components/FourWaysFigure.astro";
 import { ways } from "../data/ways";
 
 // The hub for the four ways to extend — the page the nav calls "Ways to extend".
@@ -271,6 +272,8 @@ const artifacts = [
   current="swaps"
   stats={stats}
 >
+  <FourWaysFigure slot="hero-figure" />
+
   <section>
     <div class="section-head">
       <span class="kicker">Four ways</span>

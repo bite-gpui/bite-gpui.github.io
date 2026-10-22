@@ -26,81 +26,92 @@ const {
   stats,
   install,
 } = Astro.props;
+
+// A guide may draw its own figure beside the hero copy instead of pushing it
+// below the fold. It arrives as a named slot so the shell stays content-free.
+const hasFigure = Astro.slots.has("hero-figure");
 ---
 
 <Layout title={title} description={description}>
   <Nav current={current} />
   <main class="page">
-    <header class="page-hero">
+    <header class={`page-hero${hasFigure ? " has-figure" : ""}`}>
       <div class="container">
-        <span class="kicker">{kicker}</span>
-        <h1>
-          {heading}
-          {accent ? (
-            <>
-              {" "}
-              <em>{accent}</em>
-            </>
-          ) : null}
-        </h1>
-        <p class="lede">{lede}</p>
-        {install ? (
-          <div class="hero-install">
-            <button
-              class="install-cmd"
-              type="button"
-              data-install={install.command}
-              aria-label={`Copy ${install.command}`}
-            >
-              <span class="prompt" aria-hidden="true">
-                $
-              </span>
-              <code>{install.command}</code>
-              <span class="copy-icon" aria-hidden="true">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="9" y="9" width="12" height="12" rx="2"></rect>
-                  <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
-                </svg>
-              </span>
-            </button>
-            {install.note ? (
-              <span class="hero-install-note">{install.note}</span>
+        <div class="page-hero-copy">
+          <span class="kicker">{kicker}</span>
+          <h1>
+            {heading}
+            {accent ? (
+              <>
+                {" "}
+                <em>{accent}</em>
+              </>
             ) : null}
-          </div>
-        ) : null}
-        {stats?.length ? (
-          <div class="stat-strip">
-            {stats.map(
-              (stat: {
-                value: string;
-                label: string;
-                note?: string;
-                win?: boolean;
-              }) => (
-                <div class={`stat${stat.win ? " is-win" : ""}`}>
-                  <span class={`stat-value${stat.win ? " is-win" : ""}`}>
-                    {stat.value}
-                  </span>
-                  {stat.note ? (
-                    <>
-                      <span class="stat-title">{stat.label}</span>
-                      <span class="stat-note">{stat.note}</span>
-                    </>
-                  ) : (
-                    <span class="stat-label">{stat.label}</span>
-                  )}
-                </div>
-              ),
-            )}
+          </h1>
+          <p class="lede">{lede}</p>
+          {install ? (
+            <div class="hero-install">
+              <button
+                class="install-cmd"
+                type="button"
+                data-install={install.command}
+                aria-label={`Copy ${install.command}`}
+              >
+                <span class="prompt" aria-hidden="true">
+                  $
+                </span>
+                <code>{install.command}</code>
+                <span class="copy-icon" aria-hidden="true">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                    <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+                  </svg>
+                </span>
+              </button>
+              {install.note ? (
+                <span class="hero-install-note">{install.note}</span>
+              ) : null}
+            </div>
+          ) : null}
+          {stats?.length ? (
+            <div class="stat-strip">
+              {stats.map(
+                (stat: {
+                  value: string;
+                  label: string;
+                  note?: string;
+                  win?: boolean;
+                }) => (
+                  <div class={`stat${stat.win ? " is-win" : ""}`}>
+                    <span class={`stat-value${stat.win ? " is-win" : ""}`}>
+                      {stat.value}
+                    </span>
+                    {stat.note ? (
+                      <>
+                        <span class="stat-title">{stat.label}</span>
+                        <span class="stat-note">{stat.note}</span>
+                      </>
+                    ) : (
+                      <span class="stat-label">{stat.label}</span>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          ) : null}
+        </div>
+        {hasFigure ? (
+          <div class="page-hero-figure">
+            <slot name="hero-figure" />
           </div>
         ) : null}
       </div>

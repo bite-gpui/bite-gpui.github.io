@@ -697,6 +697,9 @@ pub use gpui_runtime::*;
 <script>
   (() => {
     const journey = document.getElementById("journey");
+    // The programmatic jump to `#layers` is the one scroll this script starts
+    // itself; a reader who asked for less motion gets an instant landing.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sticky = document.getElementById("sticky");
     const bar = document.getElementById("progressBar");
     const burger = document.getElementById("burger");
@@ -846,7 +849,10 @@ pub use gpui_runtime::*;
         window.scrollY +
         journey.getBoundingClientRect().top +
         Math.max(0, EXPLODE_END * travel);
-      window.scrollTo({ top, behavior: "smooth" });
+      window.scrollTo({
+        top,
+        behavior: reduceMotion.matches ? "auto" : "smooth",
+      });
       return true;
     }
 

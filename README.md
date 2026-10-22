@@ -68,7 +68,9 @@ handler.
 The sub-pages are long-form material for a reader who has finished the
 one-pager. They share `src/layouts/Page.astro`—`Nav`, a hero (kicker, `h1` with an
 optional gradient `<em>`, lede), a `<slot />`, and `Footer`—so adding a page is
-content only. Their prose/table/card primitives are the `SUB-PAGES` block in
+content only. A guide can also fill the optional `hero-figure` named slot;
+`/swaps` uses it for the stack diagram, which then sits beside the copy rather
+than below it. Their prose/table/card primitives are the `SUB-PAGES` block in
 `global.css`.
 
 `/swaps` is the hub for both extension tiers, the page the nav calls _Wraps &
@@ -76,16 +78,16 @@ Swaps_; `/parley`, `/morphorm` and `/pass` are its three child guides. It was
 two pages until they were merged, so `/wraps` now redirects to `/swaps` (the
 `redirects` entry in `astro.config.mjs`).
 
-| Route       | Source           | What it covers                                                                                                  |
-| ----------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-| `/swaps`    | `swaps.astro`    | The hub for the four ways to extend: the swap shelf, the wrap inventory, and the surface and platform doors.   |
-| `/shove`    | `shove.astro`    | How to composite pixels GPUI did not draw: `surface()`, `gpu_canvas()`, the transports and the producers.      |
+| Route       | Source           | What it covers                                                                                                    |
+| ----------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `/swaps`    | `swaps.astro`    | The hub for the four ways to extend: the swap shelf, the wrap inventory, and the surface and platform doors.      |
+| `/shove`    | `shove.astro`    | How to composite pixels GPUI did not draw: `surface()`, `gpu_canvas()`, the transports and the producers.         |
 | `/serve`    | `serve.astro`    | The host seam: the four built-in platforms, the test harnesses, and what bringing a `Platform` of your own takes. |
-| `/parley`   | `parley.astro`   | How to swap the text engine, and the measured trade that comes with it.                                         |
-| `/morphorm` | `morphorm.astro` | How to swap the layout solver, and the conformance numbers against the default engine.                          |
-| `/pass`     | `pass.astro`     | How to wrap the frame pipeline, and the rate and ledger that come with it.                                      |
-| `/demos`    | `demos.astro`    | The projects built on the published crates, filed by which boundary each one tests, plus what is still planned. |
-| `/compare`  | `compare.astro`  | Two comparisons that can actually be run, and an explicit list of what the project will not claim.              |
+| `/parley`   | `parley.astro`   | How to swap the text engine, and the measured trade that comes with it.                                           |
+| `/morphorm` | `morphorm.astro` | How to swap the layout solver, and the conformance numbers against the default engine.                            |
+| `/pass`     | `pass.astro`     | How to wrap the frame pipeline, and the rate and ledger that come with it.                                        |
+| `/demos`    | `demos.astro`    | The projects built on the published crates, filed by which boundary each one tests, plus what is still planned.   |
+| `/compare`  | `compare.astro`  | Two comparisons that can actually be run, and an explicit list of what the project will not claim.                |
 
 `Nav.astro` takes a `current` prop (`"swaps"`, `"parley"`, `"morphorm"`,
 `"pass"`, `"shove"`, `"serve"`, `"demos"`, `"compare"`, or `""`) that sets `aria-current` on the
