@@ -234,6 +234,11 @@ const artifacts = [
     href: "https://crates.io/crates/bite-gp-pass",
   },
   {
+    name: "gpui_interop",
+    desc: "The surface bridge: dma-buf and shared-texture producers, published from its own repository.",
+    href: "https://crates.io/crates/gpui_interop",
+  },
+  {
     name: "bite-gpui/gpui_parley",
     desc: "The repository the text engine is developed and released from.",
     href: "https://github.com/bite-gpui/gpui_parley",
@@ -247,6 +252,11 @@ const artifacts = [
     name: "bite-gpui/gpui_pass",
     desc: "The repository the frame-pipeline wrap is developed and released from.",
     href: "https://github.com/bite-gpui/gpui_pass",
+  },
+  {
+    name: "bite-gpui/gpui_interop",
+    desc: "The repository the surface bridge is developed and released from.",
+    href: "https://github.com/bite-gpui/gpui_interop",
   },
 ];
 ---
@@ -412,7 +422,8 @@ const artifacts = [
       <p>
         The seam is <span class="mono">FramePipeline</span>, declared in
         <span class="mono">gpui_authoring</span> and installed with
-        <span class="mono">Application::with_frame_pipeline</span>. Its default is
+        <span class="mono">Application::with_frame_pipeline</span>. Its default
+        is
         <span class="mono">StandardImmediatePipeline</span> with the shipped
         <span class="mono">.max_fps(n)</span> and
         <span class="mono">.instrumented(metrics)</span> decorators — the frame
@@ -482,14 +493,19 @@ const artifacts = [
     <div class="prose">
       <ul class="checklist">
         <li>
-          <strong><span class="mono">surface(source)</span> takes what you already hold.</strong>
+          <strong>
+            <span class="mono">surface(source)</span> takes what you already
+            hold.
+          </strong>
           A <span class="mono">SurfaceSource</span> is a CoreVideo buffer on
           Apple, a Direct3D texture or view on Windows, or a dma-buf on Linux,
           and the element fits it into its bounds with the same
           <span class="mono">ObjectFit</span> modes an image uses.
         </li>
         <li>
-          <strong><span class="mono">gpu_canvas(|ctx| …)</span> hands you the device.</strong>
+          <strong>
+            <span class="mono">gpu_canvas(|ctx| …)</span> hands you the device.
+          </strong>
           The callback receives a <span class="mono">GpuCanvasContext</span>:
           <span class="mono">paint_surface</span> for a handle you exported,
           <span class="mono">paint_texture</span> for a texture made on the
@@ -537,7 +553,9 @@ const artifacts = [
     <div class="table-card">
       <div class="table-head">
         <span class="table-head-title">The platforms that ship</span>
-        <span class="table-head-note">one backend per build, selected by cfg</span>
+        <span class="table-head-note">
+          one backend per build, selected by cfg
+        </span>
       </div>
       <div class="table-scroll">
         <table class="data-table">
@@ -550,45 +568,70 @@ const artifacts = [
           </thead>
           <tbody>
             <tr>
-              <td><span class="mono">macOS</span></td>
+              <td>
+                <span class="mono">macOS</span>
+              </td>
               <td>MacPlatform over gpui_apple’s Metal renderer</td>
-              <td><span class="mono">cfg(target_os = "macos")</span></td>
+              <td>
+                <span class="mono">cfg(target_os = "macos")</span>
+              </td>
             </tr>
             <tr>
-              <td><span class="mono">Windows</span></td>
+              <td>
+                <span class="mono">Windows</span>
+              </td>
               <td>WindowsPlatform over Direct3D 11</td>
-              <td><span class="mono">cfg(target_os = "windows")</span></td>
+              <td>
+                <span class="mono">cfg(target_os = "windows")</span>
+              </td>
             </tr>
             <tr>
-              <td><span class="mono">Linux</span></td>
+              <td>
+                <span class="mono">Linux</span>
+              </td>
               <td>LinuxPlatform over X11 or Wayland, and gpui_wgpu</td>
-              <td><span class="mono">cfg(any(linux, freebsd))</span></td>
+              <td>
+                <span class="mono">cfg(any(linux, freebsd))</span>
+              </td>
             </tr>
             <tr>
-              <td><span class="mono">Web</span></td>
+              <td>
+                <span class="mono">Web</span>
+              </td>
               <td>WebPlatform on wasm32, through wgpu to WebGPU</td>
-              <td><span class="mono">cfg(target_family = "wasm")</span></td>
+              <td>
+                <span class="mono">cfg(target_family = "wasm")</span>
+              </td>
             </tr>
             <tr>
-              <td><span class="mono">Headless</span></td>
+              <td>
+                <span class="mono">Headless</span>
+              </td>
               <td>the test platform and the headless Linux platform</td>
-              <td><span class="mono">test-support</span>, or <span class="mono">ZED_HEADLESS</span></td>
+              <td>
+                <span class="mono">test-support</span>, or{" "}
+                <span class="mono">ZED_HEADLESS</span>
+              </td>
             </tr>
             <tr>
-              <td><span class="mono">iOS · Android</span></td>
+              <td>
+                <span class="mono">iOS · Android</span>
+              </td>
               <td>
                 the third-party <span class="mono">gpui-mobile</span> crate, not
                 yet ported to these crates
               </td>
-              <td>its own <span class="mono">Platform</span> impl</td>
+              <td>
+                its own <span class="mono">Platform</span> impl
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       <p class="table-note">
-        The hook is <span class="mono">Application::with_platform</span>, and the
-        trait is declared in <span class="mono">gpui_platform</span> — the leaf
-        that links no drivers. What a platform owns, and what bringing one
+        The hook is <span class="mono">Application::with_platform</span>, and
+        the trait is declared in <span class="mono">gpui_platform</span> — the
+        leaf that links no drivers. What a platform owns, and what bringing one
         takes, is on <a href="/serve">Bring your own platform</a>.
       </p>
     </div>
@@ -768,7 +811,7 @@ const artifacts = [
       <span class="kicker">Where they live</span>
       <h2>The published crates.</h2>
       <p>
-        The three crates, and the repositories they are developed and released
+        The four crates, and the repositories they are developed and released
         from.
       </p>
     </div>
