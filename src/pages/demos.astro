@@ -1,7 +1,7 @@
 ---
 import Page from "../layouts/Page.astro";
 
-// Grounded in `.uses/README.md` and the two projects' own benchmark records.
+// Grounded in `.uses/README.md` and the projects' own benchmark records.
 // "Shipped" means it exists and builds today; "planned" entries are named as
 // planned and are not presented with results, because there are none yet.
 const shipped = [
@@ -38,13 +38,116 @@ const shipped = [
     role: "A second LayoutEngine",
     href: "https://github.com/bite-gpui/gpui_morphorm",
     hrefLabel: "Crate source · bite-gpui/gpui_morphorm",
-    body: "A layout solver written outside the tree: morphorm, behind the same six-method trait the default engine implements. Two engines that disagree are not two columns, so the bounds are compared before anything is timed — and then a real frame is drawn, because agreeing node for node turned out not to be the same as filling a window. It publishes as bite-gp-morphorm from a repository of its own.",
+    body: "A layout solver written outside the tree: morphorm, behind the same six-method trait the default engine implements. Two engines that disagree are not two columns, so the bounds are compared before anything is timed — and then a real frame is drawn, because agreeing node for node turned out not to be the same as filling a window. It publishes as bite-gp-morphorm from a repository of its own. The repository's layout_demo renders the swap live: BITE_LAYOUT_ENGINE=taffy cargo run --features demo --example layout_demo runs the same tree on the default engine, and BITE_BUTTONS=1000 makes the difference unmissable.",
     facts: [
       "0.00 px from the default engine, on 12 nodes and on 176–3501 changing buttons",
       "3.4–3.8× cheaper for 50–1000 buttons with changing content",
       "At 1000 buttons: 44% of a 16.7 ms frame against 12%",
+      "layout_demo draws the swap live; BITE_LAYOUT_ENGINE=taffy is the control",
     ],
     note: "The layout swap is no longer only something to measure with: bite-gp-morphorm 1.21.2 is on crates.io, so a second LayoutEngine is a dependency line.",
+  },
+  {
+    name: "pass_demo",
+    badge: "Category 2",
+    role: "A 24 fps schedule on a 60 Hz panel",
+    href: "https://github.com/bite-gpui/gpui_pass/blob/main/examples/pass_demo.rs",
+    hrefLabel: "Example source · bite-gpui/gpui_pass",
+    body: "A frame-stepped animation at 24 fps — a rate the refresh period does not divide. A carried schedule keeps the half-refresh across frames and lands on the 3:2 pulldown: holds of three refreshes and two, alternating, 121 frames in five seconds. Run it with the demo feature enabled; the naive run is the facade's from-last-frame cap, which can only settle on 30 or 20 fps. The animation advances one step per drawn frame, so the strip shows where the drawn frames put it against wall-clock time.",
+    facts: [
+      "24 fps from a 60 Hz panel: 121 frames in five seconds",
+      "the shipped cap lands on 30 or 20 fps instead",
+      "a carried schedule, not a from-last-frame comparison",
+    ],
+    note: null,
+  },
+  {
+    name: "pass_lab",
+    badge: "Category 2",
+    role: "Where the frame goes",
+    href: "https://github.com/bite-gpui/gpui_pass/blob/main/examples/pass_lab.rs",
+    hrefLabel: "Example source · bite-gpui/gpui_pass",
+    body: "Two windows: one draws a scene whose buttons, paragraphs and canvas primitives are dials; the other draws what each pass of that scene cost, read from the measured window's own ledger. The two do not share a ledger, so the telemetry window's own frames never pollute the measurement. Turn a knob in one and watch its bar grow in the other.",
+    facts: [
+      "evaluate_roots, layout_roots and paint_roots, per pass",
+      "buttons, paragraphs and canvas primitives as knobs",
+      "a dev build: a release build's costs are several times smaller",
+    ],
+    note: null,
+  },
+];
+
+const examples = [
+  {
+    name: "interop_wgpu",
+    badge: "Shove · wgpu",
+    role: "A 3D viewport on GPUI's device",
+    href: "https://github.com/bite-gpui/gpui_interop/tree/main/examples/interop_wgpu",
+    hrefLabel: "Example · interop_wgpu",
+    body: "An instanced field of lit cubes drawn by an ordinary wgpu pipeline into an exportable image. On the same device as the window, WgpuSurface plus paint_texture composites it with no export, no fence and no CPU copy; the chrome is real GPUI buttons and a frame-interval histogram outside the producer's hitbox.",
+    facts: [
+      "the same-device fast path, no dma-buf and no fence",
+      "pause, speed, palette and reset are GPUI controls",
+      "needs a Linux GPU: the export is a dma-buf from a Vulkan adapter",
+    ],
+    note: "From a gpui_interop checkout; the core is a path dependency.",
+  },
+  {
+    name: "interop_bevy",
+    badge: "Shove · bevy",
+    role: "Bevy, headless, on GPUI's device",
+    href: "https://github.com/bite-gpui/gpui_interop/tree/main/examples/interop_bevy",
+    hrefLabel: "Example · interop_bevy",
+    body: "Bevy is built headless — no winit, no window, no event loop of its own — and renders a procedurally spawned 7 × 7 field of lit cubes to an offscreen image on the window renderer's wgpu device. Bevy's meshes and passes run on the device GPUI already draws with, and each paint is one Bevy tick.",
+    facts: [
+      "one Bevy tick per GPUI paint",
+      "paint_texture by default; --transfer for the dma-buf shape",
+      "~4–6 ms/frame on the test laptop",
+      "Linux only; Bevy renders on the window renderer's own device",
+    ],
+    note: "From a gpui_interop checkout; the core is a path dependency.",
+  },
+  {
+    name: "interop_cube_drag",
+    badge: "Shove · Vulkan",
+    role: "A separate renderer, by the handle",
+    href: "https://github.com/bite-gpui/gpui_interop/blob/main/crates/gpui_interop/examples/interop_cube_drag.rs",
+    hrefLabel: "Example · interop_cube_drag",
+    body: "A Vulkan producer owns its device and renders a spinning cube, exports the frame as a dma-buf with its modifier and a sync_file, and GPUI's renderer imports it in place. Dragging turns the cube: the buttons occlude and keep their clicks, while the text panel claims nothing, so a drag across it still reaches the scene.",
+    facts: [
+      "dma-buf with a DRM modifier and a sync_file fence",
+      "drag reaches the scene; only the buttons occlude",
+      "Linux, with a driver that exports dma-bufs",
+    ],
+    note: "From a gpui_interop checkout; the core is a path dependency.",
+  },
+  {
+    name: "gpui_video · player",
+    badge: "Shove · video",
+    role: "Hardware-decoded video, one element",
+    href: "https://github.com/bite-gpui/gpui_video/blob/main/crates/gpui_video/examples/player.rs",
+    hrefLabel: "Example · player",
+    body: "VA-API decodes into driver-tiled NV12 surfaces, exports them as dma-bufs, and GPUI samples them in place. The application writes video().source(path).controls(true); playback is paced to the stream's frame period and the default control bar is HTML5-shaped.",
+    facts: [
+      "Linux / VA-API is the only implemented backend",
+      "pre-release 0.1, not published under these names",
+      "the decoder and renderer must share one GPU",
+    ],
+    note: "From a gpui_video checkout; the core is a path dependency.",
+  },
+  {
+    name: "gpui_video · grid",
+    badge: "Shove · video",
+    role: "Sixteen by sixteen decoders",
+    href: "https://github.com/bite-gpui/gpui_video/blob/main/crates/gpui_video/examples/grid.rs",
+    hrefLabel: "Example · grid",
+    body: "A wall of independently decoded videos, each pane its own decoder and its own frame, with live FPS and CPU metrics in the header. The mode chip switches the handover between zero-copy dma-buf and CPU read-back; --morphorm, with the morphorm feature, runs the same grid on the second layout engine.",
+    facts: [
+      "16×16 by default; --cols and --rows change it",
+      "zero-copy dma-buf or CPU read-back, switchable at runtime",
+      "--morphorm needs --features morphorm and runs on the second LayoutEngine",
+    ],
+    note: "From a gpui_video checkout; the core is a path dependency.",
   },
 ];
 
@@ -53,13 +156,13 @@ const categories = [
     n: "1",
     name: "New flavour of a swappable",
     what: "A second implementation of an SPI that already exists.",
-    knobs: "TextSystem, LayoutEngine, SceneRenderer, FramePipeline, Platform",
+    knobs: "TextSystem, LayoutEngine, SceneRenderer, Platform",
   },
   {
     n: "2",
     name: "Decorating a swappable",
     what: "Wraps an existing implementation, adding a capability.",
-    knobs: "A FramePipeline or Platform wrapper — pacing, tracing",
+    knobs: "A FramePipeline wrapper — pacing, tracing",
   },
   {
     n: "3",
@@ -76,12 +179,6 @@ const categories = [
 ];
 
 const planned = [
-  {
-    name: "pipeline-decorator",
-    category: "2",
-    proves:
-      "An out-of-tree FramePipeline wrapper, and what its per-frame overhead is.",
-  },
   {
     name: "headless-platform",
     category: "1",
@@ -103,26 +200,28 @@ const planned = [
 
 <Page
   title="Demos — bite-gpui"
-  description="Projects built on the published bite-gpui crates, each exercising one swappable boundary from outside the tree."
-  kicker="Demos · From crates.io"
+  description="Projects built on the published bite-gpui crates, plus the examples that live in the crate repositories."
+  kicker="Demos · Published crates and crate examples"
   heading="Proof, not"
   accent="promises."
-  lede="Each project here depends on the published crates by version — not a path into a checkout, not a git revision — and exercises one swappable boundary from outside the tree. A boundary that only works from inside is not a boundary."
+  lede="The shipped projects below depend on the published crates by version — not a path into a checkout, not a git revision — and each exercises one of the four ways to extend the engine. The examples further down are checkout programs: visual, specific, and honest about their path dependencies."
   current="demos"
 >
   <section>
     <div class="section-head">
       <h2>Shipped</h2>
       <p>
-        All three build today against published crates, by version, resolved
-        from crates.io. Each card links to the repository that is public; the
-        usage suite they are gathered in is not published yet, so where a copy
-        under it differs from its upstream — or from a repository of its own —
-        the card says which part is which.
+        All five build today against the published layer crates, by version,
+        resolved from crates.io. Where a card is the crate's own example, the
+        crate under test is the checkout and everything beneath it is the
+        registry. Each card links to the repository that is public; the usage
+        suite they are gathered in is not published yet, so where a copy under
+        it differs from its upstream — or from a repository of its own — the
+        card says which part is which.
       </p>
     </div>
 
-    <div class="card-grid two">
+    <div class="card-grid three">
       {shipped.map((project) => (
         <article class="card">
           <div class="card-head">
@@ -166,6 +265,48 @@ const planned = [
     </div>
   </section>
 
+  <section id="examples">
+    <div class="section-head">
+      <span class="kicker">From the crate repositories</span>
+      <h2>Examples, not registry consumers.</h2>
+      <p>
+        These five are the most visual programs in the workspace, and they are
+        not published-version consumers: their manifests take the core from a
+        sibling <code>bite-gpui</code> checkout. They run from a clone, and they
+        are where the surface path is easiest to see.
+      </p>
+    </div>
+
+    <div class="card-grid three">
+      {examples.map((project) => (
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title mono">{project.name}</h3>
+            <span class="card-badge">{project.badge}</span>
+          </div>
+          <p class="card-role">{project.role}</p>
+          <p>{project.body}</p>
+          <ul class="card-facts">
+            {project.facts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+          {project.note ? <p class="card-note">{project.note}</p> : null}
+          {project.href ? (
+            <a
+              class="card-link"
+              href={project.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {project.hrefLabel}
+            </a>
+          ) : null}
+        </article>
+      ))}
+    </div>
+  </section>
+
   <section>
     <div class="section-head">
       <h2>Four kinds of project</h2>
@@ -206,7 +347,14 @@ const planned = [
       <h2>Planned</h2>
       <p>
         Named so the gaps are visible, not so they can be counted. None of these
-        has results yet, and none is listed with any.
+        has results yet, and none is listed with any.{" "}
+        <code>pipeline-decorator</code>
+        is no longer pending:{" "}
+        <a href="/pass">
+          <code>bite-gp-pass</code>
+        </a>{" "}
+        and its <code>pass_demo</code>
+        and <code>pass_lab</code> examples above are that project.
       </p>
     </div>
 

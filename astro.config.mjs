@@ -17,8 +17,8 @@ import { defineConfig } from "astro/config";
 // trap.
 export default defineConfig({
   compressHTML: false,
-  // `/wraps` was a guide page of its own until it was merged into the Wraps &
-  // Swaps overview at `/swaps`. The entry keeps the old URL working rather than
+  // `/wraps` was a guide page of its own until it was merged into the Ways to
+  // extend hub at `/swaps`. The entry keeps the old URL working rather than
   // 404-ing a bookmark or an inbound link.
   redirects: {
     "/wraps": "/swaps",

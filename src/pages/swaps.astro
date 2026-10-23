@@ -26,7 +26,7 @@ import { ways } from "../data/ways";
 //   Platform        bite-gp-platform    with_platform               one per host, by cfg
 //   SceneRenderer   bite-gp-engine      — none —                    one per backend, by cfg
 //
-// The wrap tier is the second half: bite-gp-pass depends on `bite-gp-authoring`
+// The wrap inventory is the second half: bite-gp-pass depends on `bite-gp-authoring`
 // and nothing else at runtime, and the two in-tree decorators are
 // `gpui_runtime`'s, documented below beside the trait they decorate.
 
@@ -184,11 +184,6 @@ const wraps: {
 ];
 
 const open = [
-  {
-    seam: "FramePipeline",
-    take: "An out-of-tree pipeline. The shipped decorators are the pattern: a decorator forwards the passes it does not change and decides the ones it does, so a third-party one would wrap or replace StandardImmediatePipeline at the same hook.",
-    project: "pipeline-decorator",
-  },
   {
     seam: "Platform",
     take: "A platform that needs no display, so a CI job can render. The built-in route is the facade with its platform bundle dropped — default-features = false — plus the TestPlatform the test harness already runs on.",
@@ -697,8 +692,10 @@ const artifacts = [
       <span class="kicker">Open seams</span>
       <h2>What it takes to build a new backend.</h2>
       <p>
-        We explicitly document the three unbuilt seams so external contributors
-        know exactly where the architectural boundaries lie:
+        We explicitly document the two unbuilt seams so external contributors
+        know exactly where the architectural boundaries lie. The frame pipeline
+        is no longer one: <a href="/pass">bite-gp-pass</a> is that out-of-tree
+        wrap.
       </p>
     </div>
 

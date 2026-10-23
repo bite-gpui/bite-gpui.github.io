@@ -42,31 +42,31 @@ const seams = [
   {
     seam: "TextSystem",
     owns: "Shaping, line layout and glyph rasterization.",
-    swap: "Application::with_text_system(Arc<dyn TextSystem>)",
+    swap: "swap · Application::with_text_system(Arc<dyn TextSystem>)",
     live: "gpui_parley",
   },
   {
     seam: "LayoutEngine",
     owns: "Turning the element tree into laid-out boxes.",
-    swap: "Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
+    swap: "swap · Application::with_layout_engine(impl Fn() -> Box<dyn LayoutEngine>)",
     live: "gpui_morphorm",
   },
   {
     seam: "FramePipeline",
     owns: "Pacing, presentation order and per-frame instrumentation.",
-    swap: "Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
-    live: null,
+    swap: "wrap · Application::with_frame_pipeline(impl Fn(WindowId) -> Box<dyn FramePipeline>)",
+    live: "bite-gp-pass",
   },
   {
     seam: "Platform",
     owns: "The OS event loop, displays and input.",
-    swap: "Application::with_platform(Rc<dyn Platform>)",
-    live: null,
+    swap: "serve · Application::with_platform(Rc<dyn Platform>)",
+    live: "four backends, by cfg",
   },
   {
     seam: "SceneRenderer",
     owns: "The scene IR becoming pixels.",
-    swap: "No Application setter — the trait is the boundary",
+    swap: "swap · no Application setter — the trait is the boundary",
     live: null,
   },
 ];
@@ -151,7 +151,7 @@ const vectors = [
 
   <section>
     <div class="section-head">
-      <h2>Five seams, and where each one is swapped.</h2>
+      <h2>Five boundaries, and how each one is extended.</h2>
       <p>
         The architecture is only a claim until a boundary has an outside: each
         of these is a trait a second implementation can satisfy without touching
@@ -165,8 +165,8 @@ const vectors = [
           <tr>
             <th>seam</th>
             <th>what it owns</th>
-            <th>how you swap it</th>
-            <th>second implementation</th>
+            <th>how you extend it</th>
+            <th>published alternative</th>
           </tr>
         </thead>
         <tbody>
@@ -192,14 +192,17 @@ const vectors = [
 
     <div class="prose">
       <p>
-        Two of the five have a second implementation today, and both are
-        published: <span class="mono">TextSystem</span> is
-        <span class="mono">gpui_parley</span> and
-        <span class="mono">LayoutEngine</span> is
-        <span class="mono">gpui_morphorm</span> —<a href="/parley">one guide</a>{" "}
-        and <a href="/morphorm">another</a>. The other three are the work of{" "}
-        <a href="/demos">giving them a user</a>, because until a seam has one it
-        is a boundary in the type system and not yet a boundary in practice.
+        Two swaps and one wrap are published today: TextSystem is
+        <span class="mono">gpui_parley</span>, LayoutEngine is
+        <span class="mono">gpui_morphorm</span>, and FramePipeline is
+        <span class="mono">bite-gp-pass</span> — with{" "}
+        <a href="/parley">one guide</a> for the text system,{" "}
+        <a href="/morphorm">another</a> for layout, and a{" "}
+        <a href="/pass">third</a> for the frame pipeline. Platform is served
+        rather than swapped: four backends ship and one is selected by cfg, and
+        a fifth is a <span class="mono">Platform</span> impl. SceneRenderer has
+        no setter at the facade, so an out-of-tree renderer is still the work of{" "}
+        <a href="/demos">giving it a user</a>.
       </p>
       <p>
         <a href="/swaps">Ways to extend</a> is the same inventory with the
